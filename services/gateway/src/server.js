@@ -12,7 +12,7 @@ app.use(createProxyMiddleware({
   target: authTarget,
   changeOrigin: true,
   ws: false,
-  pathFilter: ['/api/auth/**', '/api/me', '/api/logout', '/auth/**'],
+  pathFilter: ['/api/auth/**', '/api/admin/**', '/api/me', '/api/logout', '/auth/**'],
   on: { error: (_err, _req, res) => res.status(502).json({ erro: 'Serviço de autenticação indisponível.' }) }
 }));
 app.use(express.static(path.resolve(__dirname, '../../../public'), { extensions: ['html'] }));

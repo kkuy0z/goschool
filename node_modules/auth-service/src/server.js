@@ -272,6 +272,179 @@ async function requireAdmin(req, res, next) {
   }
 }
 
+app.get("/api/admin/usuarios", requireAdmin, async (_req, res) => {
+  try {
+    const [rows] = await pool.execute(
+      `SELECT
+         id,
+         nome,
+         email,
+         tipo AS role,
+         ativo,
+         NULL AS ultimo_acesso
+       FROM usuarios
+       ORDER BY nome ASC`,
+    );
+
+    return res.json({
+      sucesso: true,
+      usuarios: rows.map((usuario) => ({
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        role: usuario.role,
+        ativo: Boolean(usuario.ativo),
+        ultimo_acesso: usuario.ultimo_acesso,
+      })),
+    });
+  } catch (error) {
+    console.error("[auth] Failed to list users:", error.message);
+
+    return res.status(500).json({
+      sucesso: false,
+      erro: "Não foi possível consultar os usuários.",
+    });
+  }
+});
+
+app.get("/api/admin/usuarios/:id", requireAdmin, async (req, res) => {
+  const id = Number(req.params.id);
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    return res.status(400).json({
+      sucesso: false,
+      erro: "Identificador de usuário inválido.",
+    });
+  }
+
+  try {
+    const [rows] = await pool.execute(
+      `SELECT id, nome, email, tipo, ativo
+       FROM usuarios
+       WHERE id = ?
+       LIMIT 1`,
+      [id],
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        sucesso: false,
+        erro: "Usuário não encontrado.",
+      });
+    }
+
+    const usuario = rows[0];
+
+    return res.json({
+      sucesso: true,
+      usuario: {
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        tipo: usuario.tipo,
+        ativo: Boolean(usuario.ativo),
+      },
+    });
+  } catch (error) {
+    console.error("[auth] Failed to get user:", error.message);
+
+    return res.status(500).json({
+      sucesso: false,
+      erro: "Não foi possível consultar o usuário.",
+    });
+  }
+});
+
+app.patch("/api/admin/usuarios/:id", requireAdmin, async (req, res) => {
+  const id = Number(req.params.id);
+  const nome = String(req.body?.nome || "").trim();
+  const email = String(req.body?.email || "")
+    .trim()
+    .toLowerCase();
+  const tipo = String(req.body?.tipo || "").trim();
+  const ativo = req.body?.ativo;
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    return res.status(400).json({
+      sucesso: false,
+      erro: "Identificador de usuário inválido.",
+    });
+  }
+
+  if (nome.length < 2 || nome.length > 160) {
+    return res.status(400).json({
+      sucesso: false,
+      erro: "Informe um nome entre 2 e 160 caracteres.",
+    });
+  }
+
+  if (
+    email.length > 254 ||
+    !/^[^\s@]+@(?:aluno|educacao)\.mg\.gov\.br$/i.test(email)
+  ) {
+    return res.status(400).json({
+      sucesso: false,
+      erro: "Use um e-mail institucional @aluno.mg.gov.br ou @educacao.mg.gov.br.",
+    });
+  }
+
+  if (!["aluno", "professor", "adm"].includes(tipo)) {
+    return res.status(400).json({
+      sucesso: false,
+      erro: "Selecione um perfil válido.",
+    });
+  }
+
+  if (typeof ativo !== "boolean") {
+    return res.status(400).json({
+      sucesso: false,
+      erro: "Informe se a conta está ativa.",
+    });
+  }
+
+  try {
+    const [result] = await pool.execute(
+      `UPDATE usuarios
+       SET nome = ?, email = ?, tipo = ?, ativo = ?
+       WHERE id = ?`,
+      [nome, email, tipo, ativo, id],
+    );
+
+    if (result.affectedRows === 0) {
+      const [rows] = await pool.execute(
+        "SELECT id FROM usuarios WHERE id = ? LIMIT 1",
+        [id],
+      );
+
+      if (rows.length === 0) {
+        return res.status(404).json({
+          sucesso: false,
+          erro: "Usuário não encontrado.",
+        });
+      }
+    }
+
+    return res.json({
+      sucesso: true,
+      mensagem: "Usuário atualizado com sucesso.",
+    });
+  } catch (error) {
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({
+        sucesso: false,
+        erro: "Já existe um usuário cadastrado com esse e-mail.",
+      });
+    }
+
+    console.error("[auth] Failed to update user:", error.message);
+
+    return res.status(500).json({
+      sucesso: false,
+      erro: "Não foi possível atualizar o usuário.",
+    });
+  }
+});
+
 app.post("/api/admin/usuarios", requireAdmin, async (req, res) => {
   const nome = String(req.body?.nome || "").trim();
   const email = String(req.body?.email || "")

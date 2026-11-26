@@ -117,9 +117,20 @@
             const data = await result.json().catch(() => ({}));
 
             if (!result.ok || !data.sucesso) {
-              throw new Error(
-                data.erro || "Não foi possível entrar com esta conta.",
-              );
+              const errorMessage =
+                data.erro || "Não foi possível entrar com esta conta.";
+
+              // O backend retorna 403 para contas fora dos domínios permitidos.
+              if (result.status === 403) {
+                const institutionalMessage =
+                  "Apenas são permitidos e-mails institucionais @aluno.mg.gov.br e @educacao.mg.gov.br.";
+
+                alert(institutionalMessage);
+                setStatus(institutionalMessage, true);
+                return;
+              }
+
+              throw new Error(errorMessage);
             }
 
             setStatus("Login realizado. Redirecionando…");
@@ -129,6 +140,7 @@
               error.message || "Falha de comunicação. Tente novamente.",
               true,
             );
+          } finally {
             setSigninBusy(false);
           }
         }

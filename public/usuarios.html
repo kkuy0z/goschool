@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#102a43" />
+    <title>GoSchool | Usuários</title>
+
+    <link rel="stylesheet" href="/usuarios.css?v=2" />
+
+    <script src="/auth.js"></script>
+  </head>
+
+  <body>
+    <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+      <div class="logo">
+        <a href="/Admin/" aria-label="GoSchool - Dashboard">
+          <img src="/logo-simplificada.png" alt="GoSchool" />
+        </a>
+      </div>
+
+      <nav class="menu">
+        <a href="/Admin/" class="menu-item">Dashboard</a>
+        <a href="/Admin/usuarios" class="menu-item active" aria-current="page">
+          Usuários
+        </a>
+        <a href="/cadastro.html" class="menu-item">Cadastro institucional</a>
+        <a href="/Cardapio/" class="menu-item">Cardápio</a>
+        <a href="/Reservas/" class="menu-item">Reservas</a>
+        <a href="/Desperdicio/" class="menu-item">Desperdício</a>
+        <a href="/Configuracoes/" class="menu-item">Configurações</a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="usuario">
+          <div class="usuario-icon" aria-hidden="true">🛡️</div>
+          <span id="sidebarUserName" data-auth-user="name">Administrador</span>
+        </div>
+
+        <button id="btn-logout" class="sair" type="button">
+          <span aria-hidden="true">↪</span>
+          <span>Sair</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+
+    <main class="main-content" id="mainContent">
+      <header class="top-header">
+        <button
+          class="hamburger-btn"
+          id="hamburgerBtn"
+          type="button"
+          aria-label="Abrir menu"
+          aria-expanded="false"
+          aria-controls="sidebar"
+        >
+          ☰
+        </button>
+
+        <div class="header-title">
+          <h1>Gerenciamento de usuários</h1>
+          <p>Consulte os usuários cadastrados no GoSchool.</p>
+        </div>
+
+        <div class="header-actions">
+          <button class="btn-secondary btn-sm" id="btn-atualizar" type="button">
+            ↻ Atualizar
+          </button>
+
+          <a href="/cadastro.html" class="btn-primary"> + Cadastrar usuário </a>
+        </div>
+      </header>
+
+      <div class="content-wrapper">
+        <section class="dashboard-section" aria-labelledby="usuarios-title">
+          <header class="section-header">
+            <div class="section-title-group">
+              <h2 id="usuarios-title">Usuários cadastrados</h2>
+            </div>
+          </header>
+
+          <div class="kpi-grid" aria-label="Resumo dos usuários">
+            <article class="kpi-card">
+              <div class="kpi-content">
+                <p class="kpi-value" id="totalUsuarios">—</p>
+                <p class="kpi-label">Total encontrado</p>
+              </div>
+            </article>
+
+            <article class="kpi-card">
+              <div class="kpi-content">
+                <p class="kpi-value" id="totalAtivos">—</p>
+                <p class="kpi-label">Ativos</p>
+              </div>
+            </article>
+
+            <article class="kpi-card">
+              <div class="kpi-content">
+                <p class="kpi-value" id="totalInativos">—</p>
+                <p class="kpi-label">Inativos</p>
+              </div>
+            </article>
+          </div>
+
+          <form id="filtrosForm" role="search">
+            <div>
+              <label for="busca">Buscar por nome ou e-mail</label>
+              <input
+                id="busca"
+                name="busca"
+                type="search"
+                placeholder="Digite um nome ou e-mail"
+                autocomplete="off"
+              />
+            </div>
+
+            <div>
+              <label for="filtroRole">Perfil</label>
+              <select id="filtroRole" name="role">
+                <option value="">Todos os perfis</option>
+                <option value="aluno">Aluno</option>
+                <option value="professor">Professor</option>
+                <option value="adm">Administrador</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="filtroStatus">Status</label>
+              <select id="filtroStatus" name="status">
+                <option value="">Todos os status</option>
+                <option value="ativo">Ativos</option>
+                <option value="inativo">Inativos</option>
+              </select>
+            </div>
+
+            <button class="btn-secondary" type="reset">Limpar filtros</button>
+          </form>
+
+          <p id="mensagemStatus" role="status" aria-live="polite">
+            Carregando usuários...
+          </p>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">Nome</th>
+                  <th scope="col">E-mail</th>
+                  <th scope="col">Perfil</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Último acesso</th>
+                  <th scope="col">Ação</th>
+                </tr>
+              </thead>
+
+              <tbody id="usuarios-tbody">
+                <tr>
+                  <td colspan="6">Carregando usuários...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Modal de edição -->
+    <div class="modal-overlay" id="modalEdicaoUsuario" hidden>
+      <section
+        class="modal-usuario"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tituloModalUsuario"
+      >
+        <header class="modal-usuario__header">
+          <div>
+            <h2 id="tituloModalUsuario">Editar usuário</h2>
+            <p>Atualize os dados e as permissões da conta.</p>
+          </div>
+
+          <button
+            type="button"
+            class="modal-usuario__fechar"
+            id="fecharModalUsuario"
+            aria-label="Fechar"
+          >
+            &times;
+          </button>
+        </header>
+
+        <form id="formEdicaoUsuario">
+          <input type="hidden" id="edicaoUsuarioId" />
+
+          <label for="edicaoUsuarioNome">Nome</label>
+          <input type="text" id="edicaoUsuarioNome" maxlength="150" required />
+
+          <label for="edicaoUsuarioEmail">E-mail</label>
+          <input
+            type="email"
+            id="edicaoUsuarioEmail"
+            maxlength="190"
+            required
+          />
+
+          <label for="edicaoUsuarioTipo">Perfil</label>
+          <select id="edicaoUsuarioTipo" required>
+            <option value="adm">Administrador</option>
+            <option value="professor">Professor</option>
+            <option value="aluno">Aluno</option>
+          </select>
+
+          <label class="modal-usuario__ativo">
+            <input type="checkbox" id="edicaoUsuarioAtivo" />
+            Conta ativa
+          </label>
+
+          <p
+            class="modal-usuario__mensagem"
+            id="mensagemEdicaoUsuario"
+            role="status"
+            aria-live="polite"
+          ></p>
+
+          <footer class="modal-usuario__acoes">
+            <button type="button" id="cancelarEdicaoUsuario">Cancelar</button>
+
+            <button type="submit" id="salvarEdicaoUsuario">
+              Salvar alterações
+            </button>
+          </footer>
+        </form>
+      </section>
+    </div>
+
+    <script>
+      "use strict";
+
+      const ENDPOINT_USUARIOS = "/api/admin/usuarios";
+
+      const ROLE_LABELS = {
+        aluno: "Aluno",
+        professor: "Professor",
+        adm: "Administrador",
+      };
+
+      let usuarios = [];
+      let carregando = false;
+
+      const modalEdicaoUsuario = document.getElementById("modalEdicaoUsuario");
+      const formEdicaoUsuario = document.getElementById("formEdicaoUsuario");
+      const mensagemEdicaoUsuario = document.getElementById(
+        "mensagemEdicaoUsuario",
+      );
+      const botaoSalvarEdicaoUsuario = document.getElementById(
+        "salvarEdicaoUsuario",
+      );
+
+      document.addEventListener("DOMContentLoaded", inicializar);
+
+      async function inicializar() {
+        const autenticado = await Auth.init({
+          requireAuth: true,
+          allowedRoles: ["adm"],
+        });
+
+        if (!autenticado) return;
+
+        configurarLogout();
+        configurarFiltros();
+        configurarSidebar();
+        configurarModalEdicaoUsuario();
+
+        document
+          .getElementById("btn-atualizar")
+          ?.addEventListener("click", carregarUsuarios);
+
+        await carregarUsuarios();
+      }
+
+      function configurarLogout() {
+        document
+          .getElementById("btn-logout")
+          ?.addEventListener("click", () => Auth.logout());
+      }
+
+      function configurarFiltros() {
+        document
+          .getElementById("busca")
+          ?.addEventListener("input", renderizarUsuarios);
+
+        document
+          .getElementById("filtroRole")
+          ?.addEventListener("change", renderizarUsuarios);
+
+        document
+          .getElementById("filtroStatus")
+          ?.addEventListener("change", renderizarUsuarios);
+
+        document
+          .getElementById("filtrosForm")
+          ?.addEventListener("reset", () => {
+            setTimeout(renderizarUsuarios, 0);
+          });
+      }
+
+      async function carregarUsuarios() {
+        if (carregando) return;
+
+        carregando = true;
+        definirMensagem("Carregando usuários...");
+
+        const atualizarButton = document.getElementById("btn-atualizar");
+        if (atualizarButton) atualizarButton.disabled = true;
+
+        try {
+          const response = await Auth.apiCall(ENDPOINT_USUARIOS);
+
+          if (!response.ok) {
+            throw new Error(`Falha ao carregar usuários (${response.status})`);
+          }
+
+          const data = await response.json();
+
+          if (!data.sucesso || !Array.isArray(data.usuarios)) {
+            throw new Error(
+              "A resposta da API não contém uma lista válida de usuários.",
+            );
+          }
+
+          usuarios = data.usuarios;
+          renderizarUsuarios();
+        } catch (error) {
+          console.error("[Admin/Usuários]", error);
+
+          usuarios = [];
+          atualizarResumo([]);
+          mostrarMensagemTabela(
+            "Não foi possível carregar os usuários. Tente novamente.",
+          );
+          definirMensagem("Erro ao carregar os dados.");
+        } finally {
+          carregando = false;
+          if (atualizarButton) atualizarButton.disabled = false;
+        }
+      }
+
+      function renderizarUsuarios() {
+        const busca = normalizar(document.getElementById("busca")?.value || "");
+        const role = document.getElementById("filtroRole")?.value || "";
+        const status = document.getElementById("filtroStatus")?.value || "";
+
+        const filtrados = usuarios.filter((usuario) => {
+          const nome = normalizar(usuario.nome);
+          const email = normalizar(usuario.email);
+          const usuarioRole = String(usuario.role || "");
+          const usuarioStatus = usuario.ativo ? "ativo" : "inativo";
+
+          const correspondeBusca =
+            !busca || nome.includes(busca) || email.includes(busca);
+          const correspondeRole = !role || usuarioRole === role;
+          const correspondeStatus = !status || usuarioStatus === status;
+
+          return correspondeBusca && correspondeRole && correspondeStatus;
+        });
+
+        atualizarResumo(filtrados);
+
+        if (filtrados.length === 0) {
+          mostrarMensagemTabela(
+            usuarios.length === 0
+              ? "Nenhum usuário cadastrado."
+              : "Nenhum usuário corresponde aos filtros.",
+          );
+
+          definirMensagem(`${filtrados.length} usuário(s) encontrado(s).`);
+          return;
+        }
+
+        const tbody = document.getElementById("usuarios-tbody");
+        tbody.replaceChildren();
+
+        filtrados.forEach((usuario) => {
+          tbody.appendChild(criarLinhaUsuario(usuario));
+        });
+
+        definirMensagem(`${filtrados.length} usuário(s) encontrado(s).`);
+      }
+
+      function criarLinhaUsuario(usuario) {
+        const linha = document.createElement("tr");
+
+        linha.append(
+          criarCelula(usuario.nome || "—"),
+          criarCelula(usuario.email || "—"),
+          criarCelula(formatRole(usuario.role)),
+          criarCelula(usuario.ativo ? "Ativo" : "Inativo"),
+          criarCelula(formatarData(usuario.ultimo_acesso)),
+        );
+
+        const celulaAcao = document.createElement("td");
+        const botaoEditar = document.createElement("button");
+
+        botaoEditar.type = "button";
+        botaoEditar.className = "btn-secondary btn-sm";
+        botaoEditar.textContent = "Editar";
+        botaoEditar.setAttribute(
+          "aria-label",
+          `Editar usuário ${usuario.nome || ""}`,
+        );
+
+        const id = usuario.id;
+
+        if (id === null || id === undefined || String(id).trim() === "") {
+          botaoEditar.disabled = true;
+          botaoEditar.title = "Identificador do usuário indisponível";
+        } else {
+          botaoEditar.addEventListener("click", () => {
+            abrirModalEdicaoUsuario(String(id));
+          });
+        }
+
+        celulaAcao.appendChild(botaoEditar);
+        linha.appendChild(celulaAcao);
+
+        return linha;
+      }
+
+      function criarCelula(valor) {
+        const celula = document.createElement("td");
+        celula.textContent = String(valor ?? "");
+        return celula;
+      }
+
+      function atualizarResumo(lista) {
+        const total = lista.length;
+        const ativos = lista.filter((usuario) => Boolean(usuario.ativo)).length;
+        const inativos = total - ativos;
+
+        definirTexto("totalUsuarios", formatarNumero(total));
+        definirTexto("totalAtivos", formatarNumero(ativos));
+        definirTexto("totalInativos", formatarNumero(inativos));
+      }
+
+      function mostrarMensagemTabela(mensagem) {
+        const tbody = document.getElementById("usuarios-tbody");
+        if (!tbody) return;
+
+        const linha = document.createElement("tr");
+        const celula = document.createElement("td");
+
+        celula.colSpan = 6;
+        celula.textContent = mensagem;
+
+        linha.appendChild(celula);
+        tbody.replaceChildren(linha);
+      }
+
+      function formatRole(role) {
+        return ROLE_LABELS[role] || role || "—";
+      }
+
+      function formatarData(valor) {
+        if (!valor) return "Nunca";
+
+        const data = new Date(valor);
+        if (Number.isNaN(data.getTime())) return "—";
+
+        return data.toLocaleString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      function formatarNumero(valor) {
+        return Number(valor).toLocaleString("pt-BR");
+      }
+
+      function normalizar(valor) {
+        return String(valor ?? "")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLocaleLowerCase("pt-BR")
+          .trim();
+      }
+
+      function definirTexto(id, valor) {
+        const elemento = document.getElementById(id);
+        if (elemento) elemento.textContent = valor;
+      }
+
+      function definirMensagem(mensagem) {
+        definirTexto("mensagemStatus", mensagem);
+      }
+
+      function configurarSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+        const hamburger = document.getElementById("hamburgerBtn");
+
+        function fecharSidebar() {
+          sidebar?.classList.remove("open");
+
+          if (overlay) overlay.hidden = true;
+
+          hamburger?.setAttribute("aria-expanded", "false");
+          hamburger?.setAttribute("aria-label", "Abrir menu");
+        }
+
+        hamburger?.addEventListener("click", () => {
+          const abrir = !sidebar?.classList.contains("open");
+
+          sidebar?.classList.toggle("open", abrir);
+
+          if (overlay) overlay.hidden = !abrir;
+
+          hamburger?.setAttribute("aria-expanded", String(abrir));
+          hamburger?.setAttribute(
+            "aria-label",
+            abrir ? "Fechar menu" : "Abrir menu",
+          );
+        });
+
+        overlay?.addEventListener("click", fecharSidebar);
+
+        document.querySelectorAll(".menu-item").forEach((item) => {
+          item.addEventListener("click", () => {
+            if (window.innerWidth < 768) fecharSidebar();
+          });
+        });
+
+        window.addEventListener("resize", () => {
+          if (window.innerWidth >= 768) fecharSidebar();
+        });
+      }
+
+      function configurarModalEdicaoUsuario() {
+        document
+          .getElementById("fecharModalUsuario")
+          ?.addEventListener("click", fecharModalEdicaoUsuario);
+
+        document
+          .getElementById("cancelarEdicaoUsuario")
+          ?.addEventListener("click", fecharModalEdicaoUsuario);
+
+        modalEdicaoUsuario.addEventListener("click", (event) => {
+          if (event.target === modalEdicaoUsuario) {
+            fecharModalEdicaoUsuario();
+          }
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && !modalEdicaoUsuario.hidden) {
+            fecharModalEdicaoUsuario();
+          }
+        });
+
+        formEdicaoUsuario.addEventListener("submit", salvarEdicaoUsuario);
+      }
+
+      async function abrirModalEdicaoUsuario(id) {
+        if (!id) return;
+
+        formEdicaoUsuario.reset();
+        document.getElementById("edicaoUsuarioId").value = id;
+
+        mensagemEdicaoUsuario.textContent = "Carregando usuário...";
+        modalEdicaoUsuario.hidden = false;
+        botaoSalvarEdicaoUsuario.disabled = true;
+
+        try {
+          const resposta = await Auth.apiCall(
+            `${ENDPOINT_USUARIOS}/${encodeURIComponent(id)}`,
+          );
+
+          if (!resposta.ok) {
+            throw new Error("Não foi possível carregar os dados do usuário.");
+          }
+
+          const dados = await resposta.json();
+          const usuario = dados.usuario ?? dados;
+
+          document.getElementById("edicaoUsuarioNome").value =
+            usuario.nome ?? "";
+
+          document.getElementById("edicaoUsuarioEmail").value =
+            usuario.email ?? "";
+
+          document.getElementById("edicaoUsuarioTipo").value =
+            usuario.tipo ?? usuario.role ?? "aluno";
+
+          document.getElementById("edicaoUsuarioAtivo").checked =
+            usuario.ativo === true ||
+            usuario.ativo === 1 ||
+            usuario.ativo === "1";
+
+          mensagemEdicaoUsuario.textContent = "";
+        } catch (erro) {
+          mensagemEdicaoUsuario.textContent =
+            erro.message || "Erro ao carregar o usuário.";
+        } finally {
+          botaoSalvarEdicaoUsuario.disabled = false;
+        }
+      }
+
+      function fecharModalEdicaoUsuario() {
+        modalEdicaoUsuario.hidden = true;
+        formEdicaoUsuario.reset();
+        mensagemEdicaoUsuario.textContent = "";
+        botaoSalvarEdicaoUsuario.disabled = false;
+      }
+
+      async function salvarEdicaoUsuario(event) {
+        event.preventDefault();
+
+        const id = document.getElementById("edicaoUsuarioId").value;
+
+        if (!id) {
+          mensagemEdicaoUsuario.textContent =
+            "Identificador do usuário não encontrado.";
+          return;
+        }
+
+        const dados = {
+          nome: document.getElementById("edicaoUsuarioNome").value.trim(),
+          email: document.getElementById("edicaoUsuarioEmail").value.trim(),
+          tipo: document.getElementById("edicaoUsuarioTipo").value,
+          ativo: document.getElementById("edicaoUsuarioAtivo").checked,
+        };
+
+        botaoSalvarEdicaoUsuario.disabled = true;
+        mensagemEdicaoUsuario.textContent = "Salvando alterações...";
+
+        try {
+          const resposta = await Auth.apiCall(
+            `${ENDPOINT_USUARIOS}/${encodeURIComponent(id)}`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(dados),
+            },
+          );
+
+          const resultado = await resposta.json().catch(() => ({}));
+
+          if (!resposta.ok) {
+            throw new Error(
+              resultado.erro ||
+                resultado.mensagem ||
+                "Não foi possível salvar as alterações.",
+            );
+          }
+
+          mensagemEdicaoUsuario.textContent = "Usuário atualizado.";
+          await carregarUsuarios();
+
+          setTimeout(fecharModalEdicaoUsuario, 700);
+        } catch (erro) {
+          mensagemEdicaoUsuario.textContent =
+            erro.message || "Erro ao salvar as alterações.";
+        } finally {
+          botaoSalvarEdicaoUsuario.disabled = false;
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -56,6 +56,9 @@ const authProxy = createProxyMiddleware({
 });
 
 app.use(authProxy);
+app.get(/^\/Admin\/usuario\/\d+\/?$/, (_req, res) => {
+  res.sendFile(path.resolve(__dirname, "../../../public/usuario.html"));
+});
 
 app.use(
   express.static(path.resolve(__dirname, "../../../public"), {

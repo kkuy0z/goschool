@@ -1,604 +1,965 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOSchool - Painel Administrativo</title>
-    <link rel="stylesheet" href="/design-system.css">
-    <link rel="stylesheet" href="/Admin/adm.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#102a43" />
+    <title>GoSchool | Painel Administrativo</title>
+
+    <link rel="stylesheet" href="adm.css" />
+
     <script src="/theme.js"></script>
     <script src="/global-preferences.js"></script>
     <script src="/auth.js"></script>
-</head>
-<body>
-    <!-- SIDEBAR DO ADMIN -->
-    <aside class="sidebar" id="sidebar">
-        <div class="logo">
-            <img src="/logo-simplificada.png" alt="Logo GOSchool">
+  </head>
+
+  <body>
+    <!-- Navegação lateral -->
+    <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+      <div class="logo">
+        <a href="/Admin/" aria-label="GoSchool - início do painel">
+          <img src="logo-simplificada.png" alt="GoSchool" />
+        </a>
+      </div>
+
+      <nav class="menu">
+        <a
+          href="/Admin/"
+          class="menu-item active"
+          id="nav-dashboard"
+          aria-current="page"
+        >
+          <span aria-hidden="true">▦</span>
+          <span>Dashboard</span>
+        </a>
+
+        <a href="usuarios.html" class="menu-item" id="nav-usuarios">
+          <span aria-hidden="true">♙</span>
+          <span>Usuários</span>
+        </a>
+
+        <a href="/cadastro.html" class="menu-item" id="nav-cadastro">
+          <span aria-hidden="true">＋</span>
+          <span>Cadastro institucional</span>
+        </a>
+
+        <a href="/Cardapio/" class="menu-item" id="nav-cardapio">
+          <span aria-hidden="true">☷</span>
+          <span>Cardápio</span>
+        </a>
+
+        <a href="/Reservas/" class="menu-item" id="nav-reservas">
+          <span aria-hidden="true">▣</span>
+          <span>Reservas</span>
+        </a>
+
+        <a href="/Desperdicio/" class="menu-item" id="nav-desperdicio">
+          <span aria-hidden="true">♻</span>
+          <span>Desperdício</span>
+        </a>
+
+        <a href="/Configuracoes/" class="menu-item" id="nav-config">
+          <span aria-hidden="true">⚙</span>
+          <span>Configurações</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="usuario">
+          <div class="usuario-icon" aria-hidden="true">🛡️</div>
+          <span id="sidebarUserName" data-auth-user="name">Administrador</span>
         </div>
 
-        <nav class="menu">
-            <a href="/Admin/" class="menu-item active" id="nav-dashboard">Dashboard</a>
-            <a href="/Cardapio/" class="menu-item" id="nav-cardapio">Cardápio</a>
-            <a href="/Reservas/" class="menu-item" id="nav-reservas">Reservas</a>
-            <a href="/Desperdicio/" class="menu-item" id="nav-desperdicio">Desperdício</a>
-            <a href="/Configuracoes/" class="menu-item" id="nav-config">Configurações</a>
-        </nav>
-
-        <div class="sidebar-bottom">
-            <div class="usuario">
-                <div class="usuario-icon" aria-hidden="true">🛡️</div>
-                <span id="sidebarUserName" data-auth-user="name">Olá, Admin!</span>
-            </div>
-            <button id="btn-logout" class="sair" type="button">
-                <span class="sair-icon" aria-hidden="true">➔</span>
-                <span>Sair</span>
-            </button>
-        </div>
+        <button id="btn-logout" class="sair" type="button">
+          <span class="sair-icon" aria-hidden="true">↪</span>
+          <span>Sair</span>
+        </button>
+      </div>
     </aside>
 
-    <!-- Mobile Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
 
-    <!-- CONTEÚDO PRINCIPAL DO ADMIN -->
+    <!-- Conteúdo principal -->
     <main class="main-content" id="mainContent">
-        <!-- Top Header Bar -->
-        <header class="top-header">
-            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Abrir menu" aria-expanded="false" aria-controls="sidebar">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                    <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
+      <header class="top-header">
+        <button
+          class="hamburger-btn"
+          id="hamburgerBtn"
+          type="button"
+          aria-label="Abrir menu"
+          aria-expanded="false"
+          aria-controls="sidebar"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="header-title">
+          <h1 id="saudacao-usuario">Painel Administrativo</h1>
+          <p>Visão geral e gerenciamento do GoSchool</p>
+        </div>
+
+        <div class="header-actions">
+          <button
+            class="btn-secondary btn-sm"
+            id="btn-atualizar"
+            type="button"
+            title="Atualizar os dados do painel"
+          >
+            ↻ <span>Atualizar</span>
+          </button>
+
+          <div
+            class="user-profile"
+            id="userProfile"
+            role="button"
+            tabindex="0"
+            aria-label="Abrir menu do usuário"
+            aria-expanded="false"
+            aria-haspopup="true"
+          >
+            <div class="avatar" id="userAvatar" aria-hidden="true">A</div>
+            <span class="user-name" id="userName">Administrador</span>
+
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+          </div>
+
+          <div class="user-dropdown" id="userDropdown" hidden role="menu">
+            <button
+              class="dropdown-item"
+              type="button"
+              role="menuitem"
+              data-action="perfil"
+            >
+              <span aria-hidden="true">♙</span>
+              Perfil
             </button>
 
-            <div class="header-title">
-                <h1 id="saudacao-usuario">Painel Administrativo</h1>
-                <p>Gerenciamento completo do GOSchool</p>
-            </div>
+            <button
+              class="dropdown-item"
+              type="button"
+              role="menuitem"
+              data-action="config"
+            >
+              <span aria-hidden="true">⚙</span>
+              Configurações
+            </button>
 
-            <div class="header-actions">
-                <div class="user-profile" id="userProfile" role="button" tabindex="0" aria-label="Perfil do usuário" aria-expanded="false" aria-haspopup="true">
-                    <div class="avatar" id="userAvatar" aria-hidden="true">A</div>
-                    <span class="user-name" id="userName">Admin</span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <polyline points="18 15 12 9 6 15"></polyline>
-                    </svg>
-                </div>
-                <div class="user-dropdown" id="userDropdown" hidden role="menu">
-                    <button class="dropdown-item" role="menuitem" data-action="perfil">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        Perfil
-                    </button>
-                    <button class="dropdown-item" role="menuitem" id="dropdownConfig">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                        </svg>
-                        Configurações
-                    </button>
-                    <hr class="dropdown-divider">
-                    <button class="dropdown-item dropdown-danger" role="menuitem" id="btn-logout-dropdown">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                            <polyline points="16 17 21 12 16 7"></polyline>
-                            <line x1="21" y1="12" x2="9" y2="12"></line>
-                        </svg>
-                        Sair
-                    </button>
-                </div>
-            </div>
-        </header>
+            <hr class="dropdown-divider" />
 
-        <!-- Main Content Wrapper -->
-        <div class="content-wrapper">
-            <!-- KPI Cards -->
-            <section class="kpi-section" aria-labelledby="kpi-title">
-                <h2 id="kpi-title" class="visually-hidden">Indicadores Principais</h2>
-                <div class="kpi-grid" id="kpi-grid">
-                    <article class="kpi-card">
-                        <div class="kpi-icon blue">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                        </div>
-                        <div class="kpi-content">
-                            <p class="kpi-value" id="kpi-total-usuarios">—</p>
-                            <p class="kpi-label">Total de Usuários</p>
-                        </div>
-                    </article>
-
-                    <article class="kpi-card">
-                        <div class="kpi-icon green">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                            </svg>
-                        </div>
-                        <div class="kpi-content">
-                            <p class="kpi-value" id="kpi-usuarios-ativos">—</p>
-                            <p class="kpi-label">Usuários Ativos (30d)</p>
-                        </div>
-                    </article>
-
-                    <article class="kpi-card">
-                        <div class="kpi-icon amber">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                <polyline points="14 2 14 8 20 8"></polyline>
-                                <line x1="16" y1="13" x2="8" y2="13"></line>
-                                <line x1="16" y1="17" x2="8" y2="17"></line>
-                                <polyline points="10 9 9 9 8 9"></polyline>
-                            </svg>
-                        </div>
-                        <div class="kpi-content">
-                            <p class="kpi-value" id="kpi-total-reservas">—</p>
-                            <p class="kpi-label">Total de Reservas</p>
-                        </div>
-                    </article>
-
-                    <article class="kpi-card">
-                        <div class="kpi-icon purple">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                                <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                            </svg>
-                        </div>
-                        <div class="kpi-content">
-                            <p class="kpi-value" id="kpi-desperdicio-mes">— kg</p>
-                            <p class="kpi-label">Desperdício do Mês</p>
-                        </div>
-                    </article>
-                </div>
-            </section>
-
-            <!-- Gráfico de Usuários por Role -->
-            <section class="dashboard-section" aria-labelledby="usuarios-role-title">
-                <header class="section-header">
-                    <div class="section-title-group">
-                        <span class="section-icon" aria-hidden="true">👥</span>
-                        <h2 id="usuarios-role-title">Usuários por Perfil</h2>
-                    </div>
-                </header>
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3 class="chart-title">Distribuição de Roles</h3>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="chartRoles" width="400" height="200" aria-label="Gráfico de distribuição de usuários por role"></canvas>
-                    </div>
-                    <div class="chart-legend" id="chartRolesLegend"></div>
-                </div>
-            </section>
-
-            <!-- Tabela de Usuários Recentes -->
-            <section class="dashboard-section" aria-labelledby="usuarios-recentes-title">
-                <header class="section-header">
-                    <div class="section-title-group">
-                        <span class="section-icon" aria-hidden="true">📋</span>
-                        <h2 id="usuarios-recentes-title">Usuários Recentes</h2>
-                    </div>
-                    <a href="/Admin/usuarios" class="btn-secondary btn-sm">Gerenciar Todos</a>
-                </header>
-
-                <div class="table-responsive">
-                    <table class="data-table" id="usuarios-table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Nome</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Role</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Último Acesso</th>
-                                <th scope="col">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usuarios-tbody">
-                            <tr>
-                                <td colspan="6" class="table-loading">Carregando usuários...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+            <button
+              class="dropdown-item dropdown-danger"
+              id="btn-logout-dropdown"
+              type="button"
+              role="menuitem"
+            >
+              <span aria-hidden="true">↪</span>
+              Sair
+            </button>
+          </div>
         </div>
+      </header>
+
+      <div class="content-wrapper">
+        <!-- Boas-vindas e atalhos -->
+        <section class="dashboard-section" aria-labelledby="welcome-title">
+          <header class="section-header">
+            <div class="section-title-group">
+              <div>
+                <h2 id="welcome-title">Visão geral</h2>
+                <p id="dashboard-date">Acompanhe os indicadores da escola.</p>
+              </div>
+            </div>
+          </header>
+
+          <div class="quick-actions">
+            <a href="/cadastro.html" class="btn-primary">
+              + Cadastrar usuário
+            </a>
+            <a href="/Admin/usuarios" class="btn-secondary">
+              Gerenciar usuários
+            </a>
+          </div>
+        </section>
+
+        <!-- Indicadores -->
+        <section class="kpi-section" aria-labelledby="kpi-title">
+          <h2 id="kpi-title" class="visually-hidden">Indicadores principais</h2>
+
+          <div class="kpi-grid" id="kpi-grid">
+            <article class="kpi-card">
+              <div class="kpi-icon blue" aria-hidden="true">♙</div>
+              <div class="kpi-content">
+                <p class="kpi-value" id="kpi-total-usuarios" aria-live="polite">
+                  —
+                </p>
+                <p class="kpi-label">Total de usuários</p>
+              </div>
+            </article>
+
+            <article class="kpi-card">
+              <div class="kpi-icon green" aria-hidden="true">✓</div>
+              <div class="kpi-content">
+                <p
+                  class="kpi-value"
+                  id="kpi-usuarios-ativos"
+                  aria-live="polite"
+                >
+                  —
+                </p>
+                <p class="kpi-label">Usuários ativos (30 dias)</p>
+              </div>
+            </article>
+
+            <article class="kpi-card">
+              <div class="kpi-icon amber" aria-hidden="true">▤</div>
+              <div class="kpi-content">
+                <p class="kpi-value" id="kpi-total-reservas" aria-live="polite">
+                  —
+                </p>
+                <p class="kpi-label">Total de reservas</p>
+              </div>
+            </article>
+
+            <article class="kpi-card">
+              <div class="kpi-icon purple" aria-hidden="true">♻</div>
+              <div class="kpi-content">
+                <p
+                  class="kpi-value"
+                  id="kpi-desperdicio-mes"
+                  aria-live="polite"
+                >
+                  — kg
+                </p>
+                <p class="kpi-label">Desperdício no mês</p>
+              </div>
+            </article>
+          </div>
+
+          <p
+            class="dashboard-status"
+            id="dashboardStatus"
+            role="status"
+            aria-live="polite"
+          ></p>
+        </section>
+
+        <!-- Distribuição por perfil -->
+        <section
+          class="dashboard-section"
+          aria-labelledby="usuarios-role-title"
+        >
+          <header class="section-header">
+            <div class="section-title-group">
+              <span class="section-icon" aria-hidden="true">👥</span>
+              <h2 id="usuarios-role-title">Usuários por perfil</h2>
+            </div>
+          </header>
+
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">Distribuição de usuários</h3>
+            </div>
+
+            <div class="chart-container">
+              <canvas
+                id="chartRoles"
+                width="400"
+                height="200"
+                role="img"
+                aria-label="Gráfico de distribuição de usuários por perfil"
+              >
+                Gráfico de distribuição de usuários por perfil.
+              </canvas>
+            </div>
+
+            <div class="chart-legend" id="chartRolesLegend"></div>
+          </div>
+        </section>
+
+        <!-- Usuários recentes -->
+        <section
+          class="dashboard-section"
+          aria-labelledby="usuarios-recentes-title"
+        >
+          <header class="section-header">
+            <div class="section-title-group">
+              <span class="section-icon" aria-hidden="true">📋</span>
+              <h2 id="usuarios-recentes-title">Usuários recentes</h2>
+            </div>
+
+            <a href="/Admin/usuarios" class="btn-secondary btn-sm">
+              Ver todos
+            </a>
+          </header>
+
+          <div class="table-responsive">
+            <table class="data-table" id="usuarios-table">
+              <thead>
+                <tr>
+                  <th scope="col">Nome</th>
+                  <th scope="col">E-mail</th>
+                  <th scope="col">Perfil</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Último acesso</th>
+                  <th scope="col">Ações</th>
+                </tr>
+              </thead>
+
+              <tbody id="usuarios-tbody">
+                <tr>
+                  <td colspan="6" class="table-loading">
+                    Carregando usuários...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
     </main>
 
-    <!-- Modal de Confirmação -->
-    <div class="modal-overlay" id="confirmModal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-        <div class="modal-box">
-            <header class="modal-header">
-                <h3 id="modalTitle" class="modal-title">Confirmar Ação</h3>
-                <button class="modal-close" id="modalClose" aria-label="Fechar">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </header>
-            <div class="modal-body">
-                <p id="modalMessage">Tem certeza que deseja realizar esta ação?</p>
-            </div>
-            <footer class="modal-footer">
-                <button class="btn-secondary" id="modalCancel">Cancelar</button>
-                <button class="btn-danger" id="modalConfirm">Confirmar</button>
-            </footer>
+    <!-- Modal de confirmação -->
+    <div
+      class="modal-overlay"
+      id="confirmModal"
+      hidden
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+      aria-describedby="modalMessage"
+    >
+      <div class="modal-box">
+        <header class="modal-header">
+          <h3 id="modalTitle" class="modal-title">Confirmar ação</h3>
+
+          <button
+            class="modal-close"
+            id="modalClose"
+            type="button"
+            aria-label="Fechar"
+          >
+            ×
+          </button>
+        </header>
+
+        <div class="modal-body">
+          <p id="modalMessage">Tem certeza que deseja realizar esta ação?</p>
         </div>
+
+        <footer class="modal-footer">
+          <button class="btn-secondary" id="modalCancel" type="button">
+            Cancelar
+          </button>
+          <button class="btn-danger" id="modalConfirm" type="button">
+            Confirmar
+          </button>
+        </footer>
+      </div>
     </div>
 
     <script>
-        // Inicialização da autenticação - apenas para perfil adm
-        document.addEventListener('DOMContentLoaded', async () => {
-            const authenticated = await Auth.init({
-                requireAuth: true,
-                allowedRoles: ['adm']
-            });
+      "use strict";
 
-            if (!authenticated) return;
+      const ADMIN_API = {
+        usuariosStats: "/api/admin/usuarios/stats",
+        reservasStats: "/api/admin/reservas/stats",
+        desperdicioStats: "/api/desperdicio/stats?periodo=mes",
+        usuariosPorRole: "/api/admin/usuarios/por-role",
+        usuariosRecentes: "/api/admin/usuarios?limit=10&order=created_desc",
+      };
 
-            // Configurar logout
-            const logoutBtn = document.getElementById('btn-logout');
-            const logoutDropdown = document.getElementById('btn-logout-dropdown');
-            if (logoutBtn) logoutBtn.addEventListener('click', () => Auth.logout());
-            if (logoutDropdown) logoutDropdown.addEventListener('click', () => Auth.logout());
+      const ROLE_LABELS = {
+        aluno: "Aluno",
+        professor: "Professor",
+        adm: "Administrador",
+      };
 
-            // Configurar dropdown do usuário
-            inicializarUserDropdown();
+      const ROLE_COLORS = {
+        aluno: "#2563eb",
+        professor: "#10b981",
+        adm: "#7c3aed",
+      };
 
-            // Configurar modal
-            inicializarModal();
+      let chartRolesData = null;
+      let confirmResolver = null;
+      let dashboardLoading = false;
 
-            // Carregar dados do dashboard
-            await carregarKPIs();
-            await carregarChartRoles();
-            await carregarUsuariosRecentes();
+      document.addEventListener("DOMContentLoaded", inicializarPainel);
 
-            // Inicializar sidebar mobile
-            inicializarSidebarMobile();
+      async function inicializarPainel() {
+        const authenticated = await Auth.init({
+          requireAuth: true,
+          allowedRoles: ["adm"],
         });
 
-        // Dropdown do usuário
-        function inicializarUserDropdown() {
-            const profileBtn = document.getElementById('userProfile');
-            const dropdown = document.getElementById('userDropdown');
+        if (!authenticated) return;
 
-            if (!profileBtn || !dropdown) return;
+        configurarUsuario();
+        configurarLogout();
+        configurarDropdown();
+        configurarModal();
+        inicializarSidebarMobile();
+        configurarAtualizacao();
 
-            profileBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const isOpen = !dropdown.hidden;
-                dropdown.hidden = isOpen;
-                profileBtn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
-            });
+        atualizarData();
+        await atualizarDashboard();
+      }
 
-            document.addEventListener('click', (e) => {
-                if (!profileBtn.contains(e.target) && !dropdown.contains(e.target)) {
-                    dropdown.hidden = true;
-                    profileBtn.setAttribute('aria-expanded', 'false');
-                }
-            });
+      function configurarUsuario() {
+        const nameElement = document.getElementById("userName");
+        const avatarElement = document.getElementById("userAvatar");
+        const sidebarName = document.getElementById("sidebarUserName");
 
-            dropdown.querySelectorAll('[data-action]').forEach(item => {
-                item.addEventListener('click', () => {
-                    const action = item.dataset.action;
-                    if (action === 'perfil') window.location.href = '/Configuracoes/';
-                    if (action === 'config') window.location.href = '/Configuracoes/';
-                });
-            });
+        const name =
+          nameElement?.textContent?.trim() ||
+          sidebarName?.textContent?.trim() ||
+          "Administrador";
+
+        if (nameElement) nameElement.textContent = name;
+        if (sidebarName) sidebarName.textContent = name;
+        if (avatarElement)
+          avatarElement.textContent = name.charAt(0).toUpperCase();
+
+        const greeting = document.getElementById("saudacao-usuario");
+        if (greeting) greeting.textContent = `Olá, ${name}`;
+      }
+
+      function configurarLogout() {
+        document
+          .getElementById("btn-logout")
+          ?.addEventListener("click", () => Auth.logout());
+        document
+          .getElementById("btn-logout-dropdown")
+          ?.addEventListener("click", () => Auth.logout());
+      }
+
+      function configurarDropdown() {
+        const profile = document.getElementById("userProfile");
+        const dropdown = document.getElementById("userDropdown");
+
+        if (!profile || !dropdown) return;
+
+        function setOpen(open) {
+          dropdown.hidden = !open;
+          profile.setAttribute("aria-expanded", String(open));
         }
 
-        // Modal
-        function inicializarModal() {
-            const modal = document.getElementById('confirmModal');
-            const closeBtn = document.getElementById('modalClose');
-            const cancelBtn = document.getElementById('modalCancel');
-            const confirmBtn = document.getElementById('modalConfirm');
+        profile.addEventListener("click", () => setOpen(dropdown.hidden));
 
-            let resolveCallback = null;
+        profile.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setOpen(dropdown.hidden);
+          }
 
-            function closeModal() {
-                modal.hidden = true;
-                if (resolveCallback) {
-                    resolveCallback(false);
-                    resolveCallback = null;
-                }
+          if (event.key === "Escape") setOpen(false);
+        });
+
+        document.addEventListener("click", (event) => {
+          if (
+            !profile.contains(event.target) &&
+            !dropdown.contains(event.target)
+          ) {
+            setOpen(false);
+          }
+        });
+
+        dropdown.querySelectorAll("[data-action]").forEach((item) => {
+          item.addEventListener("click", () => {
+            const action = item.dataset.action;
+
+            if (action === "perfil" || action === "config") {
+              window.location.href = "/Configuracoes/";
+            }
+          });
+        });
+      }
+
+      function configurarAtualizacao() {
+        document
+          .getElementById("btn-atualizar")
+          ?.addEventListener("click", atualizarDashboard);
+      }
+
+      function atualizarData() {
+        const element = document.getElementById("dashboard-date");
+        if (!element) return;
+
+        const agora = new Date();
+        const data = agora.toLocaleDateString("pt-BR", {
+          weekday: "long",
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        });
+
+        element.textContent = `Resumo de ${data}.`;
+      }
+
+      async function atualizarDashboard() {
+        if (dashboardLoading) return;
+
+        dashboardLoading = true;
+
+        const button = document.getElementById("btn-atualizar");
+        const status = document.getElementById("dashboardStatus");
+
+        if (button) {
+          button.disabled = true;
+          button.setAttribute("aria-busy", "true");
+        }
+
+        if (status) status.textContent = "Atualizando dados...";
+
+        try {
+          await Promise.allSettled([
+            carregarKPIs(),
+            carregarChartRoles(),
+            carregarUsuariosRecentes(),
+          ]);
+
+          if (status) status.textContent = "Dados atualizados.";
+        } finally {
+          dashboardLoading = false;
+
+          if (button) {
+            button.disabled = false;
+            button.removeAttribute("aria-busy");
+          }
+        }
+      }
+
+      async function carregarKPIs() {
+        const requests = [
+          ["usuarios", ADMIN_API.usuariosStats],
+          ["reservas", ADMIN_API.reservasStats],
+          ["desperdicio", ADMIN_API.desperdicioStats],
+        ];
+
+        const results = await Promise.allSettled(
+          requests.map(([, url]) => Auth.apiCall(url)),
+        );
+
+        for (let index = 0; index < results.length; index++) {
+          const [tipo] = requests[index];
+          const result = results[index];
+
+          if (result.status !== "fulfilled" || !result.value.ok) {
+            console.warn(
+              `[Admin] Não foi possível carregar estatísticas: ${tipo}`,
+            );
+            continue;
+          }
+
+          try {
+            const data = await result.value.json();
+            if (!data.sucesso) continue;
+
+            if (tipo === "usuarios") {
+              setText("kpi-total-usuarios", formatNumber(data.total));
+              setText("kpi-usuarios-ativos", formatNumber(data.ativos_30d));
             }
 
-            closeBtn?.addEventListener('click', closeModal);
-            cancelBtn?.addEventListener('click', closeModal);
-            modal?.addEventListener('click', (e) => {
-                if (e.target === modal) closeModal();
-            });
-
-            confirmBtn?.addEventListener('click', () => {
-                if (resolveCallback) {
-                    resolveCallback(true);
-                    resolveCallback = null;
-                }
-                modal.hidden = true;
-            });
-
-            window.confirmAction = function(message) {
-                return new Promise((resolve) => {
-                    document.getElementById('modalMessage').textContent = message;
-                    modal.hidden = false;
-                    resolveCallback = resolve;
-                });
-            };
-        }
-
-        async function carregarKPIs() {
-            try {
-                const [usuariosRes, reservasRes, desperdicioRes] = await Promise.all([
-                    Auth.apiCall('/api/admin/usuarios/stats'),
-                    Auth.apiCall('/api/admin/reservas/stats'),
-                    Auth.apiCall('/api/desperdicio/stats?periodo=mes')
-                ]);
-
-                if (usuariosRes.ok) {
-                    const data = await usuariosRes.json();
-                    if (data.sucesso) {
-                        document.getElementById('kpi-total-usuarios').textContent = data.total || '—';
-                        document.getElementById('kpi-usuarios-ativos').textContent = data.ativos_30d || '—';
-                    }
-                }
-
-                if (reservasRes.ok) {
-                    const data = await reservasRes.json();
-                    if (data.sucesso) {
-                        document.getElementById('kpi-total-reservas').textContent = data.total || '—';
-                    }
-                }
-
-                if (desperdicioRes.ok) {
-                    const data = await desperdicioRes.json();
-                    if (data.sucesso) {
-                        document.getElementById('kpi-desperdicio-mes').textContent =
-                            (data.total_kg || 0).toLocaleString('pt-BR') + ' kg';
-                    }
-                }
-            } catch (err) {
-                console.error('[Admin] Erro ao carregar KPIs:', err);
-            }
-        }
-
-        async function carregarChartRoles() {
-            try {
-                const res = await Auth.apiCall('/api/admin/usuarios/por-role');
-                if (!res.ok) throw new Error('Erro ao carregar roles');
-
-                const data = await res.json();
-                if (data.sucesso && data.roles) {
-                    desenharGraficoRoles(data.roles);
-                }
-            } catch (err) {
-                console.error('[Admin] Erro ao carregar chart roles:', err);
-            }
-        }
-
-        function desenharGraficoRoles(roles) {
-            const canvas = document.getElementById('chartRoles');
-            const legend = document.getElementById('chartRolesLegend');
-            if (!canvas || !legend) return;
-
-            const ctx = canvas.getContext('2d');
-            const labels = Object.keys(roles);
-            const values = Object.values(roles);
-            const total = values.reduce((a, b) => a + b, 0);
-
-            if (total === 0) {
-                legend.innerHTML = '<p class="table-empty">Nenhum usuário cadastrado</p>';
-                return;
+            if (tipo === "reservas") {
+              setText("kpi-total-reservas", formatNumber(data.total));
             }
 
-            const colors = ['#7c3aed', '#2563eb', '#f59e0b', '#10b981', '#ef4444'];
-            const roleLabels = {
-                'aluno': 'Alunos',
-                'professor': 'Professores',
-                'adm': 'Administradores'
-            };
-
-            // Configurar canvas para DPR
-            const dpr = window.devicePixelRatio || 1;
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            ctx.scale(dpr, dpr);
-
-            const cssWidth = rect.width;
-            const cssHeight = rect.height;
-            const centerX = cssWidth / 2;
-            const centerY = cssHeight / 2;
-            const radius = Math.min(centerX, centerY) - 20;
-            const innerRadius = radius * 0.55;
-
-            ctx.clearRect(0, 0, cssWidth, cssHeight);
-
-            let currentAngle = -Math.PI / 2;
-
-            values.forEach((value, i) => {
-                const sliceAngle = (value / total) * Math.PI * 2;
-                const color = colors[i % colors.length];
-
-                // Desenhar fatia
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
-                ctx.arc(centerX, centerY, innerRadius, currentAngle + sliceAngle, currentAngle, true);
-                ctx.closePath();
-                ctx.fillStyle = color;
-                ctx.fill();
-
-                // Label na fatia se for grande o suficiente
-                if (sliceAngle > 0.4) {
-                    const labelAngle = currentAngle + sliceAngle / 2;
-                    const labelX = centerX + Math.cos(labelAngle) * (radius + innerRadius) / 2;
-                    const labelY = centerY + Math.sin(labelAngle) * (radius + innerRadius) / 2;
-
-                    ctx.font = 'bold 12px var(--gs-font-sans)';
-                    ctx.fillStyle = '#ffffff';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    const label = roleLabels[labels[i]] || labels[i];
-                    ctx.fillText(label, labelX, labelY);
-                }
-
-                currentAngle += sliceAngle;
-            });
-
-            // Texto central
-            ctx.font = 'bold 20px var(--gs-font-sans)';
-            ctx.fillStyle = getCSSVar('--gs-text-primary', '#1e293b');
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(`${total}`, centerX, centerY - 5);
-
-            ctx.font = '12px var(--gs-font-sans)';
-            ctx.fillStyle = getCSSVar('--gs-text-secondary', '#64748b');
-            ctx.fillText('Total usuários', centerX, centerY + 15);
-
-            // Legenda
-            legend.innerHTML = '';
-            labels.forEach((label, i) => {
-                const color = colors[i % colors.length];
-                const percent = ((values[i] / total) * 100).toFixed(1);
-                const displayLabel = roleLabels[label] || label;
-
-                const item = document.createElement('div');
-                item.className = 'legend-item';
-                item.style.cssText = 'display:inline-flex;align-items:center;gap:8px;padding:8px 12px;';
-                item.innerHTML = `
-                    <span style="width:12px;height:12px;border-radius:3px;background:${color};flex-shrink:0;"></span>
-                    <span style="font-size:13px;color:var(--gs-text-primary);">${displayLabel}</span>
-                    <span style="font-size:12px;color:var(--gs-text-secondary);">(${percent}%)</span>
-                `;
-                legend.appendChild(item);
-            });
-        }
-
-        async function carregarUsuariosRecentes() {
-            try {
-                const res = await Auth.apiCall('/api/admin/usuarios?limit=10&order=created_desc');
-                if (!res.ok) throw new Error('Erro ao carregar usuários');
-
-                const data = await res.json();
-                const tbody = document.getElementById('usuarios-tbody');
-
-                if (data.sucesso && data.usuarios && data.usuarios.length > 0) {
-                    tbody.innerHTML = data.usuarios.map(u => `
-                        <tr>
-                            <td>${escapeHtml(u.nome)}</td>
-                            <td>${escapeHtml(u.email)}</td>
-                            <td><span class="role-badge role-${u.role}">${formatRole(u.role)}</span></td>
-                            <td><span class="status-badge status-${u.ativo ? 'ativo' : 'inativo'}">${u.ativo ? 'Ativo' : 'Inativo'}</span></td>
-                            <td>${formatDate(u.ultimo_acesso)}</td>
-                            <td>
-                                <button class="btn-secondary btn-sm" onclick="editarUsuario('${u.id}')">Editar</button>
-                            </td>
-                        </tr>
-                    `).join('');
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Nenhum usuário encontrado</td></tr>';
-                }
-            } catch (err) {
-                console.error('[Admin] Erro ao carregar usuários:', err);
-                document.getElementById('usuarios-tbody').innerHTML =
-                    '<tr><td colspan="6" class="table-empty">Erro ao carregar usuários</td></tr>';
+            if (tipo === "desperdicio") {
+              const total = Number(data.total_kg);
+              setText(
+                "kpi-desperdicio-mes",
+                `${Number.isFinite(total) ? total.toLocaleString("pt-BR") : "0"} kg`,
+              );
             }
+          } catch (error) {
+            console.error(`[Admin] Resposta inválida em ${tipo}:`, error);
+          }
+        }
+      }
+
+      async function carregarChartRoles() {
+        try {
+          const response = await Auth.apiCall(ADMIN_API.usuariosPorRole);
+          if (!response.ok)
+            throw new Error("Falha ao buscar usuários por perfil");
+
+          const data = await response.json();
+          if (!data.sucesso || !data.roles) {
+            desenharGraficoRoles({});
+            return;
+          }
+
+          chartRolesData = data.roles;
+          desenharGraficoRoles(chartRolesData);
+        } catch (error) {
+          console.error("[Admin] Erro ao carregar gráfico:", error);
+          mostrarEstadoGrafico("Não foi possível carregar o gráfico.");
+        }
+      }
+
+      function desenharGraficoRoles(roles) {
+        const canvas = document.getElementById("chartRoles");
+        const legend = document.getElementById("chartRolesLegend");
+
+        if (!canvas || !legend) return;
+
+        const entries = Object.entries(roles)
+          .map(([role, value]) => [role, Number(value)])
+          .filter(([, value]) => Number.isFinite(value) && value >= 0);
+
+        const total = entries.reduce((sum, [, value]) => sum + value, 0);
+
+        if (total <= 0) {
+          limparCanvas(canvas);
+          legend.textContent = "Nenhum usuário cadastrado.";
+          return;
         }
 
-        function editarUsuario(id) {
-            window.location.href = `/Admin/usuario/${id}`;
+        const context = canvas.getContext("2d");
+        const bounds = canvas.getBoundingClientRect();
+        const width = Math.max(bounds.width, 240);
+        const height = Math.max(bounds.height, 200);
+        const dpr = window.devicePixelRatio || 1;
+
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+        context.setTransform(dpr, 0, 0, dpr, 0, 0);
+        context.clearRect(0, 0, width, height);
+
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const radius = Math.max(30, Math.min(width, height) / 2 - 12);
+        const innerRadius = radius * 0.62;
+
+        let angle = -Math.PI / 2;
+
+        entries.forEach(([role, value]) => {
+          if (value === 0) return;
+
+          const slice = (value / total) * Math.PI * 2;
+          const color = ROLE_COLORS[role] || "#64748b";
+
+          context.beginPath();
+          context.arc(centerX, centerY, radius, angle, angle + slice);
+          context.arc(
+            centerX,
+            centerY,
+            innerRadius,
+            angle + slice,
+            angle,
+            true,
+          );
+          context.closePath();
+          context.fillStyle = color;
+          context.fill();
+
+          angle += slice;
+        });
+
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillStyle = getCSSVar("--gs-text-primary", "#1e293b");
+        context.font = "700 22px sans-serif";
+        context.fillText(String(total), centerX, centerY - 7);
+
+        context.fillStyle = getCSSVar("--gs-text-secondary", "#64748b");
+        context.font = "12px sans-serif";
+        context.fillText("Usuários", centerX, centerY + 15);
+
+        legend.replaceChildren();
+
+        entries.forEach(([role, value]) => {
+          const item = document.createElement("div");
+          item.className = "legend-item";
+
+          const marker = document.createElement("span");
+          marker.className = "legend-marker";
+          marker.style.backgroundColor = ROLE_COLORS[role] || "#64748b";
+          marker.setAttribute("aria-hidden", "true");
+
+          const label = document.createElement("span");
+          label.textContent = ROLE_LABELS[role] || role;
+
+          const amount = document.createElement("span");
+          amount.textContent = `${value} (${(
+            (value / total) *
+            100
+          ).toLocaleString("pt-BR", {
+            maximumFractionDigits: 1,
+          })}%)`;
+
+          item.append(marker, label, amount);
+          legend.appendChild(item);
+        });
+      }
+
+      function mostrarEstadoGrafico(message) {
+        const canvas = document.getElementById("chartRoles");
+        const legend = document.getElementById("chartRolesLegend");
+
+        if (canvas) limparCanvas(canvas);
+        if (legend) legend.textContent = message;
+      }
+
+      function limparCanvas(canvas) {
+        const context = canvas.getContext("2d");
+        context.clearRect(0, 0, canvas.width, canvas.height);
+      }
+
+      async function carregarUsuariosRecentes() {
+        const tbody = document.getElementById("usuarios-tbody");
+        if (!tbody) return;
+
+        try {
+          const response = await Auth.apiCall(ADMIN_API.usuariosRecentes);
+          if (!response.ok) throw new Error("Falha ao buscar usuários");
+
+          const data = await response.json();
+          const usuarios = Array.isArray(data.usuarios) ? data.usuarios : [];
+
+          tbody.replaceChildren();
+
+          if (!data.sucesso || usuarios.length === 0) {
+            inserirMensagemTabela(tbody, "Nenhum usuário encontrado.");
+            return;
+          }
+
+          usuarios.forEach((usuario) => {
+            tbody.appendChild(criarLinhaUsuario(usuario));
+          });
+        } catch (error) {
+          console.error("[Admin] Erro ao carregar usuários:", error);
+          inserirMensagemTabela(
+            tbody,
+            "Não foi possível carregar os usuários.",
+          );
+        }
+      }
+
+      function criarLinhaUsuario(usuario) {
+        const row = document.createElement("tr");
+
+        const role = String(usuario.role || "");
+        const ativo = Boolean(usuario.ativo);
+
+        row.append(
+          criarCelula(usuario.nome || "—"),
+          criarCelula(usuario.email || "—"),
+          criarCelulaComBadge(formatRole(role), `role-badge role-${role}`),
+          criarCelulaComBadge(
+            ativo ? "Ativo" : "Inativo",
+            `status-badge status-${ativo ? "ativo" : "inativo"}`,
+          ),
+          criarCelula(formatDate(usuario.ultimo_acesso)),
+        );
+
+        const actionsCell = document.createElement("td");
+        const editButton = document.createElement("button");
+
+        editButton.type = "button";
+        editButton.className = "btn-secondary btn-sm";
+        editButton.textContent = "Editar";
+        editButton.addEventListener("click", () => editarUsuario(usuario.id));
+
+        actionsCell.appendChild(editButton);
+        row.appendChild(actionsCell);
+
+        return row;
+      }
+
+      function criarCelula(value) {
+        const cell = document.createElement("td");
+        cell.textContent = String(value ?? "");
+        return cell;
+      }
+
+      function criarCelulaComBadge(value, className) {
+        const cell = document.createElement("td");
+        const badge = document.createElement("span");
+
+        badge.className = className;
+        badge.textContent = value;
+
+        cell.appendChild(badge);
+        return cell;
+      }
+
+      function inserirMensagemTabela(tbody, message) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+
+        cell.colSpan = 6;
+        cell.className = "table-empty";
+        cell.textContent = message;
+
+        row.appendChild(cell);
+        tbody.replaceChildren(row);
+      }
+
+      function editarUsuario(id) {
+        if (id === null || id === undefined || String(id).trim() === "") {
+          alert("Não foi possível identificar este usuário.");
+          return;
         }
 
-        function formatRole(role) {
-            const labels = {
-                'aluno': 'Aluno',
-                'professor': 'Professor',
-                'adm': 'Admin'
-            };
-            return labels[role] || role;
+        window.location.href = `/Admin/usuario/${encodeURIComponent(String(id))}`;
+      }
+
+      function formatRole(role) {
+        return ROLE_LABELS[role] || role || "—";
+      }
+
+      function formatNumber(value) {
+        const number = Number(value);
+        return Number.isFinite(number) ? number.toLocaleString("pt-BR") : "—";
+      }
+
+      function formatDate(value) {
+        if (!value) return "Nunca";
+
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "—";
+
+        return date.toLocaleString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      function setText(id, value) {
+        const element = document.getElementById(id);
+        if (element) element.textContent = value;
+      }
+
+      function getCSSVar(name, fallback) {
+        const value = getComputedStyle(document.documentElement)
+          .getPropertyValue(name)
+          .trim();
+
+        return value || fallback;
+      }
+
+      // Modal de confirmação
+      function configurarModal() {
+        const modal = document.getElementById("confirmModal");
+        const closeButton = document.getElementById("modalClose");
+        const cancelButton = document.getElementById("modalCancel");
+        const confirmButton = document.getElementById("modalConfirm");
+
+        if (!modal) return;
+
+        function fecharModal(result = false) {
+          modal.hidden = true;
+
+          if (confirmResolver) {
+            confirmResolver(result);
+            confirmResolver = null;
+          }
         }
 
-        function formatDate(dateStr) {
-            if (!dateStr) return 'Nunca';
-            try {
-                const date = new Date(dateStr);
-                return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-            } catch {
-                return dateStr;
-            }
+        closeButton?.addEventListener("click", () => fecharModal(false));
+        cancelButton?.addEventListener("click", () => fecharModal(false));
+
+        modal.addEventListener("click", (event) => {
+          if (event.target === modal) fecharModal(false);
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && !modal.hidden) fecharModal(false);
+        });
+
+        confirmButton?.addEventListener("click", () => fecharModal(true));
+
+        window.confirmAction = function (message) {
+          return new Promise((resolve) => {
+            document.getElementById("modalMessage").textContent = message;
+            confirmResolver = resolve;
+            modal.hidden = false;
+            confirmButton?.focus();
+          });
+        };
+      }
+
+      // Sidebar responsiva
+      function inicializarSidebarMobile() {
+        const hamburger = document.getElementById("hamburgerBtn");
+        const overlay = document.getElementById("sidebarOverlay");
+
+        hamburger?.addEventListener("click", toggleSidebar);
+        overlay?.addEventListener("click", closeSidebar);
+
+        document.querySelectorAll(".menu-item").forEach((item) => {
+          item.addEventListener("click", () => {
+            if (window.innerWidth < 768) closeSidebar();
+          });
+        });
+
+        window.addEventListener("resize", () => {
+          if (window.innerWidth >= 768) closeSidebar();
+          if (chartRolesData) desenharGraficoRoles(chartRolesData);
+        });
+      }
+
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+        const hamburger = document.getElementById("hamburgerBtn");
+
+        if (!sidebar || !overlay || !hamburger) return;
+
+        const open = !sidebar.classList.contains("open");
+
+        sidebar.classList.toggle("open", open);
+        overlay.hidden = !open;
+        hamburger.setAttribute("aria-expanded", String(open));
+        hamburger.setAttribute(
+          "aria-label",
+          open ? "Fechar menu" : "Abrir menu",
+        );
+      }
+
+      function closeSidebar() {
+        document.getElementById("sidebar")?.classList.remove("open");
+
+        const overlay = document.getElementById("sidebarOverlay");
+        const hamburger = document.getElementById("hamburgerBtn");
+
+        if (overlay) overlay.hidden = true;
+
+        if (hamburger) {
+          hamburger.setAttribute("aria-expanded", "false");
+          hamburger.setAttribute("aria-label", "Abrir menu");
         }
-
-        function escapeHtml(valor) {
-            if (valor === null || valor === undefined) return '';
-            return String(valor)
-                .replace(/&/g, '&')
-                .replace(/</g, '<')
-                .replace(/>/g, '>')
-                .replace(/"/g, '"')
-                .replace(/'/g, '&#039;');
-        }
-
-        function getCSSVar(varName, fallback) {
-            try {
-                const value = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
-                return value || fallback;
-            } catch {
-                return fallback;
-            }
-        }
-
-        // Sidebar Mobile
-        function inicializarSidebarMobile() {
-            const hamburger = document.getElementById('hamburgerBtn');
-            const overlay = document.getElementById('sidebarOverlay');
-            const sidebar = document.getElementById('sidebar');
-
-            if (hamburger) {
-                hamburger.addEventListener('click', toggleSidebar);
-            }
-
-            if (overlay) {
-                overlay.addEventListener('click', closeSidebar);
-            }
-
-            document.querySelectorAll('.menu-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    if (window.innerWidth < 768) {
-                        closeSidebar();
-                    }
-                });
-            });
-        }
-
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            const hamburger = document.getElementById('hamburgerBtn');
-
-            if (sidebar && overlay && hamburger) {
-                const isOpen = sidebar.classList.toggle('open');
-                overlay.hidden = !isOpen;
-                hamburger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-            }
-        }
-
-        function closeSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            const hamburger = document.getElementById('hamburgerBtn');
-
-            if (sidebar) sidebar.classList.remove('open');
-            if (overlay) overlay.hidden = true;
-            if (hamburger) hamburger.setAttribute('aria-expanded', 'false');
-        }
+      }
     </script>
-</body>
+  </body>
 </html>

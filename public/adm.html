@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#102a43" />
     <title>GoSchool | Painel Administrativo</title>
 
-    <link rel="stylesheet" href="adm.css" />
+    <link rel="stylesheet" href="/adm.css" />
 
     <script src="/theme.js"></script>
     <script src="/global-preferences.js"></script>
@@ -18,7 +18,7 @@
     <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
       <div class="logo">
         <a href="/Admin/" aria-label="GoSchool - início do painel">
-          <img src="logo-simplificada.png" alt="GoSchool" />
+          <img src="/logo-simplificada.png" alt="GoSchool" />
         </a>
       </div>
 
@@ -33,7 +33,7 @@
           <span>Dashboard</span>
         </a>
 
-        <a href="usuarios.html" class="menu-item" id="nav-usuarios">
+        <a href="/Admin/usuarios" class="menu-item" id="nav-usuarios">
           <span aria-hidden="true">♙</span>
           <span>Usuários</span>
         </a>
@@ -420,7 +420,7 @@
 
         if (!authenticated) return;
 
-        configurarUsuario();
+        await configurarUsuario();
         configurarLogout();
         configurarDropdown();
         configurarModal();
@@ -431,22 +431,17 @@
         await atualizarDashboard();
       }
 
-      function configurarUsuario() {
+      async function configurarUsuario() {
+        const user = await Auth.getCurrentUser();
+        const name = user?.nome?.trim() || "Administrador";
         const nameElement = document.getElementById("userName");
         const avatarElement = document.getElementById("userAvatar");
         const sidebarName = document.getElementById("sidebarUserName");
-
-        const name =
-          nameElement?.textContent?.trim() ||
-          sidebarName?.textContent?.trim() ||
-          "Administrador";
+        const greeting = document.getElementById("saudacao-usuario");
 
         if (nameElement) nameElement.textContent = name;
         if (sidebarName) sidebarName.textContent = name;
-        if (avatarElement)
-          avatarElement.textContent = name.charAt(0).toUpperCase();
-
-        const greeting = document.getElementById("saudacao-usuario");
+        if (avatarElement) avatarElement.textContent = name.charAt(0).toUpperCase();
         if (greeting) greeting.textContent = `Olá, ${name}`;
       }
 

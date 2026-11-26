@@ -1,0 +1,13 @@
+{
+  "name": "goschool",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GoSchool - plataforma educacional",
+  "workspaces": ["services/*"],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=gateway\" \"npm run dev --workspace=auth-service\"",
+    "start": "npm run start --workspace=gateway",
+    "start:auth": "npm run start --workspace=auth-service"
+  },
+  "devDependencies": { "concurrently": "^9.1.2" }
+}

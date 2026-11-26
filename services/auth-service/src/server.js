@@ -87,4 +87,55 @@ app.post('/api/logout', (_req, res) => {
   res.json({ sucesso: true });
 });
 
+
+function requireAdmin(req, res, next) {
+  try {
+    const claims = jwt.verify(req.cookies[COOKIE_NAME] || '', JWT_SECRET, { issuer: 'goschool-auth' });
+    if (claims.role !== 'adm') return res.status(403).json({ erro: 'Apenas a Coordenação pode cadastrar usuários.' });
+    req.auth = claims;
+    next();
+  } catch {
+    return res.status(401).json({ erro: 'Faça login com uma conta administrativa.' });
+  }
+}
+
+app.post('/api/admin/usuarios', requireAdmin, async (req, res) => {
+  const nome = String(req.body?.nome || '').trim();
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  const tipo = String(req.body?.tipo || '').trim();
+  const guardianName = String(req.body?.responsavelNome || '').trim();
+  const guardianRelation = String(req.body?.responsavelVinculo || '').trim();
+  const consent = req.body?.consentimento === true;
+
+  if (nome.length < 2 || nome.length > 160) return res.status(400).json({ erro: 'Informe um nome entre 2 e 160 caracteres.' });
+  if (email.length > 254 || !/^[^\\s@]+@(?:aluno|educacao)\\.mg\\.gov\\.br$/i.test(email)) {
+    return res.status(400).json({ erro: 'Use um e-mail institucional @aluno.mg.gov.br ou @educacao.mg.gov.br.' });
+  }
+  if (!['aluno', 'professor', 'adm'].includes(tipo)) return res.status(400).json({ erro: 'Selecione um perfil válido.' });
+  if (tipo === 'aluno' && (!consent || guardianName.length < 2 || guardianRelation.length < 2)) {
+    return res.status(400).json({ erro: 'Para cadastrar aluno, registre o consentimento e os dados do responsável legal.' });
+  }
+
+  const consentText = tipo === 'aluno'
+    ? JSON.stringify({ alunoEmail: email, guardianName, guardianRelation, consent: true, recordedAt: new Date().toISOString() })
+    : null;
+  const consentHash = consentText ? require('crypto').createHash('sha256').update(consentText).digest('hex') : null;
+
+  try {
+    await pool.execute(
+      `INSERT INTO usuarios
+        (nome, email, tipo, ativo, consentimento_responsavel, consentimento_em, responsavel_nome, responsavel_vinculo, consentimento_hash)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [nome, email, tipo, tipo === 'aluno' ? true : true, tipo === 'aluno' ? true : null,
+        tipo === 'aluno' ? new Date() : null, tipo === 'aluno' ? guardianName : null,
+        tipo === 'aluno' ? guardianRelation : null, consentHash]
+    );
+    return res.status(201).json({ sucesso: true, mensagem: 'Cadastro institucional criado. O usuário já pode entrar com o Google institucional.' });
+  } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') return res.status(409).json({ erro: 'Já existe um cadastro com esse e-mail.' });
+    console.error('[auth] Institutional enrollment failed:', error.message);
+    return res.status(500).json({ erro: 'Não foi possível concluir o cadastro. Verifique a configuração do banco.' });
+  }
+});
+
 app.listen(PORT, () => console.log(`Auth Service listening on :${PORT}`));

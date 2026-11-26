@@ -88,10 +88,16 @@ app.post('/api/logout', (_req, res) => {
 });
 
 
-function requireAdmin(req, res, next) {
+async function requireAdmin(req, res, next) {
   try {
     const claims = jwt.verify(req.cookies[COOKIE_NAME] || '', JWT_SECRET, { issuer: 'goschool-auth' });
-    if (claims.role !== 'adm') return res.status(403).json({ erro: 'Apenas a Coordenação pode cadastrar usuários.' });
+    const [rows] = await pool.execute(
+      'SELECT id, tipo, ativo FROM usuarios WHERE id = ? LIMIT 1',
+      [claims.sub]
+    );
+    const user = rows[0];
+    if (!user || !user.ativo) return res.status(401).json({ erro: 'Sessão inválida ou conta inativa.' });
+    if (user.tipo !== 'adm') return res.status(403).json({ erro: 'Apenas a Coordenação pode cadastrar usuários.' });
     req.auth = claims;
     next();
   } catch {

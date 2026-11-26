@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GOSchool - Dashboard do Professor</title>
     <link rel="stylesheet" href="/design-system.css">
-    <link rel="stylesheet" href="/Professor/professor.css">
+    <link rel="stylesheet" href="/professor.css">
     <script src="/theme.js"></script>
     <script src="/global-preferences.js"></script>
     <script src="/auth.js"></script>
@@ -300,7 +300,7 @@
         async function carregarReservasRecentes() {
             try {
                 const res = await Auth.apiCall('/api/reservas/minhas?limit=5');
-                if (!res.ok) throw new Error('Erro ao carregar reservas');
+                if (!res.ok) throw new Error('Serviço de reservas indisponível');
 
                 const data = await res.json();
                 const tbody = document.getElementById('reservas-tbody');
@@ -319,7 +319,7 @@
                         </tr>
                     `).join('');
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Nenhuma reserva encontrada</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Nenhuma reserva cadastrada para este período</td></tr>';
                 }
             } catch (err) {
                 console.error('[Professor] Erro ao carregar reservas:', err);
@@ -351,10 +351,10 @@
         function escapeHtml(valor) {
             if (valor === null || valor === undefined) return '';
             return String(valor)
-                .replace(/&/g, '&')
-                .replace(/</g, '<')
-                .replace(/>/g, '>')
-                .replace(/"/g, '"')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
         }
 

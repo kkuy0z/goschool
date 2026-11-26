@@ -56,6 +56,28 @@ const authProxy = createProxyMiddleware({
 });
 
 app.use(authProxy);
+
+// O frontend fica em uma única pasta (public). Estas rotas preservam os
+// endereços usados pelos menus e encaminham cada painel para seu HTML real.
+const pageAliases = new Map([
+  ["/Aluno", "aluno.html"],
+  ["/Professor", "professor.html"],
+  ["/Admin", "adm.html"],
+  ["/Admin/usuarios", "usuarios.html"],
+  ["/Cardapio", "cardapio.html"],
+  ["/Reservas", "reservas.html"],
+  ["/Configuracoes", "config.html"],
+  ["/Desperdicio", "desperdicio.html"],
+  ["/Cadastro", "cadastro.html"],
+  ["/login", "login.html"],
+]);
+
+app.get([...pageAliases.keys()], (req, res) => {
+  const aliasPath = req.path.replace(/\/+$/, "") || "/";
+  const file = pageAliases.get(aliasPath);
+  if (!file) return res.status(404).end();
+  return res.sendFile(path.resolve(__dirname, "../../../public", file));
+});
 app.get(/^\/Admin\/usuario\/\d+\/?$/, (_req, res) => {
   res.sendFile(path.resolve(__dirname, "../../../public/usuario.html"));
 });

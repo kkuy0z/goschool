@@ -108,7 +108,7 @@ app.post('/api/admin/usuarios', requireAdmin, async (req, res) => {
   const consent = req.body?.consentimento === true;
 
   if (nome.length < 2 || nome.length > 160) return res.status(400).json({ erro: 'Informe um nome entre 2 e 160 caracteres.' });
-  if (email.length > 254 || !/^[^\\s@]+@(?:aluno|educacao)\\.mg\\.gov\\.br$/i.test(email)) {
+  if (email.length > 254 || !/^[^\s@]+@(?:aluno|educacao)\.mg\.gov\.br$/i.test(email)) {
     return res.status(400).json({ erro: 'Use um e-mail institucional @aluno.mg.gov.br ou @educacao.mg.gov.br.' });
   }
   if (!['aluno', 'professor', 'adm'].includes(tipo)) return res.status(400).json({ erro: 'Selecione um perfil válido.' });

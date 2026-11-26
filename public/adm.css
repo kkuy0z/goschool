@@ -123,8 +123,6 @@ body {
   justify-content: center;
   padding: 6px 14px;
   border-radius: var(--gs-radius);
-  background: linear-gradient(135deg, var(--gs-blue-header) 0%, var(--gs-blue-logo) 100%);
-  box-shadow: 0 4px 12px rgb(0 0 0 / 22%);
   transition: transform var(--gs-transition);
 }
 

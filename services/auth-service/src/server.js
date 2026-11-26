@@ -35,7 +35,10 @@ app.disable("x-powered-by");
 app.use(express.json({ limit: "16kb" }));
 app.use(cookieParser());
 
-const allowedDomains = new Set(["aluno.mg.gov.br", "educacao.mg.gov.br"]);
+const allowedDomains = new Set([
+  "aluno.mg.gov.br",
+  "educacao.mg.gov.br",
+]);
 
 function secureCookie() {
   return {
@@ -48,6 +51,10 @@ function secureCookie() {
 }
 
 function issueSession(res, user) {
+  if (!JWT_SECRET) {
+    throw new Error("JWT_SECRET não está configurado.");
+  }
+
   const token = jwt.sign(
     {
       sub: String(user.id),
@@ -98,6 +105,8 @@ app.get("/api/auth/config", (_req, res) => {
 });
 
 app.post("/auth/google/callback", async (req, res) => {
+  let etapa = "validacao-inicial";
+
   try {
     if (!isAuthConfigured()) {
       return res.status(503).json({
@@ -116,6 +125,8 @@ app.post("/auth/google/callback", async (req, res) => {
         erro: "Credencial inválida.",
       });
     }
+
+    etapa = "validacao-google";
 
     const ticket = await oauth.verifyIdToken({
       idToken: credential,
@@ -139,6 +150,8 @@ app.post("/auth/google/callback", async (req, res) => {
       });
     }
 
+    etapa = "consulta-usuario";
+
     // O perfil é definido pelo cadastro institucional no banco.
     const [rows] = await pool.execute(
       `SELECT id, nome, email, tipo, ativo
@@ -152,7 +165,8 @@ app.post("/auth/google/callback", async (req, res) => {
 
     if (!user || !user.ativo) {
       return res.status(403).json({
-        erro: "Conta não habilitada. Procure a coordenação para realizar seu cadastro institucional.",
+        erro:
+          "Conta não habilitada. Procure a coordenação para realizar seu cadastro institucional.",
       });
     }
 
@@ -162,6 +176,7 @@ app.post("/auth/google/callback", async (req, res) => {
       });
     }
 
+    etapa = "criacao-sessao";
     issueSession(res, user);
 
     return res.json({
@@ -175,10 +190,22 @@ app.post("/auth/google/callback", async (req, res) => {
             : "/aluno.html",
     });
   } catch (error) {
-    console.error("[auth] Google sign-in failed:", error.message);
+    console.error("[auth] Google sign-in failed:", {
+      etapa,
+      name: error.name,
+      code: error.code,
+      message: error.message,
+    });
 
-    return res.status(401).json({
-      erro: "Não foi possível validar a conta institucional.",
+    // Erros na validação do token Google são 401.
+    // Erros de banco, sessão ou configuração são falhas internas (500).
+    const status = etapa === "validacao-google" ? 401 : 500;
+
+    return res.status(status).json({
+      erro:
+        status === 401
+          ? "Não foi possível validar a credencial Google."
+          : "Falha interna no serviço de autenticação.",
     });
   }
 });
@@ -191,9 +218,13 @@ app.get("/api/me", async (req, res) => {
       });
     }
 
-    const claims = jwt.verify(req.cookies[COOKIE_NAME] || "", JWT_SECRET, {
-      issuer: "goschool-auth",
-    });
+    const claims = jwt.verify(
+      req.cookies[COOKIE_NAME] || "",
+      JWT_SECRET,
+      {
+        issuer: "goschool-auth",
+      },
+    );
 
     const [rows] = await pool.execute(
       `SELECT id, nome, email, tipo, ativo
@@ -206,7 +237,9 @@ app.get("/api/me", async (req, res) => {
     const user = rows[0];
 
     if (!user || !user.ativo) {
-      return res.status(401).json({ sucesso: false });
+      return res.status(401).json({
+        sucesso: false,
+      });
     }
 
     return res.json({
@@ -214,7 +247,9 @@ app.get("/api/me", async (req, res) => {
       usuario: publicUser(user),
     });
   } catch {
-    return res.status(401).json({ sucesso: false });
+    return res.status(401).json({
+      sucesso: false,
+    });
   }
 });
 
@@ -226,7 +261,9 @@ app.post("/api/logout", (_req, res) => {
     path: "/",
   });
 
-  res.json({ sucesso: true });
+  res.json({
+    sucesso: true,
+  });
 });
 
 async function requireAdmin(req, res, next) {
@@ -237,9 +274,13 @@ async function requireAdmin(req, res, next) {
       });
     }
 
-    const claims = jwt.verify(req.cookies[COOKIE_NAME] || "", JWT_SECRET, {
-      issuer: "goschool-auth",
-    });
+    const claims = jwt.verify(
+      req.cookies[COOKIE_NAME] || "",
+      JWT_SECRET,
+      {
+        issuer: "goschool-auth",
+      },
+    );
 
     const [rows] = await pool.execute(
       `SELECT id, tipo, ativo
@@ -384,7 +425,8 @@ app.patch("/api/admin/usuarios/:id", requireAdmin, async (req, res) => {
   ) {
     return res.status(400).json({
       sucesso: false,
-      erro: "Use um e-mail institucional @aluno.mg.gov.br ou @educacao.mg.gov.br.",
+      erro:
+        "Use um e-mail institucional @aluno.mg.gov.br ou @educacao.mg.gov.br.",
     });
   }
 
@@ -467,7 +509,8 @@ app.post("/api/admin/usuarios", requireAdmin, async (req, res) => {
     !/^[^\s@]+@(?:aluno|educacao)\.mg\.gov\.br$/i.test(email)
   ) {
     return res.status(400).json({
-      erro: "Use um e-mail institucional @aluno.mg.gov.br ou @educacao.mg.gov.br.",
+      erro:
+        "Use um e-mail institucional @aluno.mg.gov.br ou @educacao.mg.gov.br.",
     });
   }
 
@@ -482,7 +525,8 @@ app.post("/api/admin/usuarios", requireAdmin, async (req, res) => {
     (!consent || guardianName.length < 2 || guardianRelation.length < 2)
   ) {
     return res.status(400).json({
-      erro: "Para cadastrar aluno, registre o consentimento e os dados do responsável legal.",
+      erro:
+        "Para cadastrar aluno, registre o consentimento e os dados do responsável legal.",
     });
   }
 
@@ -498,7 +542,10 @@ app.post("/api/admin/usuarios", requireAdmin, async (req, res) => {
       : null;
 
   const consentHash = consentText
-    ? require("crypto").createHash("sha256").update(consentText).digest("hex")
+    ? require("crypto")
+        .createHash("sha256")
+        .update(consentText)
+        .digest("hex")
     : null;
 
   try {
@@ -544,7 +591,8 @@ app.post("/api/admin/usuarios", requireAdmin, async (req, res) => {
     console.error("[auth] Institutional enrollment failed:", error.message);
 
     return res.status(500).json({
-      erro: "Não foi possível concluir o cadastro. Verifique a configuração do banco.",
+      erro:
+        "Não foi possível concluir o cadastro. Verifique a configuração do banco.",
     });
   }
 });
@@ -552,4 +600,5 @@ app.post("/api/admin/usuarios", requireAdmin, async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Auth Service listening on :${PORT}`);
   console.log(`GOOGLE_CLIENT_ID carregado: ${Boolean(CLIENT_ID)}`);
+  console.log(`JWT_SECRET carregado: ${Boolean(JWT_SECRET)}`);
 });

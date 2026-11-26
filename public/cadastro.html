@@ -1,48 +1,142 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cadastro institucional | GoSchool</title>
-</head>
-<body>
-  <main>
-    <a href="/adm.html">Voltar ao painel</a>
-    <h1>Cadastro institucional</h1>
-    <p>Somente a Coordenação pode cadastrar usuários. O acesso é feito posteriormente com a conta Google institucional; não há senha local.</p>
-    <p id="status" role="status" aria-live="polite"></p>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#44B7F8" />
+    <meta
+      name="description"
+      content="Cadastro de usuários da plataforma educacional GoSchool."
+    />
+    <title>Cadastro institucional | GoSchool</title>
+    <link rel="stylesheet" href="cadastro.css" />
+    <script src="theme.js"></script>
+  </head>
 
-    <form id="enrollment-form">
-      <label for="nome">Nome completo</label>
-      <input id="nome" name="nome" autocomplete="name" minlength="2" maxlength="160" required>
+  <body>
+    <main class="enrollment-main">
+      <a class="enrollment-back" href="adm.html">
+        ← <span>Voltar ao painel</span>
+      </a>
 
-      <label for="email">E-mail institucional</label>
-      <input id="email" name="email" type="email" autocomplete="off" maxlength="254" placeholder="nome@aluno.mg.gov.br" required>
+      <section class="enrollment-card" aria-labelledby="enrollment-title">
+        <header class="enrollment-header">
+          <p class="enrollment-eyebrow">GESTÃO DE ACESSO</p>
+          <h1 id="enrollment-title">Cadastro institucional</h1>
+          <p class="enrollment-description">
+            Somente a Coordenação pode cadastrar usuários. O acesso é feito
+            posteriormente com a conta Google institucional; não há senha local.
+          </p>
+        </header>
 
-      <label for="tipo">Perfil</label>
-      <select id="tipo" name="tipo" required>
-        <option value="">Selecione</option>
-        <option value="aluno">Aluno</option>
-        <option value="professor">Professor</option>
-        <option value="adm">Administrador / Coordenação</option>
-      </select>
+        <p
+          id="status"
+          class="enrollment-status"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        ></p>
 
-      <fieldset id="guardian-fields" hidden>
-        <legend>Consentimento do responsável legal</legend>
-        <label for="responsavelNome">Nome do responsável</label>
-        <input id="responsavelNome" name="responsavelNome" maxlength="160">
-        <label for="responsavelVinculo">Vínculo com o aluno</label>
-        <input id="responsavelVinculo" name="responsavelVinculo" maxlength="100" placeholder="Mãe, pai, tutor legal...">
-        <label>
-          <input id="consentimento" name="consentimento" type="checkbox">
-          Confirmo que o consentimento do responsável legal foi obtido e registrado pela instituição.
-        </label>
-        <p>O perfil de aluno só pode ser ativado após o registro do consentimento.</p>
-      </fieldset>
+        <form id="enrollment-form">
+          <div class="form-field">
+            <label for="nome">Nome completo</label>
+            <input
+              id="nome"
+              name="nome"
+              type="text"
+              autocomplete="name"
+              minlength="2"
+              maxlength="160"
+              required
+            />
+          </div>
 
-      <button type="submit" id="submit-button">Cadastrar usuário</button>
-    </form>
-  </main>
-  <script src="/cadastro.js" defer></script>
-</body>
+          <div class="form-field">
+            <label for="email">E-mail institucional</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="off"
+              inputmode="email"
+              maxlength="254"
+              placeholder="nome@aluno.mg.gov.br"
+              aria-describedby="email-help"
+              required
+            />
+            <p id="email-help" class="form-help">
+              Use uma conta institucional terminada em
+              <strong>@aluno.mg.gov.br</strong> ou
+              <strong>@educacao.mg.gov.br</strong>.
+            </p>
+          </div>
+
+          <div class="form-field">
+            <label for="tipo">Perfil</label>
+            <select id="tipo" name="tipo" required>
+              <option value="">Selecione um perfil</option>
+              <option value="aluno">Aluno</option>
+              <option value="professor">Professor</option>
+              <option value="adm">Administrador / Coordenação</option>
+            </select>
+          </div>
+
+          <fieldset id="guardian-fields" class="guardian-fields" hidden>
+            <legend>Consentimento do responsável legal</legend>
+
+            <p class="form-help">
+              Para cadastrar um aluno, informe os dados do responsável e
+              confirme que o consentimento foi obtido e registrado pela
+              instituição.
+            </p>
+
+            <div class="form-field">
+              <label for="responsavelNome">Nome do responsável</label>
+              <input
+                id="responsavelNome"
+                name="responsavelNome"
+                type="text"
+                autocomplete="name"
+                maxlength="160"
+                disabled
+              />
+            </div>
+
+            <div class="form-field">
+              <label for="responsavelVinculo">Vínculo com o aluno</label>
+              <input
+                id="responsavelVinculo"
+                name="responsavelVinculo"
+                type="text"
+                maxlength="100"
+                placeholder="Mãe, pai, tutor legal..."
+                disabled
+              />
+            </div>
+
+            <label class="consent-checkbox" for="consentimento">
+              <input
+                id="consentimento"
+                name="consentimento"
+                type="checkbox"
+                disabled
+              />
+              <span>
+                Confirmo que o consentimento do responsável legal foi obtido e
+                registrado pela instituição.
+              </span>
+            </label>
+          </fieldset>
+
+          <button type="submit" id="submit-button">Cadastrar usuário</button>
+        </form>
+
+        <p class="enrollment-footer">
+          O usuário cadastrado entrará com sua conta Google institucional.
+        </p>
+      </section>
+    </main>
+
+    <script src="cadastro.js" defer></script>
+  </body>
 </html>

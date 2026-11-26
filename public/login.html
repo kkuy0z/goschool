@@ -1,110 +1,230 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#44B7F8">
-  <title>Entrar | GoSchool</title>
-  <link rel="stylesheet" href="/design-system.css">
-  <link rel="stylesheet" href="/login.css">
-  <script src="/theme.js"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-</head>
-<body>
-  <a class="login-back" href="/inicio.html" aria-label="Voltar à página inicial">← <span>Voltar</span></a>
-  <main class="login-main">
-    <section class="login-card" aria-labelledby="login-title">
-      <img class="login-logo" src="/logo-simplificada.png" alt="GoSchool">
-      <p class="login-eyebrow">PLATAFORMA EDUCACIONAL</p>
-      <h1 id="login-title">Bem-vindo ao GoSchool</h1>
-      <p class="login-subtitle">Entre com sua conta Google institucional para continuar.</p>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#44B7F8" />
+    <meta
+      name="description"
+      content="Acesse o GoSchool com sua conta Google institucional."
+    />
+    <title>Entrar | GoSchool</title>
 
-      <div class="login-action">
-        <div id="google-signin" aria-label="Entrar com Google"></div>
-      </div>
-      <p id="login-status" class="login-status" role="status" aria-live="polite"></p>
+    <link rel="stylesheet" href="login.css" />
 
-      <div class="login-info">
-        <span class="info-icon" aria-hidden="true">i</span>
-        <p>Permitimos apenas contas <strong>@aluno.mg.gov.br</strong> e <strong>@educacao.mg.gov.br</strong>. O perfil e as permissões são definidos pela instituição.</p>
-      </div>
-      <p class="login-footer">Acesso seguro • Google OAuth 2.0</p>
-    </section>
-  </main>
+    <script src="/theme.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  </head>
 
-  <script>
-    (() => {
-      const status = document.getElementById('login-status');
-      const signin = document.getElementById('google-signin');
-      const setStatus = (message, isError = false) => {
-        status.textContent = message;
-        status.classList.toggle('is-error', isError);
-      };
+  <body>
+    <a
+      class="login-back"
+      href="inicio.html"
+      aria-label="Voltar à página inicial"
+    >
+      ← <span>Voltar</span>
+    </a>
 
-      async function handleGoogleCredential(response) {
-        if (!response || !response.credential) {
-          setStatus('Não foi possível validar sua conta Google. Tente novamente.', true);
-          return;
+    <main class="login-main">
+      <section class="login-card" aria-labelledby="login-title">
+        <img
+          class="login-logo"
+          src="logo-simplificada.png"
+          alt="GoSchool"
+          width="160"
+          height="auto"
+        />
+
+        <p class="login-eyebrow">PLATAFORMA EDUCACIONAL</p>
+        <h1 id="login-title">Bem-vindo ao GoSchool</h1>
+        <p class="login-subtitle">
+          Entre com sua conta Google institucional para continuar.
+        </p>
+
+        <div class="login-action">
+          <div
+            id="google-signin"
+            aria-label="Entrar com Google"
+            aria-busy="false"
+          ></div>
+        </div>
+
+        <p
+          id="login-status"
+          class="login-status"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        ></p>
+
+        <div class="login-info">
+          <span class="info-icon" aria-hidden="true">i</span>
+          <p>
+            Permitimos apenas contas
+            <strong>@aluno.mg.gov.br</strong> e
+            <strong>@educacao.mg.gov.br</strong>. O perfil e as permissões são
+            definidos pela instituição.
+          </p>
+        </div>
+
+        <p class="login-footer">Acesso seguro • Google OAuth 2.0</p>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        "use strict";
+
+        const status = document.getElementById("login-status");
+        const signin = document.getElementById("google-signin");
+
+        let googleInitialized = false;
+        let googleWaitTimer = null;
+
+        function setStatus(message, isError = false) {
+          status.textContent = message;
+          status.classList.toggle("is-error", isError);
         }
 
-        signin.setAttribute('aria-busy', 'true');
-        setStatus('Validando sua conta institucional…');
-        try {
-          const result = await fetch('/auth/google/callback', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ credential: response.credential })
-          });
-          const data = await result.json().catch(() => ({}));
-          if (!result.ok || !data.sucesso) {
-            throw new Error(data.erro || 'Não foi possível entrar com esta conta.');
-          }
-          window.location.replace(data.destino || '/inicio/');
-        } catch (error) {
-          setStatus(error.message || 'Falha de comunicação. Tente novamente.', true);
-          signin.removeAttribute('aria-busy');
+        function setSigninBusy(isBusy) {
+          signin.setAttribute("aria-busy", String(isBusy));
         }
-      }
 
-      async function initializeGoogleSignIn() {
-        try {
-          const configResponse = await fetch('/api/auth/config', { credentials: 'same-origin' });
-          const config = await configResponse.json();
-          if (!configResponse.ok || !config.clientId) {
-            setStatus('O login institucional ainda não está configurado. Avise a coordenação.', true);
+        async function handleGoogleCredential(response) {
+          if (!response || !response.credential) {
+            setStatus(
+              "Não foi possível validar sua conta Google. Tente novamente.",
+              true,
+            );
             return;
           }
 
-          const waitForGoogle = () => {
-            if (!window.google?.accounts?.id) {
-              window.setTimeout(waitForGoogle, 100);
+          setSigninBusy(true);
+          setStatus("Validando sua conta institucional…");
+
+          try {
+            const result = await fetch("/auth/google/callback", {
+              method: "POST",
+              credentials: "same-origin",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                credential: response.credential,
+              }),
+            });
+
+            const data = await result.json().catch(() => ({}));
+
+            if (!result.ok || !data.sucesso) {
+              throw new Error(
+                data.erro || "Não foi possível entrar com esta conta.",
+              );
+            }
+
+            setStatus("Login realizado. Redirecionando…");
+            window.location.replace(data.destino || "/inicio/");
+          } catch (error) {
+            setStatus(
+              error.message || "Falha de comunicação. Tente novamente.",
+              true,
+            );
+            setSigninBusy(false);
+          }
+        }
+
+        function initializeGoogleButton(clientId) {
+          if (googleInitialized) return true;
+
+          if (!window.google?.accounts?.id) {
+            return false;
+          }
+
+          google.accounts.id.initialize({
+            client_id: clientId,
+            callback: handleGoogleCredential,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+          });
+
+          google.accounts.id.renderButton(signin, {
+            type: "standard",
+            theme: "outline",
+            size: "large",
+            shape: "pill",
+            text: "continue_with",
+            logo_alignment: "left",
+            width: Math.min(360, signin.clientWidth || 360),
+          });
+
+          googleInitialized = true;
+          setStatus("");
+          return true;
+        }
+
+        async function initializeGoogleSignIn() {
+          setStatus("Carregando login institucional…");
+
+          try {
+            const configResponse = await fetch("/api/auth/config", {
+              credentials: "same-origin",
+              headers: {
+                Accept: "application/json",
+              },
+            });
+
+            const config = await configResponse.json().catch(() => ({}));
+
+            if (!configResponse.ok || !config.clientId) {
+              setStatus(
+                "O login institucional ainda não está configurado. Avise a coordenação.",
+                true,
+              );
               return;
             }
-            google.accounts.id.initialize({
-              client_id: config.clientId,
-              callback: handleGoogleCredential,
-              auto_select: false,
-              cancel_on_tap_outside: true
-            });
-            google.accounts.id.renderButton(signin, {
-              type: 'standard',
-              theme: 'outline',
-              size: 'large',
-              shape: 'pill',
-              text: 'continue_with',
-              logo_alignment: 'left',
-              width: Math.min(360, signin.clientWidth || 360)
-            });
-          };
-          waitForGoogle();
-        } catch {
-          setStatus('Não foi possível carregar o login. Verifique sua conexão e tente novamente.', true);
-        }
-      }
 
-      document.addEventListener('DOMContentLoaded', initializeGoogleSignIn);
-    })();
-  </script>
-</body>
+            const startedAt = Date.now();
+            const timeoutMs = 10000;
+
+            const waitForGoogle = () => {
+              if (initializeGoogleButton(config.clientId)) {
+                if (googleWaitTimer !== null) {
+                  window.clearTimeout(googleWaitTimer);
+                  googleWaitTimer = null;
+                }
+                return;
+              }
+
+              if (Date.now() - startedAt >= timeoutMs) {
+                setStatus(
+                  "Não foi possível carregar o serviço do Google. Verifique sua conexão e tente novamente.",
+                  true,
+                );
+                return;
+              }
+
+              googleWaitTimer = window.setTimeout(waitForGoogle, 150);
+            };
+
+            waitForGoogle();
+          } catch {
+            setStatus(
+              "Não foi possível carregar o login. Verifique sua conexão e tente novamente.",
+              true,
+            );
+          }
+        }
+
+        if (document.readyState === "loading") {
+          document.addEventListener(
+            "DOMContentLoaded",
+            initializeGoogleSignIn,
+            { once: true },
+          );
+        } else {
+          initializeGoogleSignIn();
+        }
+      })();
+    </script>
+  </body>
 </html>

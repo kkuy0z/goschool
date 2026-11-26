@@ -73,7 +73,8 @@ const pageAliases = new Map([
 ]);
 
 app.get([...pageAliases.keys()], (req, res) => {
-  const file = pageAliases.get(req.path);
+  const aliasPath = req.path.replace(/\/+$/, "") || "/";
+  const file = pageAliases.get(aliasPath);
   if (!file) return res.status(404).end();
   return res.sendFile(path.resolve(__dirname, "../../../public", file));
 });

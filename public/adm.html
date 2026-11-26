@@ -310,7 +310,7 @@
           <header class="section-header">
             <div class="section-title-group">
               <span class="section-icon" aria-hidden="true">📋</span>
-              <h2 id="usuarios-recentes-title">Usuários recentes</h2>
+              <h2 id="usuarios-recentes-title">Usuários cadastrados</h2>
             </div>
 
             <a href="/Admin/usuarios" class="btn-secondary btn-sm">
@@ -387,11 +387,7 @@
       "use strict";
 
       const ADMIN_API = {
-        usuariosStats: "/api/admin/usuarios/stats",
-        reservasStats: "/api/admin/reservas/stats",
-        desperdicioStats: "/api/desperdicio/stats?periodo=mes",
-        usuariosPorRole: "/api/admin/usuarios/por-role",
-        usuariosRecentes: "/api/admin/usuarios?limit=10&order=created_desc",
+        usuarios: "/api/admin/usuarios",
       };
 
       const ROLE_LABELS = {
@@ -550,71 +546,46 @@
         }
       }
 
+      async function obterUsuariosAdmin() {
+        const response = await Auth.apiCall(ADMIN_API.usuarios);
+        if (!response.ok) throw new Error("Falha ao consultar usuários");
+        const data = await response.json();
+        if (!data.sucesso || !Array.isArray(data.usuarios)) {
+          throw new Error("A API não retornou uma lista de usuários válida");
+        }
+        return data.usuarios;
+      }
+
       async function carregarKPIs() {
-        const requests = [
-          ["usuarios", ADMIN_API.usuariosStats],
-          ["reservas", ADMIN_API.reservasStats],
-          ["desperdicio", ADMIN_API.desperdicioStats],
-        ];
+        try {
+          const usuarios = await obterUsuariosAdmin();
+          const ativos = usuarios.filter((usuario) => Boolean(usuario.ativo)).length;
+          setText("kpi-total-usuarios", formatNumber(usuarios.length));
+          setText("kpi-usuarios-ativos", formatNumber(ativos));
 
-        const results = await Promise.allSettled(
-          requests.map(([, url]) => Auth.apiCall(url)),
-        );
-
-        for (let index = 0; index < results.length; index++) {
-          const [tipo] = requests[index];
-          const result = results[index];
-
-          if (result.status !== "fulfilled" || !result.value.ok) {
-            console.warn(
-              `[Admin] Não foi possível carregar estatísticas: ${tipo}`,
-            );
-            continue;
-          }
-
-          try {
-            const data = await result.value.json();
-            if (!data.sucesso) continue;
-
-            if (tipo === "usuarios") {
-              setText("kpi-total-usuarios", formatNumber(data.total));
-              setText("kpi-usuarios-ativos", formatNumber(data.ativos_30d));
-            }
-
-            if (tipo === "reservas") {
-              setText("kpi-total-reservas", formatNumber(data.total));
-            }
-
-            if (tipo === "desperdicio") {
-              const total = Number(data.total_kg);
-              setText(
-                "kpi-desperdicio-mes",
-                `${Number.isFinite(total) ? total.toLocaleString("pt-BR") : "0"} kg`,
-              );
-            }
-          } catch (error) {
-            console.error(`[Admin] Resposta inválida em ${tipo}:`, error);
-          }
+          // Estas métricas ficam indisponíveis até existirem endpoints próprios.
+          setText("kpi-total-reservas", "—");
+          setText("kpi-desperdicio-mes", "— kg");
+        } catch (error) {
+          console.error("[Admin] Erro ao carregar indicadores:", error);
+          setText("kpi-total-usuarios", "—");
+          setText("kpi-usuarios-ativos", "—");
         }
       }
 
       async function carregarChartRoles() {
         try {
-          const response = await Auth.apiCall(ADMIN_API.usuariosPorRole);
-          if (!response.ok)
-            throw new Error("Falha ao buscar usuários por perfil");
-
-          const data = await response.json();
-          if (!data.sucesso || !data.roles) {
-            desenharGraficoRoles({});
-            return;
-          }
-
-          chartRolesData = data.roles;
-          desenharGraficoRoles(chartRolesData);
+          const usuarios = await obterUsuariosAdmin();
+          const roles = usuarios.reduce((acc, usuario) => {
+            const role = String(usuario.role || "desconhecido");
+            acc[role] = (acc[role] || 0) + 1;
+            return acc;
+          }, {});
+          chartRolesData = roles;
+          desenharGraficoRoles(roles);
         } catch (error) {
           console.error("[Admin] Erro ao carregar gráfico:", error);
-          mostrarEstadoGrafico("Não foi possível carregar o gráfico.");
+          mostrarEstadoGrafico("Não foi possível carregar os perfis.");
         }
       }
 
@@ -732,16 +703,11 @@
         if (!tbody) return;
 
         try {
-          const response = await Auth.apiCall(ADMIN_API.usuariosRecentes);
-          if (!response.ok) throw new Error("Falha ao buscar usuários");
-
-          const data = await response.json();
-          const usuarios = Array.isArray(data.usuarios) ? data.usuarios : [];
-
+          const usuarios = (await obterUsuariosAdmin()).slice(0, 10);
           tbody.replaceChildren();
 
-          if (!data.sucesso || usuarios.length === 0) {
-            inserirMensagemTabela(tbody, "Nenhum usuário encontrado.");
+          if (usuarios.length === 0) {
+            inserirMensagemTabela(tbody, "Nenhum usuário cadastrado.");
             return;
           }
 
@@ -750,10 +716,7 @@
           });
         } catch (error) {
           console.error("[Admin] Erro ao carregar usuários:", error);
-          inserirMensagemTabela(
-            tbody,
-            "Não foi possível carregar os usuários.",
-          );
+          inserirMensagemTabela(tbody, "Não foi possível carregar os usuários.");
         }
       }
 

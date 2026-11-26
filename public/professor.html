@@ -300,7 +300,7 @@
         async function carregarReservasRecentes() {
             try {
                 const res = await Auth.apiCall('/api/reservas/minhas?limit=5');
-                if (!res.ok) throw new Error('Erro ao carregar reservas');
+                if (!res.ok) throw new Error('Serviço de reservas indisponível');
 
                 const data = await res.json();
                 const tbody = document.getElementById('reservas-tbody');
@@ -319,7 +319,7 @@
                         </tr>
                     `).join('');
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Nenhuma reserva encontrada</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Nenhuma reserva cadastrada para este período</td></tr>';
                 }
             } catch (err) {
                 console.error('[Professor] Erro ao carregar reservas:', err);

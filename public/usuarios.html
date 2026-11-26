@@ -277,6 +277,9 @@
           ?.addEventListener("click", carregarUsuarios);
 
         await carregarUsuarios();
+
+        const usuarioId = new URLSearchParams(window.location.search).get("editar");
+        if (usuarioId) await abrirModalEdicaoUsuario(usuarioId);
       }
 
       function configurarLogout() {

@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const app = express();
@@ -14,4 +15,6 @@ app.use(createProxyMiddleware({
   pathFilter: ['/api/auth/**', '/api/me', '/api/logout', '/auth/**'],
   on: { error: (_err, _req, res) => res.status(502).json({ erro: 'Serviço de autenticação indisponível.' }) }
 }));
+app.use(express.static(path.resolve(__dirname, '../../../public'), { extensions: ['html'] }));
+app.get('/', (_req, res) => res.sendFile(path.resolve(__dirname, '../../../public/inicio.html')));
 app.listen(PORT, () => console.log(`Gateway listening on :${PORT}`));

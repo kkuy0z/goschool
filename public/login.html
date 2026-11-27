@@ -19,7 +19,7 @@
   <body>
     <a
       class="login-back"
-      href="inicio.html"
+      href="/"
       aria-label="Voltar à página inicial"
     >
       ← <span>Voltar</span>
@@ -134,7 +134,7 @@
             }
 
             setStatus("Login realizado. Redirecionando…");
-            window.location.replace(data.destino || "/inicio/");
+            window.location.replace(data.destino || "/");
           } catch (error) {
             setStatus(
               error.message || "Falha de comunicação. Tente novamente.",

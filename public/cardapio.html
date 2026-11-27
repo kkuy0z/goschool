@@ -333,29 +333,25 @@
         });
 
         function atualizarUIUsuario(user) {
-            const roleLabels = {
-                'aluno': 'ALUNO',
-                'professor': 'PROFESSOR',
-                'adm': 'ADMINISTRADOR'
-            };
-
-            const roleText = roleLabels[user.tipo] || user.tipo.toUpperCase();
+            const roleLabels = { aluno: 'Aluno', professor: 'Professor', adm: 'Administrador' };
+            const role = String(user.tipo || '').trim().toLowerCase();
             const nome = user.nome || 'Usuário';
+            const painelPorPerfil = { aluno: '/aluno.html', professor: '/professor.html', adm: '/adm.html' };
 
-            // Sidebar: retorno ao painel correspondente ao perfil autenticado.
-            document.getElementById('sidebarUserName').textContent = nome;
-            const painelPorPerfil = {
-                'aluno': '/aluno.html',
-                'professor': 'professor.html',
-                'adm': '/adm.html'
-            };
+            const sidebarName = document.getElementById('sidebarUserName');
+            if (sidebarName) sidebarName.textContent = nome;
             const voltarPainel = document.getElementById('nav-back-panel');
             if (voltarPainel) {
-                voltarPainel.href = painelPorPerfil[user.tipo] || '/';
+                voltarPainel.href = painelPorPerfil[role] || '/';
+                voltarPainel.textContent = 'Voltar ao painel ' + (roleLabels[role] || '');
             }
-
+            document.querySelectorAll('[data-auth-role]').forEach((item) => {
+                const permitted = item.dataset.authRole.split(',').map(value => value.trim().toLowerCase());
+                item.hidden = !permitted.includes(role);
+            });
             // Top header
-            document.getElementById('topUserName').textContent = nome;
+            const topName = document.getElementById('topUserName');
+            if (topName) topName.textContent = nome;
 
             // Avatar inicial
             const avatar = document.getElementById('topUserAvatar');
@@ -365,12 +361,14 @@
             }
 
             // Dashboard greeting
-            document.getElementById('dashboard-title').textContent = `Olá, ${nome.split(' ')[0]}! Cardápio de Hoje`;
+            const title = document.getElementById('dashboard-title');
+            if (title) title.textContent = 'Olá, ' + nome.split(' ')[0] + '! Cardápio de Hoje';
 
             // Date
             const hoje = new Date();
             const opcoes = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-            document.getElementById('dashboard-date').textContent = hoje.toLocaleDateString('pt-BR', opcoes);
+            const date = document.getElementById('dashboard-date');
+            if (date) date.textContent = hoje.toLocaleDateString('pt-BR', opcoes);
         }
 
         function close403Modal() {

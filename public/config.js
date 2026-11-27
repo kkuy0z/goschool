@@ -1,655 +1,418 @@
-// ==========================================
-// GOSchool — Configurações (JavaScript Module)
-// ==========================================
+/* =========================================================
+   GoSchool — Configurações
+   Preferências, alergias, notificações e segurança.
+   Preferências e alergias ficam no navegador até existir API
+   de persistência no servidor.
+   ========================================================= */
+(function () {
+  "use strict";
 
-/**
- * Inicializa a página de configurações
- * Exporta funções para uso global
- */
-(function() {
-    'use strict';
+  const STORAGE_PREFIX = "goschool_config_v1";
+  const DEFAULTS = {
+    density: "comfortable",
+    language: "pt-BR",
+    cardapio_view: "semanal",
+    show_allergens: true,
+    highlight_restrictions: true,
+    push_enabled: false,
+    reminder_enabled: true,
+    allergy_alert_enabled: true,
+    weekly_summary_enabled: false
+  };
 
-    // Estado
-    let currentTab = 'perfil';
-    let userData = null;
+  const ALLERGENS = [
+    { category: "Grãos e cereais", items: ["Glúten", "Trigo", "Centeio", "Cevada", "Aveia"] },
+    { category: "Leite e ovos", items: ["Leite", "Lactose", "Ovos"] },
+    { category: "Oleaginosas e sementes", items: ["Amendoim", "Castanhas", "Amêndoas", "Nozes", "Avelã", "Gergelim"] },
+    { category: "Outros", items: ["Soja", "Peixes", "Crustáceos", "Moluscos", "Mostarda", "Aipo", "Látex"] }
+  ];
 
-    /**
-     * Inicializa a página
-     */
-    async function init() {
-        const authenticated = await Auth.init({
-            requireAuth: true,
-            allowedRoles: ['aluno', 'professor', 'adm']
-        });
+  let currentUser = null;
+  let preferences = { ...DEFAULTS };
+  let selectedAllergens = [];
 
-        if (!authenticated) return;
+  function userKey(suffix) {
+    const id = currentUser && (currentUser.id || currentUser.email);
+    return STORAGE_PREFIX + ":" + (id ? String(id).toLowerCase() : "local") + ":" + suffix;
+  }
 
-        // Configurar logout
-        const logoutBtn = document.getElementById('btn-logout');
-        if (logoutBtn) logoutBtn.addEventListener('click', () => Auth.logout());
+  function readStorage(key, fallback) {
+    try {
+      const value = localStorage.getItem(key);
+      return value ? JSON.parse(value) : fallback;
+    } catch (error) {
+      console.warn("[Config] Não foi possível ler o armazenamento local.", error);
+      return fallback;
+    }
+  }
 
-        // Configurar abas
-        initTabs();
+  function writeStorage(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (error) {
+      console.error("[Config] Não foi possível salvar no armazenamento local.", error);
+      showStatus("Não foi possível salvar neste navegador.", "error");
+      return false;
+    }
+  }
 
-        // Configurar formulários
-        initForms();
+  function showStatus(message, type) {
+    let status = document.getElementById("configStatus");
+    if (!status) {
+      status = document.createElement("div");
+      status.id = "configStatus";
+      status.className = "config-toast";
+      status.setAttribute("role", "status");
+      status.setAttribute("aria-live", "polite");
+      document.body.appendChild(status);
+    }
+    status.textContent = message;
+    status.dataset.type = type || "success";
+    status.classList.add("visible");
+    window.clearTimeout(showStatus.timer);
+    showStatus.timer = window.setTimeout(() => status.classList.remove("visible"), 3200);
+  }
 
-        // Configurar modais
-        initModals();
+  function escapeHtml(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
 
-        // Configurar preferências
-        initPreferences();
-
-        // Carregar dados
-        await loadUserData();
-        await loadAlergenos();
-        await loadSessoes();
-
-        // Sidebar mobile
-        initSidebarMobile();
-
-        // Tab from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const tab = urlParams.get('tab');
-        if (tab && document.querySelector(`[data-tab="${tab}"]`)) {
-            switchTab(tab);
-        }
+  async function init() {
+    if (!window.Auth) {
+      showStatus("O módulo de autenticação não foi carregado.", "error");
+      return;
     }
 
-    /**
-     * Inicializa abas
-     */
-    function initTabs() {
-        const tabs = document.getElementById('configTabs');
-        if (!tabs) return;
+    const authenticated = await Auth.init({
+      requireAuth: true,
+      allowedRoles: ["aluno", "professor", "adm"]
+    });
+    if (!authenticated) return;
 
-        tabs.querySelectorAll('.config-tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-        });
+    currentUser = typeof Auth.getCurrentUser === "function" ? await Auth.getCurrentUser() : null;
+    preferences = { ...DEFAULTS, ...readStorage(userKey("preferences"), {}) };
+    selectedAllergens = readStorage(userKey("allergens"), []);
 
-        tabs.addEventListener('keydown', (e) => {
-            const btns = Array.from(tabs.querySelectorAll('.config-tab-btn'));
-            const activeIndex = btns.findIndex(b => b === document.activeElement);
-            let newIndex = activeIndex;
+    initTabs();
+    initSidebar();
+    initPreferences();
+    initAllergens();
+    initNotifications();
+    initSecurity();
+    initProfileFallback();
+    applyPreferences();
+    syncControls();
+    updateSecurityInfo();
+    updateSidebarUser();
 
-            if (e.key === 'ArrowRight') newIndex = (activeIndex + 1) % btns.length;
-            if (e.key === 'ArrowLeft') newIndex = (activeIndex - 1 + btns.length) % btns.length;
-            if (e.key === 'Home') newIndex = 0;
-            if (e.key === 'End') newIndex = btns.length - 1;
-
-            if (newIndex !== activeIndex) {
-                e.preventDefault();
-                btns[newIndex].focus();
-                btns[newIndex].click();
-            }
-        });
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+    if (["perfil", "preferencias", "alergias", "notificacoes", "seguranca"].includes(tab)) {
+      switchTab(tab);
     }
-
-    /**
-     * Troca aba ativa
-     */
-    function switchTab(tab) {
-        currentTab = tab;
-
-        document.querySelectorAll('.config-tab-btn').forEach(btn => {
-            const isActive = btn.dataset.tab === tab;
-            btn.classList.toggle('active', isActive);
-            btn.setAttribute('aria-selected', isActive);
-        });
-
-        document.querySelectorAll('.config-tab-panel').forEach(panel => {
-            const isActive = panel.id === `panel-${tab}`;
-            panel.hidden = !isActive;
-            panel.classList.toggle('active', isActive);
-        });
-
-        const url = new URL(window.location);
-        url.searchParams.set('tab', tab);
-        window.history.replaceState({}, '', url);
-    }
-
-    /**
-     * Inicializa formulários
-     */
-    function initForms() {
-        // Perfil
-        const formPerfil = document.getElementById('formPerfil');
-        if (formPerfil) {
-            formPerfil.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                await savePerfil(new FormData(formPerfil));
-            });
-        }
-
-        // Senha
-        const formSenha = document.getElementById('formSenha');
-        if (formSenha) {
-            formSenha.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const formData = new FormData(formSenha);
-                if (formData.get('nova_senha') !== formData.get('confirmar_senha')) {
-                    alert('As senhas não coincidem');
-                    return;
-                }
-                await changePassword(formData);
-            });
-        }
-
-        // Alergias
-        const btnSalvarAlergias = document.getElementById('btnSalvarAlergias');
-        if (btnSalvarAlergias) {
-            btnSalvarAlergias.addEventListener('click', saveAlergias);
-        }
-    }
-
-    /**
-     * Inicializa preferências (toggles, selects)
-     */
-    function initPreferences() {
-        // Tema - sincronizar com GlobalPreferences
-        document.querySelectorAll('input[name="theme"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    GlobalPreferences.set('theme', e.target.value);
-                }
-            });
-        });
-
-        // Selects
-        ['prefDensidade', 'prefIdioma', 'prefCardapioView'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.addEventListener('change', () => {
-                    GlobalPreferences.set(el.dataset.pref, el.value);
-                });
-            }
-        });
-
-        // Toggles
-        document.querySelectorAll('.toggle-switch input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
-                GlobalPreferences.set(checkbox.closest('.toggle-switch').dataset.pref, checkbox.checked);
-            });
-        });
-    }
-
-    /**
-     * Inicializa modais
-     */
-    function initModals() {
-        // Modal Excluir Conta
-        const modalExcluir = document.getElementById('modalExcluirConta');
-        const btnExcluirConta = document.getElementById('btnExcluirConta');
-        const btnCancelarExcluir = document.getElementById('btnCancelarExcluir');
-        const btnConfirmarExcluir = document.getElementById('btnConfirmarExcluir');
-        const confirmInput = document.getElementById('confirmExcluirInput');
-        const modalExcluirClose = document.getElementById('modalExcluirClose');
-
-        function closeModalExcluir() {
-            modalExcluir.hidden = true;
-        }
-
-        btnExcluirConta?.addEventListener('click', () => {
-            modalExcluir.hidden = false;
-            confirmInput.value = '';
-            btnConfirmarExcluir.disabled = true;
-            confirmInput.focus();
-        });
-
-        btnCancelarExcluir?.addEventListener('click', closeModalExcluir);
-        modalExcluirClose?.addEventListener('click', closeModalExcluir);
-        modalExcluir?.addEventListener('click', (e) => {
-            if (e.target === modalExcluir) closeModalExcluir();
-        });
-
-        confirmInput?.addEventListener('input', () => {
-            btnConfirmarExcluir.disabled = confirmInput.value !== 'EXCLUIR';
-        });
-
-        btnConfirmarExcluir?.addEventListener('click', async () => {
-            await deleteAccount();
-            closeModalExcluir();
-        });
-
-        // Modal Revogar Sessões
-        const modalRevogar = document.getElementById('modalRevogarSessoes');
-        const btnRevogarSessoes = document.getElementById('btnRevogarSessoes');
-        const btnCancelarRevogar = document.getElementById('btnCancelarRevogar');
-        const btnConfirmarRevogar = document.getElementById('btnConfirmarRevogar');
-        const modalRevogarClose = document.getElementById('modalRevogarClose');
-
-        function closeModalRevogar() {
-            modalRevogar.hidden = true;
-        }
-
-        btnRevogarSessoes?.addEventListener('click', () => {
-            modalRevogar.hidden = false;
-        });
-
-        btnCancelarRevogar?.addEventListener('click', closeModalRevogar);
-        btnConfirmarRevogar?.addEventListener('click', async () => {
-            await revokeSessions();
-            closeModalRevogar();
-        });
-        modalRevogarClose?.addEventListener('click', closeModalRevogar);
-        modalRevogar?.addEventListener('click', (e) => {
-            if (e.target === modalRevogar) closeModalRevogar();
-        });
-
-        // ESC para fechar
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (!modalExcluir.hidden) closeModalExcluir();
-                if (!modalRevogar.hidden) closeModalRevogar();
-            }
-        });
-    }
-
-    /**
-     * Carrega dados do usuário
-     */
-    async function loadUserData() {
-        try {
-            const res = await Auth.apiCall('/api/usuario/perfil');
-            if (!res.ok) throw new Error('Erro ao carregar perfil');
-
-            const data = await res.json();
-            if (data.sucesso && data.usuario) {
-                userData = data.usuario;
-                fillPerfilForm(data.usuario);
-                updateAvatar(data.usuario);
-            }
-        } catch (err) {
-            console.error('[Config] Erro ao carregar perfil:', err);
-        }
-    }
-
-    function fillPerfilForm(usuario) {
-        document.getElementById('perfilNome').value = usuario.nome || '';
-        document.getElementById('perfilEmail').value = usuario.email || '';
-        document.getElementById('perfilTelefone').value = usuario.telefone || '';
-        document.getElementById('perfilRole').value = formatRole(usuario.role);
-
-        loadTurmasSelect(usuario.turma_id);
-
-        if (usuario.alergias && usuario.alergias.length > 0) {
-            usuario.alergias.forEach(alergia => {
-                const checkbox = document.querySelector(`#alergenosGrid input[value="${alergia}"]`);
-                if (checkbox) checkbox.checked = true;
-            });
-        }
-    }
-
-    async function loadTurmasSelect(selectedId) {
-        try {
-            const res = await Auth.apiCall('/api/usuario/turmas');
-            if (!res.ok) throw new Error('Erro ao carregar turmas');
-
-            const data = await res.json();
-            const select = document.getElementById('perfilTurma');
-            if (data.sucesso && data.turmas) {
-                select.innerHTML = '<option value="">Não vinculado a nenhuma turma</option>' +
-                    data.turmas.map(t => `<option value="${escapeHtml(t.id)}" ${t.id === selectedId ? 'selected' : ''}>${escapeHtml(t.nome)}</option>`).join('');
-            }
-        } catch (err) {
-            console.error('[Config] Erro ao carregar turmas:', err);
-        }
-    }
-
-    function updateAvatar(usuario) {
-        const avatar = document.getElementById('userAvatar');
-        const nameEl = document.getElementById('userName');
-        const sidebarName = document.getElementById('sidebarUserName');
-
-        if (avatar) avatar.textContent = (usuario.nome || 'U')[0].toUpperCase();
-        if (nameEl) nameEl.textContent = usuario.nome || 'Usuário';
-        if (sidebarName) sidebarName.textContent = usuario.nome ? `Olá, ${usuario.nome.split(' ')[0]}!` : 'Olá, Usuário!';
-    }
-
-    /**
-     * Salva perfil
-     */
-    async function savePerfil(formData) {
-        const btn = document.getElementById('btnSalvarPerfil');
-        const btnText = btn.querySelector('.btn-text');
-        const btnLoading = btn.querySelector('.btn-loading');
-
-        btn.disabled = true;
-        btnText.hidden = true;
-        btnLoading.hidden = false;
-
-        try {
-            const res = await Auth.apiCall('/api/usuario/perfil', {
-                method: 'PUT',
-                body: JSON.stringify(Object.fromEntries(formData))
-            });
-
-            const data = await res.json();
-
-            if (data.sucesso) {
-                alert('Perfil atualizado com sucesso!');
-                if (data.usuario) updateAvatar(data.usuario);
-            } else {
-                alert(data.mensagem || 'Erro ao atualizar perfil');
-            }
-        } catch (err) {
-            console.error('[Config] Erro ao salvar perfil:', err);
-            alert('Erro ao salvar perfil. Tente novamente.');
-        } finally {
-            btn.disabled = false;
-            btnText.hidden = false;
-            btnLoading.hidden = true;
-        }
-    }
-
-    /**
-     * Altera senha
-     */
-    async function changePassword(formData) {
-        const btn = document.getElementById('btnAlterarSenha');
-        const btnText = btn.querySelector('.btn-text');
-        const btnLoading = btn.querySelector('.btn-loading');
-
-        btn.disabled = true;
-        btnText.hidden = true;
-        btnLoading.hidden = false;
-
-        try {
-            const res = await Auth.apiCall('/api/usuario/senha', {
-                method: 'PUT',
-                body: JSON.stringify({
-                    senha_atual: formData.get('senha_atual'),
-                    nova_senha: formData.get('nova_senha')
-                })
-            });
-
-            const data = await res.json();
-
-            if (data.sucesso) {
-                alert('Senha alterada com sucesso!');
-                formSenha.reset();
-            } else {
-                alert(data.mensagem || 'Erro ao alterar senha');
-            }
-        } catch (err) {
-            console.error('[Config] Erro ao alterar senha:', err);
-            alert('Erro ao alterar senha. Tente novamente.');
-        } finally {
-            btn.disabled = false;
-            btnText.hidden = false;
-            btnLoading.hidden = true;
-        }
-    }
-
-    /**
-     * Carrega alergênicos disponíveis
-     */
-    async function loadAlergenos() {
-        try {
-            const res = await Auth.apiCall('/api/alergenos');
-            if (!res.ok) throw new Error('Erro ao carregar alergênicos');
-
-            const data = await res.json();
-            if (data.sucesso && data.alergenos) {
-                renderAlergenosGrid(data.alergenos);
-            }
-        } catch (err) {
-            console.error('[Config] Erro ao carregar alergênicos:', err);
-        }
-    }
-
-    function renderAlergenosGrid(alergenos) {
-        const grid = document.getElementById('alergenosGrid');
-        if (!grid) return;
-
-        const categorias = {};
-        alergenos.forEach(a => {
-            if (!categorias[a.categoria]) categorias[a.categoria] = [];
-            categorias[a.categoria].push(a);
-        });
-
-        grid.innerHTML = Object.entries(categorias).map(([categoria, items]) => `
-            <div class="alergenos-categoria">
-                <h4 class="alergenos-categoria-titulo">${escapeHtml(categoria)}</h4>
-                <div class="alergenos-lista">
-                    ${items.map(a => `
-                        <label class="alergeno-item">
-                            <input type="checkbox" value="${escapeHtml(a.nome)}" data-id="${a.id}">
-                            <span class="alergeno-nome">${escapeHtml(a.nome)}</span>
-                            ${a.descricao ? `<span class="alergeno-desc">${escapeHtml(a.descricao)}</span>` : ''}
-                        </label>
-                    `).join('')}
-                </div>
-            </div>
-        `).join('');
-    }
-
-    /**
-     * Salva alergias do usuário
-     */
-    async function saveAlergias() {
-        const btn = document.getElementById('btnSalvarAlergias');
-        const btnText = btn.querySelector('.btn-text');
-        const btnLoading = btn.querySelector('.btn-loading');
-
-        const selecionados = Array.from(document.querySelectorAll('#alergenosGrid input:checked'))
-            .map(cb => cb.value);
-
-        btn.disabled = true;
-        btnText.hidden = true;
-        btnLoading.hidden = false;
-
-        try {
-            const res = await Auth.apiCall('/api/usuario/alergias', {
-                method: 'PUT',
-                body: JSON.stringify({ alergias: selecionados })
-            });
-
-            const data = await res.json();
-
-            if (data.sucesso) {
-                alert('Alergias salvas com sucesso!');
-            } else {
-                alert(data.mensagem || 'Erro ao salvar alergias');
-            }
-        } catch (err) {
-            console.error('[Config] Erro ao salvar alergias:', err);
-            alert('Erro ao salvar alergias. Tente novamente.');
-        } finally {
-            btn.disabled = false;
-            btnText.hidden = false;
-            btnLoading.hidden = true;
-        }
-    }
-
-    /**
-     * Carrega sessões ativas
-     */
-    async function loadSessoes() {
-        try {
-            const res = await Auth.apiCall('/api/usuario/sessoes');
-            if (!res.ok) throw new Error('Erro ao carregar sessões');
-
-            const data = await res.json();
-            const tbody = document.getElementById('sessoes-tbody');
-
-            if (data.sucesso && data.sessoes && data.sessoes.length > 0) {
-                tbody.innerHTML = data.sessoes.map(s => `
-                    <tr>
-                        <td>${escapeHtml(s.dispositivo || 'Desconhecido')}</td>
-                        <td>${escapeHtml(s.localizacao || 'Desconhecida')}</td>
-                        <td>${formatDateTime(s.ultima_atividade)}</td>
-                        <td>${s.atual ? '<span class="badge badge-green">Atual</span>' : ''}</td>
-                        <td>
-                            ${!s.atual ? `
-                                <button class="btn-danger btn-sm" onclick="Config.revokeSession('${s.id}')">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                        <polyline points="16 17 21 12 16 7"></polyline>
-                                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                                    </svg>
-                                    Revogar
-                                </button>
-                            ` : ''}
-                        </td>
-                    </tr>
-                `).join('');
-            } else {
-                tbody.innerHTML = '<tr><td colspan="5" class="table-empty">Nenhuma sessão ativa</td></tr>';
-            }
-        } catch (err) {
-            console.error('[Config] Erro ao carregar sessões:', err);
-            document.getElementById('sessoes-tbody').innerHTML =
-                '<tr><td colspan="5" class="table-empty">Erro ao carregar sessões</td></tr>';
-        }
-    }
-
-    /**
-     * Revoga uma sessão específica
-     */
-    async function revokeSession(id) {
-        if (!confirm('Tem certeza que deseja revogar esta sessão?')) return;
-
-        try {
-            const res = await Auth.apiCall(`/api/usuario/sessoes/${id}`, {
-                method: 'DELETE'
-            });
-
-            const data = await res.json();
-            if (data.sucesso) {
-                alert('Sessão revogada com sucesso!');
-                loadSessoes();
-            } else {
-                alert(data.mensagem || 'Erro ao revogar sessão');
-            }
-        } catch (err) {
-            console.error('[Config] Erro ao revogar sessão:', err);
-            alert('Erro ao revogar sessão');
-        }
-    }
-
-    /**
-     * Revoga todas as outras sessões
-     */
-    async function revokeSessions() {
-        try {
-            const res = await Auth.apiCall('/api/usuario/sessoes/revogar-todas', {
-                method: 'POST'
-            });
-
-            const data = await res.json();
-            if (data.sucesso) {
-                alert('Todas as outras sessões foram revogadas!');
-                loadSessoes();
-            } else {
-                alert(data.mensagem || 'Erro ao revogar sessões');
-            }
-        } catch (err) {
-            console.error('[Config] Erro ao revogar sessões:', err);
-            alert('Erro ao revogar sessões');
-        }
-    }
-
-    /**
-     * Exclui conta
-     */
-    async function deleteAccount() {
-        try {
-            const res = await Auth.apiCall('/api/usuario/conta', {
-                method: 'DELETE'
-            });
-
-            const data = await res.json();
-            if (data.sucesso) {
-                alert('Conta excluída com sucesso!');
-                Auth.logout();
-            } else {
-                alert(data.mensagem || 'Erro ao excluir conta');
-            }
-        } catch (err) {
-            console.error('[Config] Erro ao excluir conta:', err);
-            alert('Erro ao excluir conta');
-        }
-    }
-
-    /**
-     * Sidebar Mobile
-     */
-    function initSidebarMobile() {
-        const hamburger = document.getElementById('hamburgerBtn');
-        const overlay = document.getElementById('sidebarOverlay');
-        const sidebar = document.getElementById('sidebar');
-
-        if (hamburger) hamburger.addEventListener('click', toggleSidebar);
-        if (overlay) overlay.addEventListener('click', closeSidebar);
-
-        document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', () => {
-                if (window.innerWidth < 768) closeSidebar();
-            });
-        });
-    }
-
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        const hamburger = document.getElementById('hamburgerBtn');
-
-        if (sidebar && overlay && hamburger) {
-            const isOpen = sidebar.classList.toggle('open');
-            overlay.hidden = !isOpen;
-            hamburger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-        }
-    }
-
-    function closeSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        const hamburger = document.getElementById('hamburgerBtn');
-
-        if (sidebar) sidebar.classList.remove('open');
-        if (overlay) overlay.hidden = true;
-        if (hamburger) hamburger.setAttribute('aria-expanded', 'false');
-    }
-
-    // Utilitários
-    function formatRole(role) {
-        const labels = { 'aluno': 'Aluno', 'professor': 'Professor', 'adm': 'Administrador' };
-        return labels[role] || role;
-    }
-
-    function formatDateTime(dateStr) {
-        if (!dateStr) return '—';
-        try {
-            return new Date(dateStr).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        } catch { return dateStr; }
-    }
-
-    function escapeHtml(valor) {
-        if (valor === null || valor === undefined) return '';
-        return String(valor)
-            .replace(/&/g, '&')
-            .replace(/</g, '<')
-            .replace(/>/g, '>')
-            .replace(/"/g, '"')
-            .replace(/'/g, '&#039;');
-    }
-
-    // Exportar para uso global
-    window.Config = {
-        init,
-        switchTab,
-        revokeSession,
-        revokeSessions,
-        deleteAccount,
-        saveAlergias,
-        loadSessoes
+  }
+
+  function initTabs() {
+    const tabs = document.getElementById("configTabs");
+    if (!tabs) return;
+    tabs.querySelectorAll("[data-tab]").forEach((button) => {
+      button.addEventListener("click", () => switchTab(button.dataset.tab));
+    });
+    tabs.addEventListener("keydown", (event) => {
+      const buttons = Array.from(tabs.querySelectorAll("[data-tab]"));
+      const index = buttons.indexOf(document.activeElement);
+      let next = index;
+      if (event.key === "ArrowRight") next = (index + 1) % buttons.length;
+      if (event.key === "ArrowLeft") next = (index - 1 + buttons.length) % buttons.length;
+      if (event.key === "Home") next = 0;
+      if (event.key === "End") next = buttons.length - 1;
+      if (next !== index && next >= 0) {
+        event.preventDefault();
+        buttons[next].focus();
+        buttons[next].click();
+      }
+    });
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll(".config-tab-btn").forEach((button) => {
+      const active = button.dataset.tab === tab;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-selected", String(active));
+    });
+    document.querySelectorAll(".config-tab-panel").forEach((panel) => {
+      const active = panel.id === "panel-" + tab;
+      panel.hidden = !active;
+      panel.classList.toggle("active", active);
+    });
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", tab);
+    window.history.replaceState({}, "", url);
+  }
+
+  function initSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+    const hamburger = document.getElementById("hamburgerBtn");
+    const close = () => {
+      sidebar?.classList.remove("open");
+      if (overlay) overlay.hidden = true;
+      hamburger?.setAttribute("aria-expanded", "false");
     };
+    hamburger?.addEventListener("click", () => {
+      const open = sidebar.classList.toggle("open");
+      if (overlay) overlay.hidden = !open;
+      hamburger.setAttribute("aria-expanded", String(open));
+    });
+    overlay?.addEventListener("click", close);
+    document.querySelectorAll(".menu-item").forEach((item) => {
+      item.addEventListener("click", () => {
+        if (window.innerWidth < 768) close();
+      });
+    });
+    document.getElementById("btn-logout")?.addEventListener("click", () => Auth.logout());
+  }
 
-    // Auto-inicializar
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
+  function initPreferences() {
+    document.querySelectorAll('input[name="theme"]').forEach((radio) => {
+      radio.addEventListener("change", () => {
+        if (!radio.checked) return;
+        const themeMap = { light: "claro", dark: "escuro", system: "sistema" };
+        const theme = themeMap[radio.value] || "claro";
+        if (window.GoSchoolTheme) window.GoSchoolTheme.set(theme);
+        try { localStorage.setItem("gs_theme", theme); } catch (_) {}
+        savePreferences();
+      });
+    });
+
+    const map = {
+      prefDensidade: "density",
+      prefIdioma: "language",
+      prefCardapioView: "cardapio_view"
+    };
+    Object.entries(map).forEach(([id, key]) => {
+      document.getElementById(id)?.addEventListener("change", (event) => {
+        preferences[key] = event.target.value;
+        applyPreferences();
+        savePreferences();
+      });
+    });
+
+    document.querySelectorAll("#panel-preferencias .toggle-switch input").forEach((input) => {
+      input.addEventListener("change", () => {
+        const key = input.closest(".toggle-switch")?.dataset.pref;
+        if (!key) return;
+        preferences[key] = input.checked;
+        savePreferences();
+      });
+    });
+  }
+
+  function applyPreferences() {
+    const root = document.documentElement;
+    root.dataset.density = preferences.density;
+    root.lang = preferences.language;
+    root.classList.remove("density-comfortable", "density-compact", "density-spacious");
+    root.classList.add("density-" + preferences.density);
+    if (window.GoSchoolPrefs && typeof window.GoSchoolPrefs.setLang === "function") {
+      // O mecanismo global aceita pt-BR, en e es.
+      const lang = preferences.language === "en-US" ? "en" : preferences.language === "es-ES" ? "es" : "pt-BR";
+      window.GoSchoolPrefs.setLang(lang);
     }
+  }
+
+  function syncControls() {
+    const theme = window.GoSchoolTheme ? window.GoSchoolTheme.get() : "claro";
+    const themeValue = theme === "escuro" ? "dark" : theme === "sistema" ? "system" : "light";
+    const themeRadio = document.querySelector('input[name="theme"][value="' + themeValue + '"]');
+    if (themeRadio) themeRadio.checked = true;
+
+    const ids = {
+      prefDensidade: "density",
+      prefIdioma: "language",
+      prefCardapioView: "cardapio_view"
+    };
+    Object.entries(ids).forEach(([id, key]) => {
+      const element = document.getElementById(id);
+      if (element) element.value = preferences[key];
+    });
+    document.querySelectorAll("#panel-preferencias .toggle-switch input").forEach((input) => {
+      const key = input.closest(".toggle-switch")?.dataset.pref;
+      if (key in preferences) input.checked = Boolean(preferences[key]);
+    });
+    document.querySelectorAll("#panel-notificacoes .toggle-switch input").forEach((input) => {
+      const key = input.closest(".toggle-switch")?.dataset.pref;
+      if (key in preferences) input.checked = Boolean(preferences[key]);
+    });
+  }
+
+  function savePreferences() {
+    if (writeStorage(userKey("preferences"), preferences)) {
+      showStatus("Preferências salvas neste navegador.");
+    }
+  }
+
+  function initAllergens() {
+    const grid = document.getElementById("alergenosGrid");
+    if (!grid) return;
+
+    grid.innerHTML = ALLERGENS.map((group) => `
+      <section class="alergenos-categoria">
+        <h4 class="alergenos-categoria-titulo">${escapeHtml(group.category)}</h4>
+        <div class="alergenos-lista">
+          ${group.items.map((name) => `
+            <label class="alergeno-item">
+              <input type="checkbox" value="${escapeHtml(name)}" ${selectedAllergens.includes(name) ? "checked" : ""}>
+              <span class="alergeno-nome">${escapeHtml(name)}</span>
+            </label>
+          `).join("")}
+        </div>
+      </section>
+    `).join("");
+
+    document.getElementById("btnSalvarAlergias")?.addEventListener("click", () => {
+      selectedAllergens = Array.from(grid.querySelectorAll('input[type="checkbox"]:checked')).map((input) => input.value);
+      if (writeStorage(userKey("allergens"), selectedAllergens)) {
+        showStatus(selectedAllergens.length ? "Alergias e restrições salvas neste navegador." : "Lista de alergias limpa.");
+      }
+    });
+  }
+
+  function initNotifications() {
+    document.querySelectorAll("#panel-notificacoes .toggle-switch input").forEach((input) => {
+      input.addEventListener("change", async () => {
+        const key = input.closest(".toggle-switch")?.dataset.pref;
+        if (!key) return;
+
+        if (key === "push_enabled" && input.checked) {
+          const allowed = await requestNotificationPermission();
+          if (!allowed) {
+            input.checked = false;
+            preferences.push_enabled = false;
+            savePreferences();
+            return;
+          }
+        }
+        preferences[key] = input.checked;
+        savePreferences();
+      });
+    });
+
+    document.getElementById("btnTestNotification")?.addEventListener("click", sendTestNotification);
+    updateNotificationPermissionStatus();
+  }
+
+  async function requestNotificationPermission() {
+    if (!("Notification" in window)) {
+      showStatus("Este navegador não oferece suporte a notificações.", "error");
+      return false;
+    }
+    if (Notification.permission === "granted") return true;
+    if (Notification.permission === "denied") {
+      showStatus("Notificações bloqueadas. Altere a permissão nas configurações do navegador.", "error");
+      return false;
+    }
+    const permission = await Notification.requestPermission();
+    updateNotificationPermissionStatus();
+    if (permission !== "granted") {
+      showStatus("Permissão para notificações não concedida.", "error");
+      return false;
+    }
+    return true;
+  }
+
+  function updateNotificationPermissionStatus() {
+    const status = document.getElementById("notificationPermissionStatus");
+    if (!status) return;
+    if (!("Notification" in window)) {
+      status.textContent = "Seu navegador não oferece suporte a notificações push.";
+    } else if (Notification.permission === "granted") {
+      status.textContent = "Permissão concedida pelo navegador. O envio de alertas reais ainda depende do serviço de notificações do sistema.";
+    } else if (Notification.permission === "denied") {
+      status.textContent = "Permissão bloqueada no navegador. Libere-a nas configurações do site para receber notificações.";
+    } else {
+      status.textContent = "O navegador ainda não recebeu sua autorização para mostrar notificações.";
+    }
+  }
+
+  async function sendTestNotification() {
+    const allowed = await requestNotificationPermission();
+    if (!allowed) return;
+    try {
+      new Notification("GoSchool", {
+        body: "As notificações do navegador estão funcionando neste dispositivo.",
+        icon: "/logo-simplificada.png"
+      });
+      showStatus("Notificação de teste enviada.");
+    } catch (error) {
+      console.error("[Config] Falha ao exibir notificação.", error);
+      showStatus("Não foi possível exibir a notificação.", "error");
+    }
+  }
+
+  function initSecurity() {
+    document.getElementById("btnSecurityLogout")?.addEventListener("click", async () => {
+      if (window.confirm("Deseja encerrar sua sessão neste dispositivo?")) {
+        await Auth.logout();
+      }
+    });
+  }
+
+  function updateSecurityInfo() {
+    const email = document.getElementById("securityEmail");
+    if (email) email.textContent = (currentUser && currentUser.email) || "Conta institucional autenticada";
+  }
+
+  function updateSidebarUser() {
+    const name = currentUser && (currentUser.nome || currentUser.name);
+    const label = name ? "Olá, " + name.split(" ")[0] + "!" : "Olá, Usuário!";
+    const sidebarName = document.getElementById("sidebarUserName");
+    const headerName = document.getElementById("userName");
+    const avatar = document.getElementById("userAvatar");
+    if (sidebarName) sidebarName.textContent = label;
+    if (headerName && name) headerName.textContent = name;
+    if (avatar && name) avatar.textContent = name.charAt(0).toUpperCase();
+  }
+
+  function initProfileFallback() {
+    // O backend atual não disponibiliza as rotas de edição de perfil.
+    const form = document.getElementById("formPerfil");
+    if (form) {
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        showStatus("A edição do perfil ainda precisa ser conectada a uma rota do servidor.", "error");
+      });
+    }
+    if (currentUser) {
+      const name = document.getElementById("perfilNome");
+      const email = document.getElementById("perfilEmail");
+      const role = document.getElementById("perfilRole");
+      if (name) name.value = currentUser.nome || "";
+      if (email) email.value = currentUser.email || "";
+      if (role) {
+        const labels = { aluno: "Aluno", professor: "Professor", adm: "Administrador" };
+        role.value = labels[currentUser.tipo] || currentUser.tipo || "";
+      }
+    }
+  }
+
+  window.Config = {
+    init,
+    switchTab,
+    getPreferences: () => ({ ...preferences }),
+    getAllergens: () => [...selectedAllergens],
+    sendTestNotification
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
 })();

@@ -660,7 +660,7 @@ main.main-content {
 .data-table td {
     padding: var(--gs-spacing-sm) var(--gs-spacing-md);
     text-align: left;
-    border-bottom: 1px solid var(--gs.border);
+    border-bottom: 1px solid var(--gs-border);
 }
 
 .data-table th {
@@ -711,7 +711,7 @@ main.main-content {
    BUTTONS
    ========================================== */
 .btn-primary {
-    display: inline-flex
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--gs-spacing-sm);
@@ -932,7 +932,7 @@ main.main-content {
     justify-content: flex-end;
     gap: var(--gs-spacing-md);
     padding: var(--gs-spacing-md) var(--gs-spacing-lg);
-    border-top: 1px solid var(--gs.border);
+    border-top: 1px solid var(--gs-border);
     background: var(--gs-background-secondary);
 }
 

@@ -74,7 +74,7 @@ const pageAliases = new Map([
 
 // Redireciona URLs antigas para os arquivos reais de public.
 app.get([...pageAliases.keys()], (req, res) => {
-  const aliasPath = req.path.replace(/\\/+$/, "") || "/";
+  const aliasPath = req.path.replace(/\/+$/, "") || "/";
   const destination = pageAliases.get(aliasPath);
   if (!destination) return res.status(404).end();
   return res.redirect(308, destination + req.url.slice(req.path.length));
@@ -82,7 +82,7 @@ app.get([...pageAliases.keys()], (req, res) => {
 
 // A antiga página individual de usuário não existe mais.
 // O detalhe é exibido pela tela de gestão de usuários.
-app.get(/^\\/Admin\\/usuario\\/(\\d+)\\/?$/, (req, res) => {
+app.get(/^\/Admin\/usuario\/(\d+)\/?$/, (req, res) => {
   const query = new URLSearchParams({ editar: req.params[0] });
   return res.redirect(308, `/usuarios.html?${query.toString()}`);
 });

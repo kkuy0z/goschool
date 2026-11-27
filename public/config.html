@@ -18,12 +18,13 @@
             <img src="logo-simplificada.png" alt="Logo GOSchool">
         </div>
 
-        <nav class="menu">
-            <a href="/Configuracoes/" class="menu-item active" id="nav-perfil">Perfil</a>
-            <a href="/Configuracoes/?tab=preferencias" class="menu-item" id="nav-preferencias">Preferências</a>
-            <a href="/Configuracoes/?tab=alergias" class="menu-item" id="nav-alergias">Alergias</a>
-            <a href="/Configuracoes/?tab=notificacoes" class="menu-item" id="nav-notificacoes">Notificações</a>
-            <a href="/Configuracoes/?tab=seguranca" class="menu-item" id="nav-seguranca">Segurança</a>
+        <nav class="menu" aria-label="Navegação principal">
+            <a href="/" class="menu-item" id="nav-inicio">Início</a>
+            <a href="/Admin/" class="menu-item" id="nav-visao-geral">Visão Geral</a>
+            <a href="/Cardapio/" class="menu-item" id="nav-cardapio">Cardápio e Ingredientes</a>
+            <a href="/Admin/usuarios" class="menu-item" id="nav-usuarios" data-auth-role="adm">Gestão de Usuários</a>
+            <a href="/Desperdicio/" class="menu-item" id="nav-relatorios" data-auth-role="adm">Relatório</a>
+            <a href="/Configuracoes/" class="menu-item active" id="nav-config" aria-current="page">Configurações</a>
         </nav>
 
         <div class="sidebar-bottom">

@@ -200,7 +200,7 @@
             <a href="/cadastro.html" class="btn-primary">
               + Cadastrar usuário
             </a>
-            <a href="/Admin/usuarios" class="btn-secondary">
+            <a href="/usuarios.html" class="btn-secondary">
               Gerenciar usuários
             </a>
           </div>
@@ -312,7 +312,7 @@
               <h2 id="usuarios-recentes-title">Usuários cadastrados</h2>
             </div>
 
-            <a href="/Admin/usuarios" class="btn-secondary btn-sm">
+            <a href="/usuarios.html" class="btn-secondary btn-sm">
               Ver todos
             </a>
           </header>
@@ -786,7 +786,7 @@
           return;
         }
 
-        window.location.href = `/Admin/usuarios?editar=${encodeURIComponent(String(id))}`;
+        window.location.href = `/usuarios?editar=${encodeURIComponent(String(id))}`;
       }
 
       function formatRole(role) {

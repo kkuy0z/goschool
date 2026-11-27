@@ -248,12 +248,12 @@ nav a:focus-visible {
 .hero-logo-container {
   display: inline-flex;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 22px;
 }
 
 .hero-logo {
-  width: min(100%, 300px);
-  max-height: 115px;
+  width: min(100%, 460px);
+  max-height: 190px;
   object-fit: contain;
   mix-blend-mode: multiply;
 }

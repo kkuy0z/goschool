@@ -95,7 +95,7 @@
     });
     if (!authenticated) return;
 
-    currentUser = typeof Auth.getCurrentUser === "function" ? Auth.getCurrentUser() : null;
+    currentUser = typeof Auth.getCurrentUser === "function" ? await Auth.getCurrentUser() : null;
     preferences = { ...DEFAULTS, ...readStorage(userKey("preferences"), {}) };
     selectedAllergens = readStorage(userKey("allergens"), []);
 

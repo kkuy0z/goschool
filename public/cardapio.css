@@ -1,19 +1,20 @@
 :root {
-  --bg: #0b0d12;
-  --surface: #121620;
-  --surface-2: #181e2a;
-  --surface-3: #202838;
-  --border: #2b3445;
-  --text: #f3f5f8;
-  --muted: #9ba7ba;
-  --primary: #6d8cff;
-  --primary-hover: #829dff;
-  --success: #43c997;
-  --warning: #f0b84b;
-  --danger: #f06b78;
+  /* Tokens compartilhados do design-system.css */
+  --bg: var(--gs-background);
+  --surface: var(--gs-surface);
+  --surface-2: var(--gs-background-secondary);
+  --surface-3: var(--gs-surface-hover);
+  --border: var(--gs-border);
+  --text: var(--gs-text-primary);
+  --muted: var(--gs-text-muted);
+  --primary: var(--gs-primary);
+  --primary-hover: var(--gs-primary-hover);
+  --success: var(--gs-success);
+  --warning: var(--gs-warning);
+  --danger: var(--gs-danger);
   --sidebar-width: 250px;
-  --radius: 16px;
-  --shadow: 0 18px 45px rgb(0 0 0 / 28%);
+  --radius: var(--gs-radius-lg);
+  --shadow: var(--gs-shadow-lg);
 }
 
 * {
@@ -30,7 +31,7 @@ body {
   min-height: 100vh;
   margin: 0;
   background:
-    radial-gradient(ellipse at 80% 0%, rgb(109 140 255 / 9%), transparent 38%),
+    radial-gradient(ellipse at 80% 0%, rgb(68 183 248 / 9%), transparent 38%),
     var(--bg);
   color: var(--text);
   font-family: Inter, "Segoe UI", Arial, sans-serif;

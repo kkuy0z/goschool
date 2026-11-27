@@ -12,7 +12,7 @@ async function inicializarCardapio() {
     // Obter role do usuário autenticado
     const user = await Auth.getCurrentUser();
     if (user) {
-        currentUserRole = (user.tipo || 'aluno').toUpperCase();
+        currentUserRole = String(user.tipo || 'aluno').trim().toUpperCase();
         currentUser = user;
     }
 
@@ -40,12 +40,14 @@ async function inicializarCardapio() {
 
 // Configurar abas do menu lateral
 function configurarAbas() {
+    const role = String(currentUserRole || 'ALUNO').toLowerCase();
     document.querySelectorAll('.menu-item[data-auth-role]').forEach(item => {
-        const role = item.dataset.authRole;
-        if (role && currentUserRole !== role.toUpperCase()) {
-            item.style.display = 'none';
-        }
+        const permitted = item.dataset.authRole.split(',').map(value => value.trim().toLowerCase());
+        item.hidden = !permitted.includes(role);
     });
+    const backLink = document.getElementById('nav-back-panel');
+    const destinations = { ALUNO: '/aluno.html', PROFESSOR: '/professor.html', ADM: '/adm.html' };
+    if (backLink) backLink.href = destinations[currentUserRole] || '/';
 }
 
 // Carregar lista de alergênicos disponíveis

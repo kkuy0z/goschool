@@ -252,8 +252,8 @@ nav a:focus-visible {
 }
 
 .hero-logo {
-  width: min(100%, 460px);
-  max-height: 190px;
+  width: 100%;
+  max-height: none;
   object-fit: contain;
   mix-blend-mode: multiply;
 }

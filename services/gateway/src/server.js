@@ -1,7 +1,7 @@
 const path = require("path");
 const dotenv = require("dotenv");
 
-// Ajuste relativo à estrutura services/Gateway/src/server.js
+// Caminho relativo à estrutura services/gateway/src/server.js
 dotenv.config({
   path: path.resolve(__dirname, "../../../.env"),
 });
@@ -60,26 +60,31 @@ app.use(authProxy);
 // O frontend fica em uma única pasta (public). Estas rotas preservam os
 // endereços usados pelos menus e encaminham cada painel para seu HTML real.
 const pageAliases = new Map([
-  ["/Aluno", "aluno.html"],
-  ["/Professor", "professor.html"],
-  ["/Admin", "adm.html"],
-  ["/Admin/usuarios", "usuarios.html"],
-  ["/Cardapio", "cardapio.html"],
-  ["/Reservas", "reservas.html"],
-  ["/Configuracoes", "config.html"],
-  ["/Desperdicio", "desperdicio.html"],
-  ["/Cadastro", "cadastro.html"],
-  ["/login", "login.html"],
+  ["/Aluno", "/aluno.html"],
+  ["/Professor", "/professor.html"],
+  ["/Admin", "/adm.html"],
+  ["/Admin/usuarios", "/usuarios.html"],
+  ["/Cardapio", "/cardapio.html"],
+  ["/Reservas", "/reservas.html"],
+  ["/Configuracoes", "/config.html"],
+  ["/Desperdicio", "/desperdicio.html"],
+  ["/Cadastro", "/cadastro.html"],
+  ["/login", "/login.html"],
 ]);
 
+// Redireciona URLs antigas para os arquivos reais de public.
 app.get([...pageAliases.keys()], (req, res) => {
-  const aliasPath = req.path.replace(/\/+$/, "") || "/";
-  const file = pageAliases.get(aliasPath);
-  if (!file) return res.status(404).end();
-  return res.sendFile(path.resolve(__dirname, "../../../public", file));
+  const aliasPath = req.path.replace(/\\/+$/, "") || "/";
+  const destination = pageAliases.get(aliasPath);
+  if (!destination) return res.status(404).end();
+  return res.redirect(308, destination + req.url.slice(req.path.length));
 });
-app.get(/^\/Admin\/usuario\/\d+\/?$/, (_req, res) => {
-  res.sendFile(path.resolve(__dirname, "../../../public/usuario.html"));
+
+// A antiga página individual de usuário não existe mais.
+// O detalhe é exibido pela tela de gestão de usuários.
+app.get(/^\\/Admin\\/usuario\\/(\\d+)\\/?$/, (req, res) => {
+  const query = new URLSearchParams({ editar: req.params[0] });
+  return res.redirect(308, `/usuarios.html?${query.toString()}`);
 });
 
 app.use(

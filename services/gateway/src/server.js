@@ -92,7 +92,7 @@ app.get("/", (_req, res) => {
   res.sendFile(path.resolve(__dirname, "../../../public/inicio.html"));
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Gateway listening on :${PORT}`);
   console.log(`Auth Service target: ${authTarget}`);
 });

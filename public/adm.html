@@ -429,7 +429,8 @@
       }
 
       async function configurarUsuario() {
-        const user = await Auth.getCurrentUser();
+        // Revalida a sessão no servidor para não exibir um usuário antigo em cache.
+        const user = await Auth.verifySession();
         const name = user?.nome?.trim() || "Administrador";
         const nameElement = document.getElementById("userName");
         const avatarElement = document.getElementById("userAvatar");

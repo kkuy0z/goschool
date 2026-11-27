@@ -12,8 +12,8 @@
   const consent = document.getElementById('consentimento');
   const submitButton = document.getElementById('submit-button');
 
-  const TEXT_ONLY_REGEX = /^[\p{L}\s'-]+$/u;
-  const STRIP_NON_TEXT = /[^\p{L}\s'-]+/gu;
+  // Letras com e sem acento, espaço, hífen e apóstrofo (bloqueia números)
+  const STRIP_NON_TEXT = /[^A-Za-zÀ-ÖØ-öø-ÿ\s'-]+/g;
   const textOnlyFields = [fullName, guardianName, guardianRelation].filter(Boolean);
 
   function showStatus(message, isError = false) {
@@ -21,23 +21,14 @@
     status.setAttribute('role', isError ? 'alert' : 'status');
   }
 
-  function sanitizeTextField(input, showBlockedMessage = false) {
-    const cleaned = input.value.replace(STRIP_NON_TEXT, '');
-    const hadBlockedChars = input.value !== cleaned;
-
-    if (hadBlockedChars) {
-      input.value = cleaned;
-    }
-
-    const normalized = input.value.trim().replace(/\s+/g, ' ');
-    if (normalized && !TEXT_ONLY_REGEX.test(normalized)) {
-      input.setCustomValidity('Use apenas letras, espaços, hífen ou apóstrofo.');
-    } else {
-      input.setCustomValidity('');
-    }
-
-    if (hadBlockedChars && showBlockedMessage) {
-      showStatus('Números e símbolos inválidos não são permitidos nesse campo.', true);
+  function sanitizeInputElement(input, notifyUser = false) {
+    const before = input.value;
+    const after = before.replace(STRIP_NON_TEXT, '');
+    if (before !== after) {
+      input.value = after;
+      if (notifyUser) {
+        showStatus('Números não são permitidos nesse campo.', true);
+      }
     }
   }
 
@@ -52,8 +43,6 @@
       guardianName.value = '';
       guardianRelation.value = '';
       consent.checked = false;
-      guardianName.setCustomValidity('');
-      guardianRelation.setCustomValidity('');
     }
   }
 
@@ -74,13 +63,10 @@
   }
 
   textOnlyFields.forEach((input) => {
-    input.addEventListener('input', () => {
-      sanitizeTextField(input, true);
-    });
-
+    input.addEventListener('input', () => sanitizeInputElement(input, true));
     input.addEventListener('blur', () => {
       input.value = input.value.trim().replace(/\s+/g, ' ');
-      sanitizeTextField(input, false);
+      sanitizeInputElement(input, false);
     });
   });
 
@@ -91,7 +77,7 @@
 
     textOnlyFields.forEach((input) => {
       input.value = input.value.trim().replace(/\s+/g, ' ');
-      sanitizeTextField(input, false);
+      sanitizeInputElement(input, false);
     });
 
     if (!form.reportValidity()) return;
@@ -120,7 +106,6 @@
         throw new Error(data.erro || 'Não foi possível cadastrar o usuário.');
       }
       form.reset();
-      textOnlyFields.forEach((input) => input.setCustomValidity(''));
       updateGuardianFields();
       showStatus(data.mensagem || 'Cadastro concluído.');
     } catch (error) {

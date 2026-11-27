@@ -10,7 +10,7 @@ let allAllergens = []; // Lista de todos os alergênicos disponíveis
 // Inicialização do módulo Cardápio
 async function inicializarCardapio() {
     // Obter role do usuário autenticado
-    const user = Auth.getCurrentUser();
+    const user = await Auth.getCurrentUser();
     if (user) {
         currentUserRole = (user.tipo || 'aluno').toUpperCase();
         currentUser = user;

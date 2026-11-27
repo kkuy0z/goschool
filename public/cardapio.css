@@ -1391,3 +1391,33 @@ body {
   line-height: 1;
   text-align: center;
 }
+
+
+/* Ajustes finais — padrão visual dos painéis GoSchool */
+.meal-card-image { position:relative; }
+.meal-card-image img { display:block; width:100%; height:100%; object-fit:cover; }
+.meal-card-header,.meal-nutrition,.meal-allergens,.weekly-meal-meta,.meal-list-header,.meal-list-allergens { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+.meal-card-title,.weekly-meal-name,.meal-list-name { color:var(--gs-text-primary); }
+.meal-card-desc,.weekly-meal-desc,.meal-notes,.meal-list-day,.meal-list-time { color:var(--gs-text-secondary); }
+.weekly-day-meals { display:flex; flex-direction:column; gap:12px; }
+.weekly-meal-card { padding:14px; border:1px solid var(--gs-border); border-radius:11px; background:var(--gs-background-secondary); }
+.weekly-meal-name { margin:8px 0 5px; font-weight:700; }
+.weekly-meal-meta { margin-top:9px; color:var(--gs-text-secondary); font-size:12px; }
+.weekly-meal-allergens { margin-top:9px; }
+.meal-card--alert,.weekly-meal-card--alert { border-color:rgb(220 38 38 / 35%); }
+.meal-list-info { min-width:0; }
+.meal-list-header { gap:8px; }
+.meal-list-allergens { margin-top:8px; }
+.meal-list-actions { display:flex; flex-shrink:0; gap:8px; }
+.btn-icon { display:inline-grid; width:38px; height:38px; place-items:center; border:1px solid var(--gs-border); border-radius:9px; background:var(--gs-surface-hover); color:var(--gs-text-primary); }
+.btn-icon.delete { color:var(--gs-danger); }
+.restriction-section { padding:20px; border:1px solid var(--gs-border); border-radius:14px; background:var(--gs-surface); }
+.restriction-section-title { margin:0 0 14px; color:var(--gs-text-primary); }
+.restriction-tags { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+.restriction-tag { padding:7px 10px; border:1px solid var(--gs-border); border-radius:8px; background:var(--gs-background-secondary); color:var(--gs-text-secondary); }
+.restriction-tag.allergy { border-color:rgb(220 38 38 / 25%); color:var(--gs-danger); }
+@media(max-width:700px) {
+  .meal-list-item { align-items:flex-start; flex-direction:column; }
+  .meal-list-actions { width:100%; }
+  .meal-list-actions button { flex:1; }
+}

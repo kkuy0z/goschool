@@ -3,11 +3,20 @@
   "version": "1.0.0",
   "private": true,
   "description": "GoSchool - plataforma educacional",
-  "workspaces": ["services/*"],
+  "workspaces": [
+    "services/*"
+  ],
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace=gateway\" \"npm run dev --workspace=auth-service\"",
     "start": "npm run start --workspace=gateway",
     "start:auth": "npm run start --workspace=auth-service"
   },
-  "devDependencies": { "concurrently": "^9.1.2" }
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "mysql2": "^3.24.6"
+  }
 }

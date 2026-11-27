@@ -179,7 +179,7 @@ function renderDailyMenu(cardapio) {
             `;
         }
 
-        const imageUrl = meal.imagem || '/Inicio/inicio.jpeg';
+        const imageUrl = meal.imagem || '/inicio.jpeg';
 
         return `
             <article class="meal-card ${hasAlertaAlergia && isAluno ? 'meal-card--alert' : ''}" role="listitem">

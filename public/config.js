@@ -121,39 +121,62 @@
   function initTabs() {
     const tabs = document.getElementById("configTabs");
     if (!tabs) return;
-    tabs.querySelectorAll("[data-tab]").forEach((button) => {
+
+    const buttons = Array.from(tabs.querySelectorAll('[role="tab"][data-tab]'));
+
+    buttons.forEach((button) => {
+      button.type = "button";
       button.addEventListener("click", () => switchTab(button.dataset.tab));
     });
+
     tabs.addEventListener("keydown", (event) => {
-      const buttons = Array.from(tabs.querySelectorAll("[data-tab]"));
       const index = buttons.indexOf(document.activeElement);
+      if (index < 0 || !buttons.length) return;
+
       let next = index;
       if (event.key === "ArrowRight") next = (index + 1) % buttons.length;
-      if (event.key === "ArrowLeft") next = (index - 1 + buttons.length) % buttons.length;
-      if (event.key === "Home") next = 0;
-      if (event.key === "End") next = buttons.length - 1;
-      if (next !== index && next >= 0) {
-        event.preventDefault();
-        buttons[next].focus();
-        buttons[next].click();
-      }
+      else if (event.key === "ArrowLeft") next = (index - 1 + buttons.length) % buttons.length;
+      else if (event.key === "Home") next = 0;
+      else if (event.key === "End") next = buttons.length - 1;
+      else return;
+
+      event.preventDefault();
+      buttons[next].focus();
+      switchTab(buttons[next].dataset.tab);
     });
+
+    // Garante que o painel inicial corresponda ao botão marcado como ativo.
+    const selected = buttons.find((button) => button.getAttribute("aria-selected") === "true")
+      || buttons[0];
+    if (selected) switchTab(selected.dataset.tab, false);
   }
 
-  function switchTab(tab) {
-    document.querySelectorAll(".config-tab-btn").forEach((button) => {
-      const active = button.dataset.tab === tab;
-      button.classList.toggle("active", active);
-      button.setAttribute("aria-selected", String(active));
+  function switchTab(tab, updateUrl = true) {
+    const button = document.querySelector('.config-tab-btn[data-tab="' + tab + '"]');
+    const panel = document.getElementById("panel-" + tab);
+
+    // Evita esconder todos os painéis caso exista um nome inválido na URL.
+    if (!button || !panel) return;
+
+    document.querySelectorAll(".config-tab-btn").forEach((item) => {
+      const active = item === button;
+      item.classList.toggle("active", active);
+      item.setAttribute("aria-selected", String(active));
+      item.tabIndex = active ? 0 : -1;
     });
-    document.querySelectorAll(".config-tab-panel").forEach((panel) => {
-      const active = panel.id === "panel-" + tab;
-      panel.hidden = !active;
-      panel.classList.toggle("active", active);
+
+    document.querySelectorAll(".config-tab-panel").forEach((item) => {
+      const active = item === panel;
+      item.hidden = !active;
+      item.classList.toggle("active", active);
+      item.setAttribute("aria-hidden", String(!active));
     });
-    const url = new URL(window.location.href);
-    url.searchParams.set("tab", tab);
-    window.history.replaceState({}, "", url);
+
+    if (updateUrl) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("tab", tab);
+      window.history.replaceState({}, "", url);
+    }
   }
 
   function initSidebar() {
@@ -162,12 +185,18 @@
     const hamburger = document.getElementById("hamburgerBtn");
     const close = () => {
       sidebar?.classList.remove("open");
-      if (overlay) overlay.hidden = true;
+      if (overlay) {
+        overlay.classList.remove("open");
+        overlay.hidden = true;
+      }
       hamburger?.setAttribute("aria-expanded", "false");
     };
     hamburger?.addEventListener("click", () => {
       const open = sidebar.classList.toggle("open");
-      if (overlay) overlay.hidden = !open;
+      if (overlay) {
+        overlay.hidden = !open;
+        overlay.classList.toggle("open", open);
+      }
       hamburger.setAttribute("aria-expanded", String(open));
     });
     overlay?.addEventListener("click", close);

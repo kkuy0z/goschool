@@ -13,7 +13,7 @@ const mysql = require("mysql2/promise");
 const { OAuth2Client } = require("google-auth-library");
 
 const app = express();
-const PORT = Number(process.env.AUTH_PORT || 4001);
+const PORT = Number(process.env.PORT || process.env.AUTH_PORT || 4001);
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID?.trim();
 const JWT_SECRET = process.env.JWT_SECRET;

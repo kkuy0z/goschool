@@ -1180,3 +1180,200 @@ svg {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------- Alinhamento visual com os demais painéis GoSchool ---------- */
+body {
+  background: var(--gs-background);
+  color: var(--gs-text-primary);
+}
+
+.sidebar {
+  background: linear-gradient(180deg, #0b2341 0%, #091c34 100%);
+  border-right: 1px solid rgb(56 182 255 / 16%);
+}
+
+.logo {
+  border-bottom-color: rgb(255 255 255 / 10%);
+}
+
+.menu-item {
+  color: rgb(255 255 255 / 76%);
+}
+
+.menu-item:hover {
+  background: rgb(255 255 255 / 9%);
+  color: #fff;
+}
+
+.menu-item.active {
+  background: rgb(56 182 255 / 16%);
+  border-color: transparent;
+  color: #38b6ff;
+}
+
+.usuario {
+  background: transparent;
+  border-color: transparent;
+  color: #fff;
+}
+
+.usuario-icon {
+  background: #38b6ff;
+  color: #0b2341;
+}
+
+.sair {
+  border-color: rgb(255 255 255 / 18%);
+  color: rgb(255 255 255 / 76%);
+}
+
+.sair:hover {
+  background: rgb(220 38 38 / 10%);
+  border-color: var(--gs-danger);
+  color: #fecaca;
+}
+
+.top-header {
+  background: linear-gradient(90deg, #0b6994 0%, #0e7eb0 100%);
+  color: #fff;
+  border-bottom: 3px solid #38b6ff;
+  box-shadow: 0 2px 8px rgb(11 35 65 / 5%);
+}
+
+.icon-btn {
+  background: rgb(255 255 255 / 12%);
+  border-color: rgb(255 255 255 / 24%);
+  color: #fff;
+}
+
+.icon-btn:hover {
+  background: rgb(255 255 255 / 22%);
+}
+
+.user-profile {
+  color: #fff;
+}
+
+.avatar {
+  background: #38b6ff;
+  border-color: rgb(255 255 255 / 24%);
+  color: #0b2341;
+}
+
+.content-wrapper {
+  background: var(--gs-background);
+}
+
+.card,
+.meal-card,
+.weekly-day,
+.admin-content > .card {
+  background: var(--gs-surface);
+  border-color: var(--gs-border);
+  box-shadow: var(--gs-shadow-sm);
+}
+
+.tab-title,
+.meal-card h2,
+.meal-card h3,
+.meal-name,
+.weekly-day-title,
+.section-title,
+.empty-state h3,
+.error-state h3,
+.restriction-card h2,
+.restriction-card h3 {
+  color: var(--gs-text-primary);
+}
+
+.tab-subtitle,
+.meal-description,
+.meal-calories,
+.weekly-meal p,
+.restriction-card p,
+.placeholder-content,
+.empty-state,
+.error-state {
+  color: var(--gs-text-secondary);
+}
+
+.meal-time,
+.meal-category,
+.meal-tag {
+  background: var(--gs-background-secondary);
+  border-color: var(--gs-border);
+  color: var(--gs-text-secondary);
+}
+
+.meal-category {
+  background: var(--gs-primary-subtle);
+  border-color: var(--gs-border);
+  color: var(--gs-primary-active);
+}
+
+.meal-card-footer,
+.weekly-day-header {
+  border-color: var(--gs-border);
+}
+
+.weekly-meal {
+  background: var(--gs-background-secondary);
+  border-color: var(--gs-border);
+}
+
+.weekly-meal h3 {
+  color: var(--gs-text-primary);
+}
+
+.meal-details-btn,
+.btn-secondary {
+  background: var(--gs-surface-hover);
+  border-color: var(--gs-border);
+  color: var(--gs-text-primary);
+}
+
+.meal-details-btn:hover,
+.btn-secondary:hover {
+  background: var(--gs-background-secondary);
+  border-color: var(--gs-border-strong);
+}
+
+.empty-state,
+.error-state {
+  background: var(--gs-surface);
+  border-color: var(--gs-border);
+}
+
+.form-label {
+  color: var(--gs-text-secondary);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  background: var(--gs-surface);
+  border-color: var(--gs-border);
+  color: var(--gs-text-primary);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--gs-text-muted);
+}
+
+.form-hint {
+  color: var(--gs-text-muted);
+}
+
+.allergen-checkboxes label,
+.allergen-checkboxes .allergen-option {
+  background: var(--gs-background-secondary);
+  border-color: var(--gs-border);
+  color: var(--gs-text-secondary);
+}
+
+@media (max-width: 760px) {
+  .sidebar {
+    box-shadow: var(--gs-shadow-xl);
+  }
+}

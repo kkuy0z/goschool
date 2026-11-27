@@ -96,18 +96,17 @@
         weekday: 'long', day: 'numeric', month: 'long'
       }).format(new Date());
 
-      const userName = document.querySelector('[data-auth-user="name"]')?.textContent ||
-        document.getElementById('sidebarUserName')?.textContent || 'Aluno(a)';
-      atualizarSaudacao(userName);
+      const usuario = await Auth.getCurrentUser();
+      atualizarSaudacao(usuario?.nome);
       await Promise.allSettled([carregarResumoCardapio(), carregarResumoAlergias()]);
       inicializarSidebar();
     });
 
     function atualizarSaudacao(nome) {
-      const limpo = String(nome || '').replace(/^Olá,?\s*/i, '').trim();
-      const primeiroNome = limpo.split(/\s+/)[0] || 'Aluno(a)';
+      const nomeCompleto = String(nome || '').trim();
+      const primeiroNome = nomeCompleto.split(/\s+/)[0] || 'Aluno';
       document.getElementById('welcomeTitle').textContent = 'Olá, ' + primeiroNome + '!';
-      document.getElementById('sidebarUserName').textContent = limpo || 'Aluno(a)';
+      document.getElementById('sidebarUserName').textContent = nomeCompleto || 'Aluno';
     }
 
     async function carregarResumoCardapio() {

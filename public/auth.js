@@ -8,11 +8,13 @@ const Auth = (function () {
   const API_BASE = "";
   const LOGIN_URL = "/login";
   const CSRF_COOKIE_NAME = "csrf_token";
+  // Caminhos reais das páginas (arquivos servidos pela pasta public).
   const PROTECTED_PATHS = {
-    "/aluno/": "aluno",
-    "/professor/": "professor",
-    "/adm/": "adm",
-    "/reservas": "professor",
+    "/aluno.html": "aluno",
+    "/professor.html": "professor",
+    "/adm.html": "adm",
+    "/usuarios.html": "adm",
+    "/reservas.html": "professor",
   };
 
   // State
@@ -224,13 +226,8 @@ const Auth = (function () {
     const path = window.location.pathname.toLowerCase();
     const requiredRole = PROTECTED_PATHS[path];
 
-    if (
-      needAuth &&
-      (requiredRole ||
-        Object.values(PROTECTED_PATHS).some((r) => path.startsWith(`/${r}/`)))
-    ) {
-      const roles = allowedRoles || [requiredRole].filter(Boolean);
-      const authenticated = await requireAuth(roles);
+    if (needAuth && requiredRole) {
+      const authenticated = await requireAuth(allowedRoles || requiredRole);
       if (!authenticated) return false;
     }
 

@@ -47,24 +47,6 @@ const Auth = (function () {
     document.cookie = cookieStr;
   }
 
-  // Fetch CSRF token
-  async function fetchCsrfToken() {
-    try {
-      const res = await fetch(`${API_BASE}/api/csrf-token`, {
-        method: "GET",
-        credentials: "include",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        csrfToken = data.csrf_token;
-        return csrfToken;
-      }
-    } catch (e) {
-      console.warn("[Auth] Failed to fetch CSRF token:", e);
-    }
-    return null;
-  }
-
   // Get CSRF token (from cookie or fetch)
   function getCsrfToken() {
     if (csrfToken) return csrfToken;
@@ -187,33 +169,6 @@ const Auth = (function () {
     }
   }
 
-  // Demo login
-  async function demoLogin(email) {
-    try {
-      const res = await fetch(`${API_BASE}/api/login/demo`, {
-        method: "POST",
-        credentials: "include",
-        headers: addCsrfHeaders({ "Content-Type": "application/json" }),
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
-      if (data.sucesso) {
-        currentUser = data.usuario;
-        // Redirect to appropriate dashboard
-        if (data.destino) {
-          window.location.href = data.destino;
-        } else {
-          window.location.reload();
-        }
-        return true;
-      }
-      throw new Error(data.erro || "Demo login failed");
-    } catch (e) {
-      console.error("[Auth] Demo login error:", e);
-      throw e;
-    }
-  }
-
   // Initialize auth on page load
   async function init(options = {}) {
     const {
@@ -311,7 +266,6 @@ const Auth = (function () {
     getCurrentUser,
     verifySession,
     requireAuth,
-    demoLogin,
     logout,
     hasRole,
     getCsrfToken,

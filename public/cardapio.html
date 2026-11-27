@@ -34,10 +34,11 @@
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="logo">
-            <img src="/logo-simplificada.png" alt="Logo GOSchool">
+            <img src="logo-simplificada.png" alt="Logo GOSchool">
         </div>
 
         <nav class="menu">
+            <a href="/Aluno/" class="menu-item" id="nav-back-panel">Voltar ao painel</a>
             <a href="#" class="menu-item active" id="nav-dashboard" onclick="switchTab('dashboard')">Cardápio de Hoje</a>
             <a href="#" class="menu-item" id="nav-weekly" onclick="switchTab('weekly')">Cardápio Semanal</a>
             <a href="#" class="menu-item" id="nav-nutrition" onclick="switchTab('nutrition')">Nutrição</a>
@@ -300,7 +301,7 @@
     </div>
 
     <!-- JavaScript Externo -->
-    <script src="/Cardapio/cardapio.js"></script>
+    <script src="/cardapio.js"></script>
 
     <script>
         // Inicialização da autenticação para Cardápio
@@ -341,8 +342,17 @@
             const roleText = roleLabels[user.tipo] || user.tipo.toUpperCase();
             const nome = user.nome || 'Usuário';
 
-            // Sidebar
+            // Sidebar: retorno ao painel correspondente ao perfil autenticado.
             document.getElementById('sidebarUserName').textContent = nome;
+            const painelPorPerfil = {
+                'aluno': '/Aluno/',
+                'professor': '/Professor/',
+                'adm': '/Admin/'
+            };
+            const voltarPainel = document.getElementById('nav-back-panel');
+            if (voltarPainel) {
+                voltarPainel.href = painelPorPerfil[user.tipo] || '/';
+            }
 
             // Top header
             document.getElementById('topUserName').textContent = nome;

@@ -317,7 +317,7 @@
             if (!authenticated) return;
 
             // Atualizar UI do usuário
-            const user = Auth.getCurrentUser();
+            const user = await Auth.getCurrentUser();
             if (user) {
                 atualizarUIUsuario(user);
             }

@@ -597,6 +597,101 @@ app.post("/api/admin/usuarios", requireAdmin, async (req, res) => {
   }
 });
 
+
+const DIAS_CARDAPIO = ["segunda","terca","quarta","quinta","sexta","sabado","domingo"];
+const CATEGORIAS_CARDAPIO = ["cafe_manha","almoco","lanche","jantar"];
+const ALERGENICOS_CARDAPIO = ["Glúten","Leite","Ovos","Peixe","Crustáceos","Moluscos","Amendoim","Soja","Castanhas","Aipo","Mostarda","Gergelim","Sulfitos","Lupino"];
+
+function diaAtualCardapio() {
+  const dia = new Intl.DateTimeFormat("en-US", { weekday: "long", timeZone: "America/Sao_Paulo" }).format(new Date()).toLowerCase();
+  return ({monday:"segunda",tuesday:"terca",wednesday:"quarta",thursday:"quinta",friday:"sexta",saturday:"sabado",sunday:"domingo"})[dia];
+}
+function normalizarRefeicao(row) {
+  let alergicos = row.alergicos;
+  if (typeof alergicos === "string") { try { alergicos = JSON.parse(alergicos); } catch { alergicos = []; } }
+  return {...row, calorias: row.calorias === null ? null : Number(row.calorias), proteina: row.proteina === null ? null : Number(row.proteina), carboidrato: row.carboidrato === null ? null : Number(row.carboidrato), alergicos: Array.isArray(alergicos) ? alergicos : [], horario: row.horario ? String(row.horario).slice(0,5) : null};
+}
+async function autenticarCardapio(req, res, next) {
+  try {
+    if (!JWT_SECRET) return res.status(503).json({erro:"Autenticação não configurada."});
+    const claims = jwt.verify(req.cookies[COOKIE_NAME] || "", JWT_SECRET, {issuer:"goschool-auth"});
+    const [rows] = await pool.execute("SELECT id, tipo, ativo FROM usuarios WHERE id = ? LIMIT 1", [claims.sub]);
+    const user = rows[0];
+    if (!user || !user.ativo) return res.status(401).json({erro:"Sessão inválida ou conta inativa."});
+    req.cardapioUser = user;
+    return next();
+  } catch { return res.status(401).json({erro:"Faça login para acessar o cardápio."}); }
+}
+function exigirAdminCardapio(req,res,next) {
+  if (req.cardapioUser?.tipo !== "adm") return res.status(403).json({erro:"Apenas administradores podem alterar o cardápio."});
+  return next();
+}
+function validarDadosRefeicao(body) {
+  const nome = String(body?.nome || "").trim();
+  const categoria = String(body?.categoria || "").trim();
+  if (nome.length < 2 || nome.length > 180) return "Informe um nome entre 2 e 180 caracteres.";
+  if (!CATEGORIAS_CARDAPIO.includes(categoria)) return "Categoria inválida.";
+  if (body.dia_semana && !DIAS_CARDAPIO.includes(body.dia_semana)) return "Dia da semana inválido.";
+  for (const campo of ["calorias","proteina","carboidrato"]) {
+    if (body[campo] !== null && body[campo] !== undefined && body[campo] !== "" && (!Number.isFinite(Number(body[campo])) || Number(body[campo]) < 0)) return "Os valores nutricionais devem ser números positivos.";
+  }
+  if (body.imagem && (String(body.imagem).length > 2048 || !/^https?:\/\//i.test(String(body.imagem)))) return "A imagem deve ser uma URL HTTP ou HTTPS válida.";
+  if (body.alergicos !== undefined && (!Array.isArray(body.alergicos) || body.alergicos.some(x => typeof x !== "string" || x.length > 80))) return "Lista de alergênicos inválida.";
+  return null;
+}
+function valoresRefeicao(body, userId) {
+  return [String(body.nome).trim(), String(body.descricao || "").trim() || null, body.categoria, body.dia_semana || null, body.horario || null, body.calorias === "" || body.calorias == null ? null : Number(body.calorias), body.proteina === "" || body.proteina == null ? null : Number(body.proteina), body.carboidrato === "" || body.carboidrato == null ? null : Number(body.carboidrato), body.imagem || null, JSON.stringify(body.alergicos || []), String(body.observacoes || "").trim() || null, userId];
+}
+app.use("/api/cardapio", autenticarCardapio);
+app.get("/api/cardapio/categorias", (_req,res) => res.json({sucesso:true,alergicos:ALERGENICOS_CARDAPIO}));
+app.get("/api/cardapio/hoje", async (_req,res) => {
+  try {
+    const [rows] = await pool.execute("SELECT * FROM refeicoes WHERE dia_semana = ? ORDER BY horario, id", [diaAtualCardapio()]);
+    res.json({sucesso:true,cardapio:rows.map(normalizarRefeicao)});
+  } catch (e) { console.error("[cardapio] hoje:",e.message); res.status(500).json({sucesso:false,erro:"Não foi possível carregar o cardápio de hoje."}); }
+});
+app.get("/api/cardapio/semana", async (_req,res) => {
+  try {
+    const [rows] = await pool.execute("SELECT * FROM refeicoes ORDER BY FIELD(dia_semana,'segunda','terca','quarta','quinta','sexta','sabado','domingo'), horario, id");
+    const cardapio = Object.fromEntries(DIAS_CARDAPIO.map(dia=>[dia,[]]));
+    rows.map(normalizarRefeicao).forEach(item=>{if(item.dia_semana) cardapio[item.dia_semana].push(item);});
+    res.json({sucesso:true,cardapio});
+  } catch (e) { console.error("[cardapio] semana:",e.message); res.status(500).json({sucesso:false,erro:"Não foi possível carregar o cardápio semanal."}); }
+});
+app.get("/api/cardapio/:id", async (req,res) => {
+  const id=Number(req.params.id);
+  if (!Number.isSafeInteger(id)||id<=0) return res.status(400).json({sucesso:false,erro:"ID inválido."});
+  try {
+    const [rows]=await pool.execute("SELECT * FROM refeicoes WHERE id=? LIMIT 1",[id]);
+    if(!rows.length) return res.status(404).json({sucesso:false,erro:"Refeição não encontrada."});
+    res.json({sucesso:true,cardapio:normalizarRefeicao(rows[0])});
+  } catch(e) { console.error("[cardapio] detalhe:",e.message); res.status(500).json({sucesso:false,erro:"Não foi possível consultar a refeição."}); }
+});
+app.post("/api/cardapio", exigirAdminCardapio, async (req,res) => {
+  const erro=validarDadosRefeicao(req.body); if(erro) return res.status(400).json({sucesso:false,erro});
+  try {
+    const values=valoresRefeicao(req.body,req.cardapioUser.id);
+    const [result]=await pool.execute("INSERT INTO refeicoes (nome,descricao,categoria,dia_semana,horario,calorias,proteina,carboidrato,imagem,alergicos,observacoes,criado_por) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",values);
+    res.status(201).json({sucesso:true,id:result.insertId,mensagem:"Refeição cadastrada."});
+  } catch(e) { console.error("[cardapio] criar:",e.message); res.status(500).json({sucesso:false,erro:"Não foi possível cadastrar a refeição."}); }
+});
+app.put("/api/cardapio/:id", exigirAdminCardapio, async (req,res) => {
+  const id=Number(req.params.id); if(!Number.isSafeInteger(id)||id<=0) return res.status(400).json({sucesso:false,erro:"ID inválido."});
+  const erro=validarDadosRefeicao(req.body); if(erro) return res.status(400).json({sucesso:false,erro});
+  try {
+    const values=valoresRefeicao(req.body,req.cardapioUser.id);
+    const [result]=await pool.execute("UPDATE refeicoes SET nome=?,descricao=?,categoria=?,dia_semana=?,horario=?,calorias=?,proteina=?,carboidrato=?,imagem=?,alergicos=?,observacoes=? WHERE id=?",[...values.slice(0,11),id]);
+    if(!result.affectedRows) { const [rows]=await pool.execute("SELECT id FROM refeicoes WHERE id=?",[id]); if(!rows.length) return res.status(404).json({sucesso:false,erro:"Refeição não encontrada."}); }
+    res.json({sucesso:true,mensagem:"Refeição atualizada."});
+  } catch(e) { console.error("[cardapio] atualizar:",e.message); res.status(500).json({sucesso:false,erro:"Não foi possível atualizar a refeição."}); }
+});
+app.delete("/api/cardapio/:id", exigirAdminCardapio, async (req,res) => {
+  const id=Number(req.params.id); if(!Number.isSafeInteger(id)||id<=0) return res.status(400).json({sucesso:false,erro:"ID inválido."});
+  try { const [result]=await pool.execute("DELETE FROM refeicoes WHERE id=?",[id]); if(!result.affectedRows) return res.status(404).json({sucesso:false,erro:"Refeição não encontrada."}); res.json({sucesso:true,mensagem:"Refeição excluída."}); }
+  catch(e) { console.error("[cardapio] excluir:",e.message); res.status(500).json({sucesso:false,erro:"Não foi possível excluir a refeição."}); }
+});
+
+
 app.listen(PORT, () => {
   console.log(`Auth Service listening on :${PORT}`);
   console.log(`GOOGLE_CLIENT_ID carregado: ${Boolean(CLIENT_ID)}`);

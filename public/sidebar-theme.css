@@ -228,3 +228,18 @@
 
   body.menu-open { overflow: hidden; }
 }
+
+/* Reserva o espaço da sidebar fixa sem alterar o layout interno de cada painel. */
+body { padding: 0 !important; }
+.main-content {
+  width: calc(100% - var(--gs-panel-sidebar-width));
+  min-width: 0;
+  margin-left: var(--gs-panel-sidebar-width);
+}
+
+@media (max-width: 760px) {
+  .main-content {
+    width: 100%;
+    margin-left: 0;
+  }
+}

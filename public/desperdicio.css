@@ -1010,3 +1010,99 @@ main.main-content {
     .sidebar-overlay.open { display: block; }
     .main-content { margin-left: 0; }
 }
+
+
+
+/* Sidebar do módulo: mesmos tokens e dimensões do painel administrativo (adm.css). */
+:root {
+  --gs-sidebar-width: 256px;
+  --gs-navy: #0b2341;
+  --gs-navy-hover: #13355e;
+  --gs-blue-bright: #38b6ff;
+  --gs-white: #ffffff;
+  --gs-radius: 12px;
+  --gs-radius-sm: 8px;
+  --gs-transition: 200ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+body { display: flex; padding: 0 !important; }
+.sidebar {
+  position: fixed !important;
+  inset: 0 auto 0 0 !important;
+  width: var(--gs-sidebar-width) !important;
+  height: 100vh;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 22px 16px 16px !important;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--gs-navy) 0%, #091c34 100%) !important;
+  color: var(--gs-white) !important;
+  border-right: 1px solid rgb(56 182 255 / 16%) !important;
+  z-index: 1200;
+  transition: transform var(--gs-transition) !important;
+}
+.sidebar .logo {
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; min-height: 62px; padding: 0 12px 20px !important;
+  border: 0 !important; border-bottom: 1px solid rgb(255 255 255 / 10%) !important;
+  background: transparent !important;
+}
+.sidebar .logo a { display: inline-flex; align-items: center; justify-content: center; padding: 6px 14px; }
+.sidebar .logo img { display: block; width: auto; height: 38px; object-fit: contain; }
+.sidebar .menu {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto;
+  display: flex !important; flex-direction: column !important;
+  gap: 7px !important; padding: 24px 0 !important; margin: 0;
+}
+.sidebar .menu-item {
+  display: flex; align-items: center; gap: 13px; min-height: 46px;
+  padding: 0 14px !important; border: 0 !important; border-radius: 12px !important;
+  background: transparent !important; color: rgb(255 255 255 / 76%) !important;
+  text-decoration: none; font-size: 14px; font-weight: 600; line-height: 1.4;
+  box-shadow: none !important; transform: none;
+  transition: background-color var(--gs-transition), color var(--gs-transition);
+}
+.sidebar .menu-item:hover { background: rgb(255 255 255 / 9%) !important; color: #fff !important; }
+.sidebar .menu-item.active,
+.sidebar .menu-item[aria-current="page"] {
+  background: rgb(56 182 255 / 16%) !important; color: var(--gs-blue-bright) !important;
+}
+.sidebar .nav-icon,
+.sidebar .menu-item > span:first-child {
+  flex: 0 0 20px; width: 20px; text-align: center; font-size: 20px; line-height: 1;
+}
+.sidebar .sidebar-bottom {
+  flex: 0 0 auto; margin-top: auto; padding: 16px 0 0 !important;
+  border: 0 !important; border-top: 1px solid rgb(255 255 255 / 10%) !important;
+  background: transparent !important; display: flex; flex-direction: column; gap: 10px;
+}
+.sidebar .usuario {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+  padding: 10px 8px 14px !important; margin: 0 !important;
+  border: 0 !important; background: transparent !important; color: #fff !important;
+  font-size: 13px; font-weight: 700;
+}
+.sidebar .usuario > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sidebar .usuario-icon {
+  display: grid; flex: 0 0 34px; width: 34px; height: 34px; place-items: center;
+  border: 0; border-radius: 50%; background: #38b6ff !important;
+  color: var(--gs-navy) !important; font-size: 14px; font-weight: 800;
+}
+.sidebar .sair {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; min-height: 42px; padding: 10px 14px !important;
+  border: 1px solid rgb(255 255 255 / 18%) !important; border-radius: 10px;
+  background: transparent !important; color: rgb(255 255 255 / 76%) !important;
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.sidebar .sair:hover { border-color: #dc2626 !important; background: rgb(220 38 38 / 10%) !important; color: #fecaca !important; }
+.sidebar-overlay { position: fixed; inset: 0; z-index: 1100; background: rgb(2 8 18 / 62%); backdrop-filter: blur(2px); }
+.sidebar-overlay[hidden] { display: none !important; }
+.main-content { width: calc(100% - var(--gs-sidebar-width)); min-width: 0; margin-left: var(--gs-sidebar-width); }
+@media (max-width: 820px) {
+  .sidebar { width: min(290px, 86vw) !important; max-width: 86vw; transform: translateX(-100%); box-shadow: 0 18px 40px rgb(11 35 65 / 14%); }
+  .sidebar.open { transform: translateX(0) !important; }
+  .main-content { width: 100%; margin-left: 0; }
+  .hamburger-btn { display: inline-flex !important; }
+  .sidebar-overlay:not([hidden]) { display: block; }
+  body.menu-open { overflow: hidden; }
+}

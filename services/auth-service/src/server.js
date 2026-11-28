@@ -692,6 +692,77 @@ app.delete("/api/cardapio/:id", exigirAdminCardapio, async (req,res) => {
 });
 
 
+
+/* Cardápio administrativo: ingredientes, restrições e rastreio de importações. */
+app.get("/api/cardapio/admin/ingredientes", exigirAdminCardapio, async (_req,res) => {
+  try {
+    const [rows] = await pool.execute("SELECT id,nome,ativo FROM ingredientes ORDER BY nome");
+    res.json({sucesso:true,ingredientes:rows});
+  } catch(e) { console.error("[cardapio] ingredientes:",e.message); res.status(500).json({sucesso:false,erro:"Execute a migration-cardapio-admin.sql antes de usar ingredientes."}); }
+});
+app.post("/api/cardapio/admin/ingredientes", exigirAdminCardapio, async (req,res) => {
+  const nome=String(req.body?.nome||"").trim();
+  if(nome.length<2||nome.length>120) return res.status(400).json({sucesso:false,erro:"Informe um ingrediente entre 2 e 120 caracteres."});
+  try {
+    const [r]=await pool.execute("INSERT INTO ingredientes(nome) VALUES(?)",[nome]);
+    res.status(201).json({sucesso:true,id:r.insertId});
+  } catch(e) { res.status(e.code==="ER_DUP_ENTRY"?409:500).json({sucesso:false,erro:e.code==="ER_DUP_ENTRY"?"Ingrediente já cadastrado.":"Não foi possível cadastrar o ingrediente."}); }
+});
+app.get("/api/cardapio/admin/restricoes", exigirAdminCardapio, async (_req,res) => {
+  try {
+    const [rows]=await pool.execute("SELECT id,nome,descricao,ativo FROM restricoes_alimentares ORDER BY nome");
+    res.json({sucesso:true,restricoes:rows});
+  } catch(e) { console.error("[cardapio] restrições:",e.message); res.status(500).json({sucesso:false,erro:"Execute a migration-cardapio-admin.sql antes de usar restrições."}); }
+});
+app.post("/api/cardapio/admin/restricoes", exigirAdminCardapio, async (req,res) => {
+  const nome=String(req.body?.nome||"").trim(), descricao=String(req.body?.descricao||"").trim();
+  if(nome.length<2||nome.length>120) return res.status(400).json({sucesso:false,erro:"Informe uma restrição entre 2 e 120 caracteres."});
+  try {
+    const [r]=await pool.execute("INSERT INTO restricoes_alimentares(nome,descricao) VALUES(?,?)",[nome,descricao||null]);
+    res.status(201).json({sucesso:true,id:r.insertId});
+  } catch(e) { res.status(e.code==="ER_DUP_ENTRY"?409:500).json({sucesso:false,erro:e.code==="ER_DUP_ENTRY"?"Restrição já cadastrada.":"Não foi possível cadastrar a restrição."}); }
+});
+app.put("/api/cardapio/admin/ingredientes/:id/restricoes", exigirAdminCardapio, async (req,res) => {
+  const id=Number(req.params.id), restricoes=Array.isArray(req.body?.restricaoIds)?req.body.restricaoIds.map(Number):null;
+  if(!Number.isSafeInteger(id)||id<1||!restricoes||restricoes.some(x=>!Number.isSafeInteger(x)||x<1)) return res.status(400).json({sucesso:false,erro:"Informe ingredientes e restrições válidos."});
+  const conn=await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [ingredient]=await conn.execute("SELECT id FROM ingredientes WHERE id=? FOR UPDATE",[id]);
+    if(!ingredient.length) { await conn.rollback(); return res.status(404).json({sucesso:false,erro:"Ingrediente não encontrado."}); }
+    await conn.execute("DELETE FROM ingrediente_restricoes WHERE ingrediente_id=?",[id]);
+    for(const rid of [...new Set(restricoes)]) await conn.execute("INSERT INTO ingrediente_restricoes(ingrediente_id,restricao_id) VALUES(?,?)",[id,rid]);
+    await conn.commit(); res.json({sucesso:true});
+  } catch(e) { await conn.rollback(); res.status(500).json({sucesso:false,erro:"Não foi possível atualizar os vínculos."}); }
+  finally { conn.release(); }
+});
+app.put("/api/cardapio/admin/refeicoes/:id/ingredientes", exigirAdminCardapio, async (req,res) => {
+  const id=Number(req.params.id), ingredientes=Array.isArray(req.body?.ingredienteIds)?req.body.ingredienteIds.map(Number):null;
+  if(!Number.isSafeInteger(id)||id<1||!ingredientes||ingredientes.some(x=>!Number.isSafeInteger(x)||x<1)) return res.status(400).json({sucesso:false,erro:"Informe uma refeição e ingredientes válidos."});
+  const conn=await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [meal]=await conn.execute("SELECT id FROM refeicoes WHERE id=? FOR UPDATE",[id]);
+    if(!meal.length) { await conn.rollback(); return res.status(404).json({sucesso:false,erro:"Refeição não encontrada."}); }
+    await conn.execute("DELETE FROM refeicao_ingredientes WHERE refeicao_id=?",[id]);
+    for(const iid of [...new Set(ingredientes)]) await conn.execute("INSERT INTO refeicao_ingredientes(refeicao_id,ingrediente_id) VALUES(?,?)",[id,iid]);
+    await conn.commit(); res.json({sucesso:true});
+  } catch(e) { await conn.rollback(); res.status(500).json({sucesso:false,erro:"Não foi possível atualizar os ingredientes da refeição."}); }
+  finally { conn.release(); }
+});
+app.get("/api/cardapio/admin/importacoes", exigirAdminCardapio, async (_req,res) => {
+  try {
+    const [rows]=await pool.execute("SELECT id,arquivo_nome,status,total_linhas,linhas_importadas,erros,criado_em,concluido_em FROM cardapio_importacoes ORDER BY criado_em DESC LIMIT 50");
+    res.json({sucesso:true,importacoes:rows});
+  } catch(e) { console.error("[cardapio] importações:",e.message); res.status(500).json({sucesso:false,erro:"Execute a migration-cardapio-admin.sql antes de consultar importações."}); }
+});
+app.get("/api/cardapio/minhas-restricoes", async (req,res) => {
+  try {
+    const [rows]=await pool.execute("SELECT r.id,r.nome,r.descricao FROM usuario_restricoes ur JOIN restricoes_alimentares r ON r.id=ur.restricao_id WHERE ur.usuario_id=? AND r.ativo=1 ORDER BY r.nome",[req.cardapioUser.id]);
+    res.json({sucesso:true,restricoes:rows});
+  } catch(e) { res.status(500).json({sucesso:false,erro:"Não foi possível consultar suas restrições."}); }
+});
+
 app.listen(PORT, () => {
   console.log(`Auth Service listening on :${PORT}`);
   console.log(`GOOGLE_CLIENT_ID carregado: ${Boolean(CLIENT_ID)}`);

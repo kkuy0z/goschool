@@ -35,11 +35,8 @@ async function inicializarCardapio() {
         await carregarVinculosCardapio();
     }
 
-    // Carregar cardápio semanal se a aba estiver ativa
-    const weeklyTab = document.getElementById('tab-weekly');
-    if (weeklyTab && !weeklyTab.hidden) {
-        await carregarCardapioSemanal();
-    }
+    // A prévia semanal aparece no painel inicial.
+    await carregarCardapioSemanal();
 }
 
 // Configurar abas do menu lateral
@@ -249,8 +246,8 @@ function renderDailyMenu(cardapio) {
 
 // Renderiza cardápio semanal (para aba weekly)
 function renderWeeklyMenu(cardapioSemanal) {
-    const container = document.getElementById('weeklyMenuContainer');
-    if (!container) return;
+    const containers = [document.getElementById('weeklyMenuContainer'), document.getElementById('weeklyMenuPreview')].filter(Boolean);
+    if (!containers.length) return;
 
     // Ordem dos dias da semana
     const diasOrdem = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
@@ -389,7 +386,7 @@ function renderWeeklyMenu(cardapioSemanal) {
         `;
     });
 
-    container.innerHTML = html;
+    containers.forEach(container => { container.innerHTML = html; });
 }
 
 // Formatar categoria para exibição
@@ -728,6 +725,12 @@ async function carregarListaRefeicoesAdmin() {
 
 // Alternar abas
 function switchTab(tabId) {
+    if (tabId === 'settings' && currentUserRole === 'ADM') {
+        if (typeof abrirGerenciarCardapio === 'function') abrirGerenciarCardapio();
+        carregarListaRefeicoesAdmin();
+        closeSidebar();
+        return;
+    }
     // Esconder todos os painéis
     document.querySelectorAll('.tab-panel').forEach(el => {
         el.hidden = true;

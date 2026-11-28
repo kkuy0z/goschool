@@ -923,6 +923,10 @@ app.post("/api/reservas", requireReservaUser, async (req, res) => {
   const horaFim = fimRaw.slice(11, 16);
   const horarioEscolarValido = dataInicio === dataFim && periodosEscolares.some(([a,b]) => a === horaInicio && b === horaFim);
   if (!horarioEscolarValido) return res.status(400).json({ sucesso: false, erro: "Selecione um horário escolar válido. Intervalos e períodos fora da grade não podem ser reservados." });
+  const diaReserva = new Date(`${dataInicio}T12:00:00`).getDay();
+  if (diaReserva === 0 || diaReserva === 6) return res.status(400).json({ sucesso: false, erro: "Reservas só podem ser feitas de segunda a sexta-feira." });
+  const hojeLocal = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  if (dataInicio < hojeLocal) return res.status(400).json({ sucesso: false, erro: "Não é permitido reservar datas anteriores a hoje." });
   if (inicio <= new Date()) return res.status(400).json({ sucesso: false, erro: "A reserva precisa começar no futuro." });
   if (finalidade.length > 4000) return res.status(400).json({ sucesso: false, erro: "A finalidade deve ter até 4.000 caracteres." });
 

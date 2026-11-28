@@ -414,7 +414,16 @@
             }
             document.querySelectorAll('[data-auth-role]').forEach((item) => {
                 const permitted = item.dataset.authRole.split(',').map(value => value.trim().toLowerCase());
-                item.hidden = !permitted.includes(role);
+                const allowed = permitted.includes(role);
+
+                // Modais usam "hidden" para controlar abertura/fechamento.
+                // Não remover esse atributo só porque o usuário tem permissão.
+                if (item.classList.contains('modal-overlay')) {
+                    if (!allowed) item.hidden = true;
+                    return;
+                }
+
+                item.hidden = !allowed;
             });
             // Top header
             const topName = document.getElementById('topUserName');

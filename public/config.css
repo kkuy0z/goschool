@@ -1309,4 +1309,12 @@ main.main-content {
 
 
 /* Topbar sem sidebar, no padrão dos painéis Cardápio e Reservas */
-main.main-content{width:100%;margin:0;min-height:100vh}.config-topbar{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:14px clamp(16px,4vw,48px);background:var(--gs-surface);border-bottom:1px solid var(--gs-border)}.config-brand{display:flex;align-items:center;flex:0 0 auto}.config-brand img{width:42px;height:42px;object-fit:contain}.config-topnav{display:flex;align-items:center;gap:6px;flex:1;flex-wrap:wrap}.config-topnav a{padding:10px 14px;border-radius:8px;text-decoration:none;color:var(--gs-text-secondary);font-weight:600}.config-topnav a:hover,.config-topnav a.active{background:var(--gs-surface-hover);color:var(--gs-text-primary)}.config-top-actions{display:flex;align-items:center;gap:12px}.config-top-actions .user-name{max-width:220px}@media(max-width:640px){.config-topbar{gap:12px}.config-topnav{order:3;flex-basis:100%;overflow-x:auto;flex-wrap:nowrap}.config-topnav a{white-space:nowrap}.config-top-actions{margin-left:auto}}
+main.main-content{width:100%;margin:0;min-height:100vh}.config-topbar{display:flex;align-items:center;gap:20px;padding:14px clamp(16px,4vw,48px);background:var(--gs-surface);border-bottom:1px solid var(--gs-border)}
+.config-brand{display:flex;align-items:center;flex:0 0 auto}
+.config-brand img{width:42px;height:42px;object-fit:contain}
+.config-page-heading{flex:1;min-width:180px}
+.config-page-heading h1{margin:0;color:var(--gs-text-primary);font-family:var(--gs-font-display);font-size:clamp(20px,2.5vw,28px);font-weight:var(--gs-font-weight-bold)}
+.config-page-heading p{margin:4px 0 0;color:var(--gs-text-secondary);font-size:var(--gs-font-size-sm)}
+.config-top-actions{display:flex;align-items:center;gap:12px}
+.config-top-actions .user-name{max-width:220px}
+@media(max-width:640px){.config-topbar{gap:12px;flex-wrap:wrap}.config-page-heading{order:3;flex-basis:100%}.config-top-actions{margin-left:auto}}

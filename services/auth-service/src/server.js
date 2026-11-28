@@ -1212,6 +1212,73 @@ app.get("/api/desperdicio/dashboard", autenticarDesperdicio, async (req, res) =>
   }
 });
 
+
+/* Configurações pessoais persistidas por usuário */
+async function autenticarConfiguracoes(req, res, next) {
+  try {
+    if (!JWT_SECRET) return res.status(503).json({ sucesso: false, erro: "Autenticação não configurada." });
+    const claims = jwt.verify(req.cookies[COOKIE_NAME] || "", JWT_SECRET, { issuer: "goschool-auth" });
+    const [rows] = await pool.execute("SELECT id, ativo FROM usuarios WHERE id = ? LIMIT 1", [claims.sub]);
+    if (!rows[0] || !rows[0].ativo) return res.status(401).json({ sucesso: false, erro: "Sessão inválida ou conta inativa." });
+    req.configUserId = rows[0].id;
+    return next();
+  } catch {
+    return res.status(401).json({ sucesso: false, erro: "Faça login para acessar suas configurações." });
+  }
+}
+
+app.get("/api/configuracoes", autenticarConfiguracoes, async (req, res) => {
+  try {
+    const [rows] = await pool.execute(
+      "SELECT preferencias, alergias FROM configuracoes_usuario WHERE usuario_id = ? LIMIT 1",
+      [req.configUserId],
+    );
+    const row = rows[0];
+    const parseJson = (value, fallback) => {
+      if (value == null) return fallback;
+      if (typeof value === "object") return value;
+      try { return JSON.parse(value); } catch { return fallback; }
+    };
+    return res.json({ sucesso: true, preferencias: parseJson(row?.preferencias, {}), alergias: parseJson(row?.alergias, []) });
+  } catch (error) {
+    console.error("[configuracoes] GET:", error.message);
+    return res.status(500).json({ sucesso: false, erro: "Não foi possível carregar as configurações. Verifique se a migração do banco foi executada." });
+  }
+});
+
+app.put("/api/configuracoes", autenticarConfiguracoes, async (req, res) => {
+  const preferencias = req.body?.preferencias;
+  const alergias = req.body?.alergias;
+  if (!preferencias || typeof preferencias !== "object" || Array.isArray(preferencias) ||
+      !Array.isArray(alergias) || alergias.length > 50 ||
+      alergias.some(item => typeof item !== "string" || item.length > 80)) {
+    return res.status(400).json({ sucesso: false, erro: "Dados de configurações inválidos." });
+  }
+  const allowed = ["density", "language", "cardapio_view", "show_allergens", "highlight_restrictions", "push_enabled", "reminder_enabled", "allergy_alert_enabled", "weekly_summary_enabled"];
+  const clean = {};
+  for (const key of allowed) {
+    if (Object.hasOwn(preferencias, key)) clean[key] = preferencias[key];
+  }
+  if (clean.density && !["comfortable", "compact", "spacious"].includes(clean.density)) return res.status(400).json({ sucesso: false, erro: "Densidade inválida." });
+  if (clean.language && !["pt-BR", "en-US", "es-ES"].includes(clean.language)) return res.status(400).json({ sucesso: false, erro: "Idioma inválido." });
+  if (clean.cardapio_view && !["semanal", "lista", "hoje"].includes(clean.cardapio_view)) return res.status(400).json({ sucesso: false, erro: "Visualização do cardápio inválida." });
+  for (const key of ["show_allergens", "highlight_restrictions", "push_enabled", "reminder_enabled", "allergy_alert_enabled", "weekly_summary_enabled"]) {
+    if (Object.hasOwn(clean, key) && typeof clean[key] !== "boolean") return res.status(400).json({ sucesso: false, erro: "Preferência inválida: " + key });
+  }
+  try {
+    await pool.execute(
+      `INSERT INTO configuracoes_usuario (usuario_id, preferencias, alergias)
+       VALUES (?, ?, ?)
+       ON DUPLICATE KEY UPDATE preferencias = VALUES(preferencias), alergias = VALUES(alergias), atualizado_em = CURRENT_TIMESTAMP`,
+      [req.configUserId, JSON.stringify(clean), JSON.stringify([...new Set(alergias)])],
+    );
+    return res.json({ sucesso: true, mensagem: "Configurações salvas no banco de dados." });
+  } catch (error) {
+    console.error("[configuracoes] PUT:", error.message);
+    return res.status(500).json({ sucesso: false, erro: "Não foi possível salvar as configurações. Verifique se a migração do banco foi executada." });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Auth Service listening on :${PORT}`);
   console.log(`GOOGLE_CLIENT_ID carregado: ${Boolean(CLIENT_ID)}`);

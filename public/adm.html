@@ -539,14 +539,14 @@
         if (!element) return;
 
         const agora = new Date();
-        const data = agora.toLocaleDateString("pt-BR", {
+        const idioma = (localStorage.getItem("goschool_preferences") || "").includes("en-US") ? "en-US" : "pt-BR";\n        const data = agora.toLocaleDateString(idioma, {
           weekday: "long",
           day: "2-digit",
           month: "long",
           year: "numeric",
         });
 
-        element.textContent = `Resumo de ${data}.`;
+        element.textContent = idioma === "en-US" ? `Summary for ${data}.` : `Resumo de ${data}.`;
       }
 
       async function atualizarDashboard() {
@@ -692,7 +692,7 @@
 
         context.fillStyle = document.documentElement.dataset.theme === "escuro" ? "#CBD5E1" : getCSSVar("--gs-text-secondary", "#64748b");
         context.font = "12px sans-serif";
-        context.fillText("Usuários", centerX, centerY + 15);
+        context.fillText((localStorage.getItem("goschool_preferences") || "").includes("en-US") ? "Users" : "Usuários", centerX, centerY + 15);
 
         legend.replaceChildren();
 

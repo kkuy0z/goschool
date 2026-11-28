@@ -295,7 +295,21 @@
                             <div><h4 class="section-title">Ingredientes cadastrados</h4><div class="meal-list" id="adminIngredientsList"></div></div>
                             <div><h4 class="section-title">Restrições cadastradas</h4><div class="meal-list" id="adminRestrictionsList"></div></div>
                         </div>
-                        <p class="form-hint">O vínculo ingrediente–restrição é a base para identificar incompatibilidades nos cardápios.</p>
+                        <div class="form-row">
+                            <form id="ingredientRestrictionForm" class="form-grid">
+                                <h4 class="section-title">Relacionar ingrediente e restrição</h4>
+                                <div class="form-group"><label class="form-label" for="linkIngredient">Ingrediente</label><select class="form-select" id="linkIngredient" required></select></div>
+                                <div class="form-group"><label class="form-label" for="linkRestrictions">Restrições relacionadas</label><select class="form-select" id="linkRestrictions" multiple size="5"></select><p class="form-hint">Use Ctrl para selecionar mais de uma opção.</p></div>
+                                <button class="btn-primary" type="submit">Salvar relação</button>
+                            </form>
+                            <form id="mealIngredientForm" class="form-grid">
+                                <h4 class="section-title">Ingredientes da refeição</h4>
+                                <div class="form-group"><label class="form-label" for="linkMeal">Refeição</label><select class="form-select" id="linkMeal" required></select></div>
+                                <div class="form-group"><label class="form-label" for="linkMealIngredients">Ingredientes presentes</label><select class="form-select" id="linkMealIngredients" multiple size="5"></select></div>
+                                <button class="btn-primary" type="submit">Salvar ingredientes</button>
+                            </form>
+                        </div>
+                        <p class="form-hint">O vínculo ingrediente–restrição permite identificar incompatibilidades e gerar alertas para o aluno.</p>
                     </div>
 
                     <div class="card">

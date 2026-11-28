@@ -1984,3 +1984,29 @@ body {
 .weekly-overview .card-actions .btn-danger {
   margin-left: 4px;
 }
+
+
+/* Cardápio de hoje: ações com separação explícita */
+.overview-panel .card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px !important;
+}
+
+.overview-panel .card-actions > .btn-edit {
+  background: #0e8fc7 !important;
+  border: 1px solid #0e8fc7 !important;
+  color: #fff !important;
+  margin-right: 8px !important;
+}
+
+.overview-panel .card-actions > .btn-edit:hover {
+  background: #0a6d99 !important;
+  border-color: #0a6d99 !important;
+  color: #fff !important;
+}
+
+.overview-panel .card-actions > .btn-danger {
+  margin-left: 8px !important;
+}

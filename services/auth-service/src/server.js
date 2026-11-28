@@ -612,7 +612,7 @@ function diaAtualCardapio() {
 function normalizarRefeicao(row) {
   let alergicos = row.alergicos;
   if (typeof alergicos === "string") { try { alergicos = JSON.parse(alergicos); } catch { alergicos = []; } }
-  return {...row, calorias: row.calorias === null ? null : Number(row.calorias), proteina: row.proteina === null ? null : Number(row.proteina), carboidrato: row.carboidrato === null ? null : Number(row.carboidrato), alergicos: Array.isArray(alergicos) ? alergicos : [], horario: row.horario ? String(row.horario).slice(0,5) : null};
+  return {...row, alertaAlergia: Boolean(row.alertaAlergia), calorias: row.calorias === null ? null : Number(row.calorias), proteina: row.proteina === null ? null : Number(row.proteina), carboidrato: row.carboidrato === null ? null : Number(row.carboidrato), alergicos: Array.isArray(alergicos) ? alergicos : [], horario: row.horario ? String(row.horario).slice(0,5) : null};
 }
 async function autenticarCardapio(req, res, next) {
   try {
@@ -710,6 +710,12 @@ app.post("/api/cardapio/admin/ingredientes", exigirAdminCardapio, async (req,res
     const [r]=await pool.execute("INSERT INTO ingredientes(nome) VALUES(?)",[nome]);
     res.status(201).json({sucesso:true,id:r.insertId});
   } catch(e) { res.status(e.code==="ER_DUP_ENTRY"?409:500).json({sucesso:false,erro:e.code==="ER_DUP_ENTRY"?"Ingrediente já cadastrado.":"Não foi possível cadastrar o ingrediente."}); }
+});
+app.get("/api/cardapio/restricoes", async (_req,res) => {
+  try {
+    const [rows]=await pool.execute("SELECT id,nome,descricao FROM restricoes_alimentares WHERE ativo=1 ORDER BY nome");
+    res.json({sucesso:true,restricoes:rows});
+  } catch(e) { res.status(500).json({sucesso:false,erro:"Não foi possível carregar as restrições alimentares."}); }
 });
 app.get("/api/cardapio/admin/restricoes", exigirAdminCardapio, async (_req,res) => {
   try {

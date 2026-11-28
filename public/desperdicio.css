@@ -851,3 +851,7 @@ main.main-content {
     .dashboard-intro { gap: 14px; }
     .empty-state { padding: 15px; }
 }
+
+/* Respeita o atributo hidden mesmo quando o componente tem display próprio */
+.demo-badge[hidden],
+.demo-badge-inline[hidden] { display: none !important; }

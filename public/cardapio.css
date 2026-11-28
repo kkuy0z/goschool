@@ -2291,3 +2291,44 @@ body { display:block; min-height:100vh; overflow-x:hidden; }
  .overview-panel-heading h2 { font-size:16px; }
  .weekly-overview .weekly-container { grid-template-columns:1fr; }
 }
+
+/* Marca d'água GS no painel de boas-vindas */
+.cardapio-welcome {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.cardapio-welcome .welcome-copy {
+  position: relative;
+  z-index: 1;
+}
+.cardapio-welcome .welcome-mark {
+  position: absolute;
+  z-index: 0;
+  inset: auto 24px 50% auto;
+  transform: translateY(50%);
+  display: block;
+  width: auto;
+  height: auto;
+  flex: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--gs-blue-logo);
+  font-size: clamp(150px, 23vw, 320px);
+  font-weight: 900;
+  line-height: .8;
+  letter-spacing: -.12em;
+  opacity: .065;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .cardapio-welcome .welcome-mark {
+    right: 12px;
+    font-size: clamp(120px, 30vw, 210px);
+    opacity: .055;
+  }
+}

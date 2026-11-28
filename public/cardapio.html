@@ -98,15 +98,33 @@
 
             <!-- TAB 1: DASHBOARD (Cardápio de Hoje) -->
             <section id="tab-dashboard" class="tab-panel active" aria-labelledby="dashboard-title">
-                <div class="tab-header">
-                    <h1 class="tab-title" id="dashboard-title">Carregando...</h1>
-                    <p class="tab-subtitle" id="dashboard-date"></p>
-                </div>
+                <section class="welcome-panel cardapio-welcome" aria-labelledby="dashboard-title">
+                    <div class="welcome-copy">
+                        <span class="eyebrow">SEU ESPAÇO ESCOLAR</span>
+                        <h1 class="tab-title" id="dashboard-title">Olá!</h1>
+                        <p>Confira as refeições disponíveis para hoje.</p>
+                        <div class="today-label"><span aria-hidden="true">◷</span><span id="dashboard-date"></span></div>
+                    </div>
+                    <div class="welcome-mark" aria-hidden="true">GS</div>
+                </section>
 
                 <!-- Cards Grid -->
                 <div class="meals-grid" id="dailyMenuContainer" role="list" aria-label="Refeições de hoje">
                     <!-- Cards inseridos via JS -->
                 </div>
+
+                <section class="cardapio-shortcuts" aria-label="Acessos rápidos">
+                    <div class="section-heading">
+                        <div><span class="eyebrow">ACESSO RÁPIDO</span><h2>Outras funções</h2></div>
+                    </div>
+                    <div class="shortcut-grid">
+                        <button class="shortcut-card" type="button" onclick="switchTab('weekly')"><span class="shortcut-icon blue" aria-hidden="true">▦</span><span class="shortcut-copy"><strong>Cardápio semanal</strong><small>Consulte as refeições da semana.</small></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>
+                        <button class="shortcut-card" type="button" onclick="switchTab('nutrition')"><span class="shortcut-icon blue" aria-hidden="true">▧</span><span class="shortcut-copy"><strong>Nutrição</strong><small>Veja os detalhes nutricionais.</small></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>
+                        <button class="shortcut-card" type="button" onclick="switchTab('restrictions')"><span class="shortcut-icon amber" aria-hidden="true">⚑</span><span class="shortcut-copy"><strong>Restrições alimentares</strong><small>Consulte alergênicos e restrições.</small></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>
+                        <button class="shortcut-card" type="button" onclick="switchTab('history')"><span class="shortcut-icon blue" aria-hidden="true">◷</span><span class="shortcut-copy"><strong>Histórico</strong><small>Consulte cardápios anteriores.</small></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>
+                        <button class="shortcut-card" type="button" data-auth-role="adm" onclick="switchTab('settings')"><span class="shortcut-icon amber" aria-hidden="true">⚙</span><span class="shortcut-copy"><strong>Gerenciar cardápio</strong><small>Cadastre refeições e organize ingredientes.</small></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>
+                    </div>
+                </section>
             </section>
 
             <!-- TAB 2: CARDÁPIO SEMANAL -->

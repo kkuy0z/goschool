@@ -1215,3 +1215,9 @@ body { display: flex; padding: 0 !important; }
 .sidebar {
   background: linear-gradient(180deg, #0b2341 0%, #091c34 100%) !important;
 }
+
+
+/* Igualar a cor compartilhada do ADM, sem depender de variáveis do tema. */
+body .sidebar {
+  background: linear-gradient(180deg, #0b2341 0%, #091c34 100%) !important;
+}

@@ -894,7 +894,7 @@ app.get("/api/reservas", requireReservaUser, async (req, res) => {
       `SELECT r.id,r.recurso_id,r.usuario_id,r.titulo,r.finalidade,r.data_inicio,r.data_fim,r.status,r.observacao_admin,r.criado_em,
               rr.nome AS recurso_nome,rr.localizacao, u.nome AS usuario_nome
        FROM reservas r JOIN recursos_reserva rr ON rr.id=r.recurso_id JOIN usuarios u ON u.id=r.usuario_id
-       WHERE r.data_inicio >= CURDATE() AND r.data_inicio < DATE_ADD(CURDATE(), INTERVAL 7 DAY) ORDER BY r.data_inicio ASC LIMIT 500`,
+       WHERE r.data_inicio >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY) AND r.data_inicio < DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 7 DAY) ORDER BY r.data_inicio ASC LIMIT 500`,
       [],
     );
     res.json({ sucesso: true, reservas: rows });

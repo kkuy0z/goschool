@@ -10,7 +10,6 @@
   const DEFAULTS = {
     density: "comfortable",
     theme: "claro",
-    language: "pt-BR",
     cardapio_view: "semanal",
     show_allergens: true,
     highlight_restrictions: true,
@@ -248,7 +247,6 @@
 
     const map = {
       prefDensidade: "density",
-      prefIdioma: "language",
       prefCardapioView: "cardapio_view"
     };
     Object.entries(map).forEach(([id, key]) => {
@@ -273,14 +271,8 @@
     const root = document.documentElement;
     root.dataset.density = preferences.density;
     if (window.GoSchoolPrefs && typeof window.GoSchoolPrefs.setDensity === "function") window.GoSchoolPrefs.setDensity(preferences.density);
-    root.lang = preferences.language;
     root.classList.remove("density-comfortable", "density-compact", "density-spacious");
     root.classList.add("density-" + preferences.density);
-    if (window.GoSchoolPrefs && typeof window.GoSchoolPrefs.setLang === "function") {
-      // O mecanismo global aceita pt-BR, en e es.
-      const lang = preferences.language === "en-US" ? "en" : preferences.language === "es-ES" ? "es" : "pt-BR";
-      window.GoSchoolPrefs.setLang(lang);
-    }
   }
 
   function syncControls() {

@@ -51,6 +51,58 @@ body{display:block!important;min-height:100vh;padding:0!important;background:#ed
 @media(max-width:560px){.reserva-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:6px}.reserva-tab{min-width:0;white-space:normal;text-align:center;padding:10px 8px;font-size:.88rem}}
 </style>    <link rel="stylesheet" href="/global-theme.css?v=1">
     <script src="/theme.js?v=3"></script>
+
+<style>
+/* Tema escuro para toda a página de reservas */
+html[data-theme="escuro"] body { background:#0b0f14!important; color:#f1f5f9!important; }
+html[data-theme="escuro"] .reserva-shell,
+html[data-theme="escuro"] .reserva-head,
+html[data-theme="escuro"] .reserva-body:before,
+html[data-theme="escuro"] .reserva-table-card,
+html[data-theme="escuro"] .reserva-card,
+html[data-theme="escuro"] .reserva-tabs,
+html[data-theme="escuro"] .reserva-panel,
+html[data-theme="escuro"] .reserva-admin,
+html[data-theme="escuro"] .reserva-modal-box,
+html[data-theme="escuro"] .reserva-form,
+html[data-theme="escuro"] .reserva-modal-head,
+html[data-theme="escuro"] .reserva-modal-foot {
+ background:#151b23!important; color:#f1f5f9!important; border-color:#303b49!important; box-shadow:0 8px 24px rgb(0 0 0 / 22%)!important;
+}
+html[data-theme="escuro"] .reserva-head h1,
+html[data-theme="escuro"] .reserva-head p,
+html[data-theme="escuro"] .reserva-body:before,
+html[data-theme="escuro"] #hello,
+html[data-theme="escuro"] .reserva-table-card h2,
+html[data-theme="escuro"] .reserva-card h3,
+html[data-theme="escuro"] .reserva-card p,
+html[data-theme="escuro"] .reserva-tabs button,
+html[data-theme="escuro"] .reserva-form label,
+html[data-theme="escuro"] .reserva-admin label,
+html[data-theme="escuro"] .reserva-modal-box h2,
+html[data-theme="escuro"] .reserva-modal-box p { color:#f1f5f9!important; }
+html[data-theme="escuro"] .reserva-shell:before { background:#101720!important; border-color:#263746!important; }
+html[data-theme="escuro"] .reserva-table-card table,
+html[data-theme="escuro"] .reservas-table,
+html[data-theme="escuro"] .reservas-table th,
+html[data-theme="escuro"] .reservas-table td { background:#151b23!important; color:#dce5ef!important; border-color:#303b49!important; }
+html[data-theme="escuro"] .reservas-table th { background:#202a36!important; color:#f1f5f9!important; }
+html[data-theme="escuro"] .reservas-table tbody tr:hover td { background:#202a36!important; }
+html[data-theme="escuro"] .reserva-form input,
+html[data-theme="escuro"] .reserva-form select,
+html[data-theme="escuro"] .reserva-form textarea,
+html[data-theme="escuro"] .reserva-admin input,
+html[data-theme="escuro"] .reserva-admin select,
+html[data-theme="escuro"] .reserva-admin textarea { background:#0e141c!important; color:#f1f5f9!important; border-color:#354252!important; }
+html[data-theme="escuro"] .reserva-form input::placeholder,
+html[data-theme="escuro"] .reserva-form textarea::placeholder { color:#8997a8!important; }
+html[data-theme="escuro"] .reserva-tab.active { background:#1b3447!important; color:#8bd5ff!important; border-color:#31516e!important; }
+html[data-theme="escuro"] .slot-card { background:#0e141c!important; color:#e5edf5!important; border-color:#354252!important; }
+html[data-theme="escuro"] .slot-card.slot-selected { background:#17364a!important; border-color:#3aa7df!important; }
+html[data-theme="escuro"] .slot-hint,
+html[data-theme="escuro"] .table-empty,
+html[data-theme="escuro"] .live-note { color:#aebccc!important; }
+</style>
 </head><body>
 <section class="reserva-shell" role="dialog" aria-modal="true" aria-labelledby="title">
 <header class="reserva-head"><div><h1 id="title">Reservas de ambientes</h1><p>Solicite e acompanhe a utilização dos espaços escolares.</p></div><div><a class="btn-secondary" id="back" href="/professor.html">← Voltar ao painel</a> <button class="btn-primary" id="new" type="button">＋ Nova reserva</button></div></header>

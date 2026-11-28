@@ -2479,3 +2479,23 @@ html[data-theme="escuro"] .weekly-day-card {
 html[data-theme="escuro"] .tab-header {
   background: linear-gradient(120deg, #18212c, #111820) !important;
 }
+
+/* Corrige o painel "Seu espaço escolar" no tema escuro */
+html[data-theme="escuro"] .cardapio-welcome,
+html[data-theme="escuro"] .welcome-panel {
+  background: linear-gradient(135deg, #18212c 0%, #111820 100%) !important;
+  color: #f1f5f9 !important;
+  border-color: #303b49 !important;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 22%) !important;
+}
+html[data-theme="escuro"] .cardapio-welcome h1,
+html[data-theme="escuro"] .cardapio-welcome p,
+html[data-theme="escuro"] .cardapio-welcome .eyebrow,
+html[data-theme="escuro"] .cardapio-welcome .today-label,
+html[data-theme="escuro"] .welcome-panel h1,
+html[data-theme="escuro"] .welcome-panel p {
+  color: #f1f5f9 !important;
+}
+html[data-theme="escuro"] .cardapio-welcome .welcome-mark {
+  color: #8bd5ff !important;
+}

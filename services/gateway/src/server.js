@@ -25,7 +25,8 @@ app.get("/health", (_req, res) => {
 const authPaths = [
   "/api/auth",
   "/api/admin",
-  "/api/cardapio",\n  "/api/reservas",
+  "/api/cardapio",
+  "/api/reservas",
   "/api/me",
   "/api/logout",
   "/auth",

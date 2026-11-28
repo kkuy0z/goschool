@@ -1,0 +1,61 @@
+/* GoSchool — tema escuro global. Carregado depois dos estilos específicos. */
+html[data-theme="escuro"] {
+  color-scheme: dark;
+  --gs-background: #0b1220;
+  --gs-background-secondary: #111c2e;
+  --gs-surface: #172438;
+  --gs-surface-hover: #203149;
+  --gs-surface-elevated: #1b2b41;
+  --gs-text-primary: #f4f8fc;
+  --gs-text-secondary: #b1c0d0;
+  --gs-text-muted: #91a3b7;
+  --gs-border: #2b3d54;
+  --gs-border-strong: #405570;
+  --gs-primary-subtle: #183c56;
+}
+html[data-theme="escuro"] body,
+html[data-theme="escuro"] .main-content,
+html[data-theme="escuro"] main,
+html[data-theme="escuro"] .page,
+html[data-theme="escuro"] .app,
+html[data-theme="escuro"] .content,
+html[data-theme="escuro"] .content-wrapper {
+  background-color: var(--gs-background);
+  color: var(--gs-text-primary);
+}
+html[data-theme="escuro"] :where(header, nav, aside, section, article, .card, .panel, .modal-content, .dropdown-menu, .table-container, .config-section, .stat-card, .dashboard-card, .content-card, .form-card) {
+  border-color: var(--gs-border);
+}
+html[data-theme="escuro"] :where(.card, .panel, .modal-content, .dropdown-menu, .table-container, .config-section, .stat-card, .dashboard-card, .content-card, .form-card, .top-header, .config-topbar, .sidebar, .navbar, .site-header) {
+  background-color: var(--gs-surface);
+  color: var(--gs-text-primary);
+}
+html[data-theme="escuro"] :where(h1,h2,h3,h4,h5,h6,p,label,small,li,dt,dd,th,td,.text-muted,.subtitle,.description) {
+  color: inherit;
+}
+html[data-theme="escuro"] :where(input,select,textarea) {
+  color: var(--gs-text-primary);
+  background-color: #101b2b;
+  border-color: var(--gs-border-strong);
+}
+html[data-theme="escuro"] :where(input,select,textarea)::placeholder {
+  color: var(--gs-text-muted);
+}
+html[data-theme="escuro"] :where(table) {
+  color: var(--gs-text-primary);
+  border-color: var(--gs-border);
+}
+html[data-theme="escuro"] :where(th) { background-color: #1d3048; }
+html[data-theme="escuro"] :where(td,tr) { border-color: var(--gs-border); }
+html[data-theme="escuro"] :where(a:not(.btn):not(.button)) { color: #82cfff; }
+html[data-theme="escuro"] :where(.btn-secondary,button.secondary,.tab-button,.nav-link) {
+  border-color: var(--gs-border-strong);
+}
+html[data-theme="escuro"] :where(.modal-backdrop,.overlay) { background: rgb(2 6 14 / .72); }
+html[data-theme="escuro"] :where(.sidebar,.sidebar-nav,.side-nav) {
+  background-color: #0d1726;
+  color: var(--gs-text-primary);
+}
+html[data-theme="escuro"] :where(.sidebar a,.sidebar button,.sidebar span,.sidebar-nav a,.side-nav a) {
+  color: inherit;
+}

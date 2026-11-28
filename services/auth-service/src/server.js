@@ -1020,6 +1020,105 @@ app.post("/api/reservas/recursos", requireReservaUser, async (req, res) => {
 });
 
 
+
+async function autenticarDesperdicio(req, res, next) {
+  try {
+    if (!JWT_SECRET) return res.status(503).json({ sucesso: false, erro: "Autenticação não configurada." });
+    const claims = jwt.verify(req.cookies[COOKIE_NAME] || "", JWT_SECRET, { issuer: "goschool-auth" });
+    const [rows] = await pool.execute("SELECT id, tipo, ativo FROM usuarios WHERE id = ? LIMIT 1", [claims.sub]);
+    const user = rows[0];
+    if (!user || !user.ativo) return res.status(401).json({ sucesso: false, erro: "Sessão inválida ou conta inativa." });
+    if (user.tipo !== "adm") return res.status(403).json({ sucesso: false, erro: "Apenas a Coordenação pode acessar o dashboard de desperdício." });
+    req.desperdicioUser = user;
+    return next();
+  } catch {
+    return res.status(401).json({ sucesso: false, erro: "Faça login com uma conta administrativa." });
+  }
+}
+
+app.get("/api/desperdicio/dashboard", autenticarDesperdicio, async (req, res) => {
+  const periodo = String(req.query.periodo || "semana");
+  const dias = { hoje: 1, semana: 7, mes: 30, ano: 365 };
+  if (!Object.hasOwn(dias, periodo)) {
+    return res.status(400).json({ sucesso: false, erro: "Período inválido. Use hoje, semana, mes ou ano." });
+  }
+
+  try {
+    const [rows] = await pool.execute(
+      `SELECT data_ref, refeicao,
+              SUM(alimentos_preparados_kg) AS preparados,
+              SUM(alimentos_descartados_kg) AS descartados,
+              COUNT(*) AS registros
+       FROM desperdicio_registros
+       WHERE data_ref >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+         AND data_ref <= CURDATE()
+       GROUP BY data_ref, refeicao
+       ORDER BY data_ref ASC, refeicao ASC`,
+      [dias[periodo] - 1],
+    );
+    const [configRows] = await pool.execute(
+      "SELECT limite_taxa_percentual FROM desperdicio_configuracoes WHERE id = 1 LIMIT 1",
+    );
+    const limite = Number(configRows[0]?.limite_taxa_percentual ?? 10);
+    const porDia = new Map();
+    const porRefeicao = new Map();
+    let preparados = 0;
+    let descartados = 0;
+    let registros = 0;
+
+    for (const row of rows) {
+      const dia = String(row.data_ref).slice(0, 10);
+      const prep = Number(row.preparados);
+      const desc = Number(row.descartados);
+      preparados += prep;
+      descartados += desc;
+      registros += Number(row.registros);
+      porDia.set(dia, (porDia.get(dia) || 0) + desc);
+      const atual = porRefeicao.get(row.refeicao) || { nome: row.refeicao, kg: 0, preparados: 0 };
+      atual.kg += desc;
+      atual.preparados += prep;
+      porRefeicao.set(row.refeicao, atual);
+    }
+
+    const taxa = preparados > 0 ? (descartados / preparados) * 100 : 0;
+    const refeicoes = [...porRefeicao.values()].sort((a, b) => b.kg - a.kg);
+    const ingredientes = refeicoes.map(item => ({
+      nome: item.nome,
+      kg: Number(item.kg.toFixed(3)),
+      percentual: item.preparados > 0 ? Number(((item.kg / item.preparados) * 100).toFixed(1)) : 0,
+    }));
+    const labels = [...porDia.keys()];
+    const alertas = taxa > limite
+      ? [{ nivel: "erro", mensagem: `Taxa de desperdício de ${taxa.toFixed(1)}% acima do limite institucional de ${limite.toFixed(1)}%.` }]
+      : [{ nivel: "sucesso", mensagem: `Taxa dentro do limite institucional de ${limite.toFixed(1)}%.` }];
+
+    return res.json({
+      sucesso: true,
+      demo: false,
+      kpis: {
+        totalDesperdicio: Number(descartados.toFixed(3)),
+        refeicoesServidas: registros,
+        taxaDesperdicio: Number(taxa.toFixed(1)),
+        // Não existe preço/custo por refeição no banco; não estimar economia sem essa base.
+        economiaEstimada: 0,
+      },
+      graficos: {
+        evolucao: { labels, data: labels.map(dia => Number(porDia.get(dia).toFixed(3))) },
+        distribuicao: { labels: ingredientes.map(item => item.nome), data: ingredientes.map(item => item.kg) },
+      },
+      alertas,
+      tabelas: { ingredientes },
+      resumo: {
+        maiorDesperdicio: ingredientes[0]?.nome || "--",
+        menorDesperdicio: ingredientes.length ? [...ingredientes].sort((x, y) => x.kg - y.kg)[0].nome : "--",
+      },
+    });
+  } catch (error) {
+    console.error("[desperdicio] dashboard:", error.message);
+    return res.status(500).json({ sucesso: false, erro: "Não foi possível carregar o dashboard de desperdício. Verifique se a migração do banco foi executada." });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Auth Service listening on :${PORT}`);
   console.log(`GOOGLE_CLIENT_ID carregado: ${Boolean(CLIENT_ID)}`);

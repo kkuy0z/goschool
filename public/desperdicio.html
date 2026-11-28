@@ -464,7 +464,7 @@
                         const resultado = await resposta.json();
                         if (!resposta.ok || !resultado.sucesso) {
                             const detalhe = Array.isArray(resultado.erros)
-                                ? '\\n' + resultado.erros.slice(0, 8).map(item => 'Linha ' + item.linha + ': ' + item.erro).join('\\n')
+                                ? '\n' + resultado.erros.slice(0, 8).map(item => 'Linha ' + item.linha + ': ' + item.erro).join('\n')
                                 : '';
                             throw new Error((resultado.erro || 'Falha ao importar a planilha.') + detalhe);
                         }

@@ -1318,3 +1318,58 @@ main.main-content{width:100%;margin:0;min-height:100vh}.config-topbar{display:fl
 .config-top-actions{display:flex;align-items:center;gap:12px}
 .config-top-actions .user-name{max-width:220px}
 @media(max-width:640px){.config-topbar{gap:12px;flex-wrap:wrap}.config-page-heading{order:3;flex-basis:100%}.config-top-actions{margin-left:auto}}
+
+
+/* Refinamento visual — Configurações */
+body:has(main.main-content){background:#edf6fc!important;color:#183653}
+main.main-content{background:transparent!important}
+.config-topbar{position:relative;display:flex;align-items:center;gap:20px;padding:16px clamp(18px,4vw,48px);background:#fff;border-bottom:1px solid #dceaf4;box-shadow:0 5px 22px #16456a08}
+.config-brand{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:14px;background:#f0f8fd}
+.config-brand img{width:38px;height:38px;object-fit:contain}
+.config-page-heading{flex:1;min-width:180px}
+.config-page-heading h1{margin:0;color:#173a5b;font-family:var(--gs-font-display);font-size:clamp(22px,2.5vw,30px);font-weight:800;letter-spacing:-.025em}
+.config-page-heading p{margin:5px 0 0;color:#6b8298;font-size:.9rem}
+.config-top-actions{display:flex;align-items:center;gap:12px}
+.config-top-actions .user-name{max-width:240px;color:#36536e}
+.config-top-actions .btn-secondary{border-radius:10px;padding:10px 16px;background:#fff;border-color:#d8e6f0}
+.content-wrapper{max-width:1440px;padding:30px clamp(16px,3vw,36px) 48px}
+.config-tabs{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin:0 0 24px;padding:8px;border:1px solid #fff;border-radius:15px;background:rgba(255,255,255,.82);box-shadow:0 8px 24px #1c446c0d;backdrop-filter:blur(12px)}
+.config-tab-btn{min-height:42px;padding:10px 17px;border:1px solid transparent;border-radius:10px;color:#526d84;font-weight:700;transition:background .18s,color .18s,transform .18s}
+.config-tab-btn:hover{background:#edf7fd;border-color:#d7ebf7;color:#0876a6}
+.config-tab-btn.active{background:#e8f6fd;border-color:#c9e7f6;color:#087eaf;box-shadow:none}
+.config-tab-btn.active svg{color:#078ac4}
+.config-section{padding:clamp(20px,3vw,30px);margin-bottom:22px;border:1px solid #dbeaf5;border-radius:17px;background:#fff;box-shadow:0 7px 22px #174b7009}
+.config-section-header{margin-bottom:22px;padding-bottom:15px;border-color:#e8f0f6}
+.config-section-header h2{color:#183b5b;font-size:1.18rem;font-weight:800;letter-spacing:-.015em}
+.config-section-desc{color:#6b8298}
+.config-option{padding:17px 18px;border-color:#e1edf5;border-radius:13px;background:#f7fbfe}
+.config-option-info h3{color:#234866;font-size:1rem}
+.config-option-info p{color:#70869a;line-height:1.5}
+.form-label{color:#55728b;font-weight:750;font-size:.78rem;letter-spacing:.035em}
+.form-input,.form-select,.form-textarea{min-height:44px;border-color:#d9e7f1;border-radius:10px;background:#fbfdff;color:#183653}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:#078ac4;box-shadow:0 0 0 3px #078ac41a}
+.form-input:hover,.form-select:hover,.form-textarea:hover{border-color:#a9d6ed}
+.btn-primary{border-radius:10px;background:#078ac4;border-color:#078ac4;box-shadow:0 4px 12px #078ac426}
+.btn-primary:hover{background:#0676a9;border-color:#0676a9;transform:translateY(-1px)}
+.btn-secondary{border-radius:10px}
+.btn-danger{border-radius:10px}
+.form-actions{border-color:#e8f0f6}
+.config-section-danger{background:#fffafa;border-color:#f3dada}
+.config-section-danger .config-section-header{border-color:#f3dada}
+.alergenos-categoria,.info-card{border-radius:14px;border-color:#dceaf4;background:#f8fbfe}
+.alergeno-item{border-radius:10px;border-color:#e0ebf4}
+.alergeno-item:hover{background:#eaf7fd;border-color:#9ed5ef}
+.info-card{padding:22px}
+.config-tab-panel[hidden]{display:none!important}
+@media(max-width:700px){
+ .config-topbar{gap:12px;padding:14px 16px;flex-wrap:wrap}
+ .config-brand{width:42px;height:42px}
+ .config-page-heading{min-width:0}
+ .config-page-heading h1{font-size:23px}
+ .config-top-actions{margin-left:auto}
+ .content-wrapper{padding:20px 12px 32px}
+ .config-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;padding:6px}
+ .config-tab-btn{justify-content:center;padding:10px 8px;white-space:normal;text-align:center}
+ .config-section{padding:18px}
+ .form-actions{flex-wrap:wrap}
+}

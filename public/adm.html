@@ -686,11 +686,11 @@
 
         context.textAlign = "center";
         context.textBaseline = "middle";
-        context.fillStyle = getCSSVar("--gs-text-primary", "#1e293b");
+        context.fillStyle = document.documentElement.dataset.theme === "escuro" ? "#F8FAFC" : getCSSVar("--gs-text-primary", "#1e293b");
         context.font = "700 22px sans-serif";
         context.fillText(String(total), centerX, centerY - 7);
 
-        context.fillStyle = getCSSVar("--gs-text-secondary", "#64748b");
+        context.fillStyle = document.documentElement.dataset.theme === "escuro" ? "#CBD5E1" : getCSSVar("--gs-text-secondary", "#64748b");
         context.font = "12px sans-serif";
         context.fillText("Usuários", centerX, centerY + 15);
 

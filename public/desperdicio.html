@@ -17,28 +17,52 @@
         <p class="loading-text">Carregando dashboard...</p>
     </div>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
+    <!-- Navegação lateral alinhada ao painel administrativo -->
+    <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
         <div class="logo">
-            <img src="logo-simplificada.png" alt="Logo GOSchool">
+            <a href="/adm.html" aria-label="GoSchool - início do painel">
+                <img src="/logo-simplificada.png" alt="GoSchool">
+            </a>
         </div>
 
         <nav class="menu">
-            <a href="/desperdicio.html" class="menu-item active" id="nav-dashboard">Dashboard</a>
-            <a href="#" class="menu-item" id="nav-visao-geral">Visão Geral</a>
-            <a href="/cardapio.html" class="menu-item" id="nav-cardapio">Cardápio e Ingredientes</a>
-            <a href="#" class="menu-item" id="nav-usuarios" data-auth-role="adm">Gestão de Usuários</a>
-            <a href="#" class="menu-item" id="nav-relatorios" data-auth-role="adm">Relatórios</a>
-            <a href="/config.html" class="menu-item" id="nav-config">Configurações</a>
+            <a href="/adm.html" class="menu-item" id="nav-dashboard">
+                <span class="nav-icon" aria-hidden="true">▦</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="/usuarios.html" class="menu-item" id="nav-usuarios">
+                <span class="nav-icon" aria-hidden="true">♙</span>
+                <span>Usuários</span>
+            </a>
+            <a href="/cadastro.html" class="menu-item" id="nav-cadastro">
+                <span class="nav-icon" aria-hidden="true">＋</span>
+                <span>Cadastro institucional</span>
+            </a>
+            <a href="/cardapio.html" class="menu-item" id="nav-cardapio">
+                <span class="nav-icon" aria-hidden="true">☷</span>
+                <span>Cardápio</span>
+            </a>
+            <a href="/reservas.html" class="menu-item" id="nav-reservas">
+                <span class="nav-icon" aria-hidden="true">▣</span>
+                <span>Reservas</span>
+            </a>
+            <a href="/desperdicio.html" class="menu-item active" id="nav-desperdicio" aria-current="page">
+                <span class="nav-icon" aria-hidden="true">♻</span>
+                <span>Desperdício</span>
+            </a>
+            <a href="/config.html" class="menu-item" id="nav-config">
+                <span class="nav-icon" aria-hidden="true">⚙</span>
+                <span>Configurações</span>
+            </a>
         </nav>
 
         <div class="sidebar-bottom">
             <div class="usuario">
-                <div class="usuario-icon" aria-hidden="true">👤</div>
-                <span id="sidebarUserName" data-auth-user="name">Carregando...</span>
+                <div class="usuario-icon" aria-hidden="true">🛡️</div>
+                <span id="sidebarUserName" data-auth-user="name">Administrador</span>
             </div>
             <button id="btn-logout" class="sair" type="button">
-                <span class="sair-icon" aria-hidden="true">➔</span>
+                <span class="sair-icon" aria-hidden="true">↪</span>
                 <span>Sair</span>
             </button>
         </div>

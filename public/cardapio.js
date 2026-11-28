@@ -31,6 +31,8 @@ async function inicializarCardapio() {
         await carregarListaRefeicoesAdmin();
         configurarGestaoIngredientesRestricoes();
         await carregarGestaoIngredientesRestricoes();
+        configurarVinculosCardapio();
+        await carregarVinculosCardapio();
     }
 
     // Carregar cardápio semanal se a aba estiver ativa
@@ -971,5 +973,81 @@ async function carregarGestaoIngredientesRestricoes() {
         if (!importsData.importacoes?.length) importsEl.textContent = 'Nenhuma importação registrada.';
     } catch (error) {
         ingredientsEl.textContent = restrictionsEl.textContent = importsEl.textContent = error.message;
+    }
+}
+
+
+function configurarVinculosCardapio() {
+    const ingredientRestrictionForm = document.getElementById('ingredientRestrictionForm');
+    if (ingredientRestrictionForm && !ingredientRestrictionForm.dataset.configured) {
+        ingredientRestrictionForm.dataset.configured = 'true';
+        ingredientRestrictionForm.addEventListener('submit', async event => {
+            event.preventDefault();
+            const ingredienteId = Number(document.getElementById('linkIngredient').value);
+            const restricaoIds = Array.from(document.getElementById('linkRestrictions').selectedOptions).map(option => Number(option.value));
+            try {
+                const response = await Auth.apiCall(`/api/cardapio/admin/ingredientes/${ingredienteId}/restricoes`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': Auth.getCsrfToken() },
+                    body: JSON.stringify({ restricaoIds })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.erro || 'Não foi possível salvar a relação.');
+                alert('Relação ingrediente–restrição salva.');
+            } catch (error) { alert(error.message); }
+        });
+    }
+    const mealIngredientForm = document.getElementById('mealIngredientForm');
+    if (mealIngredientForm && !mealIngredientForm.dataset.configured) {
+        mealIngredientForm.dataset.configured = 'true';
+        mealIngredientForm.addEventListener('submit', async event => {
+            event.preventDefault();
+            const mealId = Number(document.getElementById('linkMeal').value);
+            const ingredienteIds = Array.from(document.getElementById('linkMealIngredients').selectedOptions).map(option => Number(option.value));
+            try {
+                const response = await Auth.apiCall(`/api/cardapio/admin/refeicoes/${mealId}/ingredientes`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': Auth.getCsrfToken() },
+                    body: JSON.stringify({ ingredienteIds })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.erro || 'Não foi possível salvar os ingredientes.');
+                await carregarCardapioDia();
+                alert('Ingredientes da refeição atualizados.');
+            } catch (error) { alert(error.message); }
+        });
+    }
+}
+async function carregarVinculosCardapio() {
+    const ingredientSelect = document.getElementById('linkIngredient');
+    const restrictionSelect = document.getElementById('linkRestrictions');
+    const mealSelect = document.getElementById('linkMeal');
+    const mealIngredientsSelect = document.getElementById('linkMealIngredients');
+    if (!ingredientSelect || !restrictionSelect || !mealSelect || !mealIngredientsSelect) return;
+    try {
+        const [ingredientsRes, restrictionsRes, weeklyRes] = await Promise.all([
+            Auth.apiCall('/api/cardapio/admin/ingredientes'),
+            Auth.apiCall('/api/cardapio/admin/restricoes'),
+            Auth.apiCall('/api/cardapio/semana')
+        ]);
+        const [ingredientsData, restrictionsData, weeklyData] = await Promise.all([ingredientsRes.json(), restrictionsRes.json(), weeklyRes.json()]);
+        if (!ingredientsRes.ok || !restrictionsRes.ok || !weeklyRes.ok) throw new Error('Não foi possível carregar as opções de vínculo.');
+        const setOptions = (select, items, label, selected=[]) => {
+            select.replaceChildren();
+            items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = item[label];
+                option.selected = selected.includes(Number(item.id));
+                select.append(option);
+            });
+        };
+        setOptions(ingredientSelect, ingredientsData.ingredientes || [], 'nome');
+        setOptions(restrictionSelect, restrictionsData.restricoes || [], 'nome');
+        const meals = Object.values(weeklyData.cardapio || {}).flat();
+        setOptions(mealSelect, meals, 'nome');
+        setOptions(mealIngredientsSelect, ingredientsData.ingredientes || [], 'nome');
+    } catch (error) {
+        console.error('[Cardápio] Falha ao carregar vínculos:', error);
     }
 }

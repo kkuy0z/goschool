@@ -100,7 +100,7 @@
     selectedAllergens = readStorage(userKey("allergens"), []);
 
     initTabs();
-    initSidebar();
+    initTopbar();
     initPreferences();
     initAllergens();
     initNotifications();
@@ -178,6 +178,19 @@
       url.searchParams.set("tab", tab);
       window.history.replaceState({}, "", url);
     }
+  }
+
+
+  function initTopbar() {
+    const name = currentUser && (currentUser.nome || currentUser.name);
+    const nameEl = document.getElementById("userName");
+    if (nameEl && name) nameEl.textContent = name;
+    const back = document.getElementById("configBack");
+    if (back) {
+      const home = { aluno: "/aluno.html", professor: "/professor.html", adm: "/adm.html" };
+      back.href = home[currentUser?.tipo] || "/";
+    }
+    document.getElementById("btn-logout")?.addEventListener("click", () => Auth.logout());
   }
 
   function initSidebar() {

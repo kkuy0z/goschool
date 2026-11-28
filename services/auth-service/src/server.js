@@ -1227,6 +1227,35 @@ async function autenticarConfiguracoes(req, res, next) {
   }
 }
 
+app.get("/api/notificacoes", autenticarConfiguracoes, async (req, res) => {
+  try {
+    const [rows] = await pool.execute(
+      "SELECT id,tipo,titulo,mensagem,lida_em,criado_em FROM notificacoes WHERE usuario_id=? ORDER BY criado_em DESC LIMIT 50",
+      [req.configUserId]
+    );
+    return res.json({sucesso:true,notificacoes:rows,naoLidas:rows.filter(item=>!item.lida_em).length});
+  } catch (error) {
+    console.error("[notificacoes] GET:", error.message);
+    return res.status(500).json({sucesso:false,erro:"Não foi possível carregar as notificações. Verifique se a migração foi executada."});
+  }
+});
+
+app.patch("/api/notificacoes/:id/lida", autenticarConfiguracoes, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id <= 0) return res.status(400).json({sucesso:false,erro:"Notificação inválida."});
+  try {
+    const [result] = await pool.execute(
+      "UPDATE notificacoes SET lida_em=COALESCE(lida_em,CURRENT_TIMESTAMP) WHERE id=? AND usuario_id=?",
+      [id,req.configUserId]
+    );
+    if (!result.affectedRows) return res.status(404).json({sucesso:false,erro:"Notificação não encontrada."});
+    return res.json({sucesso:true});
+  } catch (error) {
+    console.error("[notificacoes] PATCH:", error.message);
+    return res.status(500).json({sucesso:false,erro:"Não foi possível atualizar a notificação."});
+  }
+});
+
 app.get("/api/configuracoes", autenticarConfiguracoes, async (req, res) => {
   try {
     const [rows] = await pool.execute(

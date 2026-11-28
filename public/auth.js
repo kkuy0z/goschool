@@ -286,6 +286,9 @@ const Auth = (function () {
   };
 })();
 
+// Disponibiliza o módulo para os scripts clássicos do frontend.
+window.Auth = Auth;
+
 // Auto-initialize if not in login page
 if (
   typeof window !== "undefined" &&

@@ -59,3 +59,8 @@ CREATE TABLE IF NOT EXISTS reservas (
   CONSTRAINT chk_reservas_periodo
     CHECK (data_fim > data_inicio)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Catálogo fixo de recursos disponíveis para reserva.
+INSERT INTO recursos_reserva (nome, descricao, localizacao, ativo)
+VALUES ('Retroprojetor','Equipamento para projeção de apresentações.',NULL,1),('Multimídia','Recurso multimídia para atividades pedagógicas.',NULL,1),('Informática','Laboratório e recursos de informática.',NULL,1)
+ON DUPLICATE KEY UPDATE ativo=1;

@@ -10,6 +10,15 @@
     <script src="/global-preferences.js"></script>
     <script src="/auth.js"></script>
       <link rel="stylesheet" href="/sidebar-theme.css">
+      <style>
+        /* Igualar a largura da sidebar do ADM à do módulo Desperdício (256px). */
+        .sidebar { width: 256px !important; }
+        .main-content { width: calc(100% - 256px) !important; margin-left: 256px !important; }
+        @media (max-width: 820px) {
+          .sidebar { width: min(290px, 86vw) !important; }
+          .main-content { width: 100% !important; margin-left: 0 !important; }
+        }
+      </style>
 </head>
 
   <body>

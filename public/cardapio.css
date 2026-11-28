@@ -2154,3 +2154,89 @@ body {
   .allergen-add-row { align-items: stretch; flex-direction: column; }
   .allergen-add-row button { width: 100%; }
 }
+
+
+/* Navegação horizontal: página de cardápio sem sidebar */
+.cardapio-topnav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: min(1440px, calc(100% - 48px));
+  margin: 18px auto 0;
+  padding: 12px 16px;
+  border: 1px solid rgba(255,255,255,.88);
+  border-radius: 16px;
+  background: rgba(255,255,255,.78);
+  box-shadow: 0 10px 28px rgba(28,68,108,.06), inset 0 1px 0 #fff;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.cardapio-back-link {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid #d5e5f0;
+  border-radius: 10px;
+  color: #24435e;
+  background: #f7fbff;
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.cardapio-back-link:hover { background: #edf8ff; border-color: #8bc8e7; }
+.cardapio-menu {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-width: 0;
+}
+.cardapio-menu .menu-item {
+  padding: 9px 11px;
+  border-radius: 9px;
+  color: #587086;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.cardapio-menu .menu-item:hover { background: #edf6fc; color: #145c83; }
+.cardapio-menu .menu-item.active { background: #e5f4fc; color: #087eaf; }
+.cardapio-nav-user {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 12px;
+  color: #526f89;
+  font-size: 12px;
+  font-weight: 650;
+}
+.cardapio-nav-user .sair {
+  padding: 8px 11px;
+  border: 1px solid #d5e5f0;
+  border-radius: 9px;
+  background: #fff;
+  color: #31516c;
+  font: inherit;
+  cursor: pointer;
+}
+.cardapio-nav-user .sair:hover { background: #fff1f0; border-color: #f0b8b3; color: #a12c25; }
+.top-header { min-height: 54px; }
+.content-wrapper { width: min(1440px, calc(100% - 48px)); margin: 0 auto; }
+@media (max-width: 900px) {
+  .cardapio-topnav { align-items: flex-start; flex-wrap: wrap; gap: 10px; width: calc(100% - 32px); }
+  .cardapio-menu { order: 3; flex-basis: 100%; }
+  .cardapio-nav-user { margin-left: auto; }
+  .content-wrapper { width: calc(100% - 32px); }
+}
+@media (max-width: 560px) {
+  .cardapio-topnav { width: calc(100% - 20px); margin-top: 10px; padding: 10px; }
+  .cardapio-menu { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); width: 100%; }
+  .cardapio-menu .menu-item { text-align: center; white-space: normal; padding: 9px 5px; }
+  .cardapio-nav-user { gap: 8px; }
+  .content-wrapper { width: calc(100% - 20px); }
+}

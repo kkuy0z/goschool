@@ -648,19 +648,31 @@ function valoresRefeicao(body, userId) {
 }
 app.use("/api/cardapio", autenticarCardapio);
 app.get("/api/cardapio/categorias", (_req,res) => res.json({sucesso:true,alergicos:ALERGENICOS_CARDAPIO}));
-app.get("/api/cardapio/hoje", async (_req,res) => {
+app.get("/api/cardapio/hoje", async (req,res) => {
   try {
     const [rows] = await pool.execute("SELECT f.*, EXISTS(SELECT 1 FROM refeicao_ingredientes ri JOIN ingrediente_restricoes ir ON ir.ingrediente_id=ri.ingrediente_id JOIN usuario_restricoes ur ON ur.restricao_id=ir.restricao_id WHERE ri.refeicao_id=f.id AND ur.usuario_id=?) AS alertaAlergia FROM refeicoes f WHERE f.dia_semana = ? ORDER BY f.horario, f.id", [req.cardapioUser.id,diaAtualCardapio()]);
     res.json({sucesso:true,cardapio:rows.map(normalizarRefeicao)});
-  } catch (e) { console.error("[cardapio] hoje:",e.message); res.status(500).json({sucesso:false,erro:"Não foi possível carregar o cardápio de hoje."}); }
+  } catch (e) {
+    console.error("[cardapio] hoje:", {
+      message: e.message, code: e.code, errno: e.errno,
+      sqlMessage: e.sqlMessage, sqlState: e.sqlState, stack: e.stack
+    });
+    res.status(500).json({sucesso:false,erro:"Não foi possível carregar o cardápio de hoje."});
+  }
 });
-app.get("/api/cardapio/semana", async (_req,res) => {
+app.get("/api/cardapio/semana", async (req,res) => {
   try {
     const [rows] = await pool.execute("SELECT f.*, EXISTS(SELECT 1 FROM refeicao_ingredientes ri JOIN ingrediente_restricoes ir ON ir.ingrediente_id=ri.ingrediente_id JOIN usuario_restricoes ur ON ur.restricao_id=ir.restricao_id WHERE ri.refeicao_id=f.id AND ur.usuario_id=?) AS alertaAlergia FROM refeicoes f ORDER BY FIELD(f.dia_semana,'segunda','terca','quarta','quinta','sexta','sabado','domingo'), f.horario, f.id", [req.cardapioUser.id]);
     const cardapio = Object.fromEntries(DIAS_CARDAPIO.map(dia=>[dia,[]]));
     rows.map(normalizarRefeicao).forEach(item=>{if(item.dia_semana) cardapio[item.dia_semana].push(item);});
     res.json({sucesso:true,cardapio});
-  } catch (e) { console.error("[cardapio] semana:",e.message); res.status(500).json({sucesso:false,erro:"Não foi possível carregar o cardápio semanal."}); }
+  } catch (e) {
+    console.error("[cardapio] semana:", {
+      message: e.message, code: e.code, errno: e.errno,
+      sqlMessage: e.sqlMessage, sqlState: e.sqlState, stack: e.stack
+    });
+    res.status(500).json({sucesso:false,erro:"Não foi possível carregar o cardápio semanal."});
+  }
 });
 app.get("/api/cardapio/:id([0-9]+)", async (req,res) => {
   const id=Number(req.params.id);

@@ -880,7 +880,7 @@ async function requireReservaUser(req, res, next) {
 
 app.get("/api/reservas/recursos", requireReservaUser, async (_req, res) => {
   try {
-    const [recursos] = await pool.execute("SELECT id,nome,descricao,localizacao,capacidade FROM recursos_reserva WHERE ativo=1 ORDER BY nome");
+    const [recursos] = await pool.execute("SELECT id,nome,descricao,localizacao,capacidade FROM recursos_reserva WHERE ativo=1 AND nome IN ('Retroprojetor','Multimídia','Informática') ORDER BY FIELD(nome,'Retroprojetor','Multimídia','Informática')");
     res.json({ sucesso: true, recursos });
   } catch (e) {
     console.error("[reservas] listar recursos:", e.message);
@@ -895,7 +895,7 @@ app.get("/api/reservas", requireReservaUser, async (req, res) => {
       `SELECT r.id,r.recurso_id,r.usuario_id,r.titulo,r.finalidade,r.data_inicio,r.data_fim,r.status,r.observacao_admin,r.criado_em,
               rr.nome AS recurso_nome,rr.localizacao, u.nome AS usuario_nome
        FROM reservas r JOIN recursos_reserva rr ON rr.id=r.recurso_id JOIN usuarios u ON u.id=r.usuario_id
-       WHERE (?=0 OR r.usuario_id=?) ORDER BY r.data_inicio DESC LIMIT 250`,
+       WHERE r.data_inicio >= CURDATE() AND r.data_inicio < DATE_ADD(CURDATE(), INTERVAL 7 DAY) ORDER BY r.data_inicio ASC LIMIT 500`,
       [ownOnly ? 1 : 0, req.reservaUser.id],
     );
     res.json({ sucesso: true, reservas: rows });
@@ -990,7 +990,7 @@ app.delete("/api/reservas/:id", requireReservaUser, async (req, res) => {
 });
 
 app.post("/api/reservas/recursos", requireReservaUser, async (req, res) => {
-  if (req.reservaUser.tipo !== "adm") return res.status(403).json({ sucesso: false, erro: "Somente a administração pode cadastrar ambientes." });
+  return res.status(403).json({ sucesso: false, erro: "O catálogo é fixo: Retroprojetor, Multimídia e Informática." });
   const nome = String(req.body?.nome || "").trim();
   const localizacao = String(req.body?.localizacao || "").trim();
   const descricao = String(req.body?.descricao || "").trim();

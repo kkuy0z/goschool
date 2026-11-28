@@ -108,23 +108,26 @@
                     <div class="welcome-mark" aria-hidden="true">GS</div>
                 </section>
 
-                <!-- Cards Grid -->
-                <div class="meals-grid" id="dailyMenuContainer" role="list" aria-label="Refeições de hoje">
-                    <!-- Cards inseridos via JS -->
+                <div class="cardapio-overview-grid">
+                    <section class="overview-panel" aria-labelledby="today-menu-title">
+                        <div class="overview-panel-heading"><h2 id="today-menu-title">Cardápio de Hoje</h2><span class="overview-date" id="todayShortDate"></span></div>
+                        <div class="meals-grid" id="dailyMenuContainer" role="list" aria-label="Refeições de hoje"></div>
+                    </section>
+                    <section class="overview-panel weekly-overview" aria-labelledby="weekly-menu-title">
+                        <div class="overview-panel-heading"><h2 id="weekly-menu-title">Cardápio Semanal</h2><button type="button" class="text-action" onclick="switchTab('weekly')">Ver completo ↗</button></div>
+                        <div class="weekly-container" id="weeklyMenuPreview"></div>
+                    </section>
                 </div>
-
                 <section class="cardapio-shortcuts" aria-label="Acessos rápidos">
-                    <div class="section-heading">
-                        <div><span class="eyebrow">ACESSO RÁPIDO</span><h2>Outras funções</h2></div>
-                    </div>
-                    <div class="shortcut-grid">
-                        <button class="shortcut-card" type="button" onclick="switchTab('weekly')"><span class="shortcut-icon blue" aria-hidden="true">▦</span><span class="shortcut-copy"><strong>Cardápio semanal</strong><small>Consulte as refeições da semana.</small></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>
-                        <button class="shortcut-card" type="button" onclick="switchTab('nutrition')"><span class="shortcut-icon blue" aria-hidden="true">▧</span><span class="shortcut-copy"><strong>Nutrição</strong><small>Veja os detalhes nutricionais.</small></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>
-                        <button class="shortcut-card" type="button" onclick="switchTab('restrictions')"><span class="shortcut-icon amber" aria-hidden="true">⚑</span><span class="shortcut-copy"><strong>Restrições alimentares</strong><small>Consulte alergênicos e restrições.</small></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>
-                        <button class="shortcut-card" type="button" onclick="switchTab('history')"><span class="shortcut-icon blue" aria-hidden="true">◷</span><span class="shortcut-copy"><strong>Histórico</strong><small>Consulte cardápios anteriores.</small></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>
-                        <button class="shortcut-card" type="button" data-auth-role="adm" onclick="switchTab('settings')"><span class="shortcut-icon amber" aria-hidden="true">⚙</span><span class="shortcut-copy"><strong>Gerenciar cardápio</strong><small>Cadastre refeições e organize ingredientes.</small></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>
+                    <div class="shortcut-bar">
+                        <strong>Atalhos rápidos</strong>
+                        <button type="button" class="shortcut-button" onclick="switchTab('nutrition')"><span aria-hidden="true">▧</span> Nutrição</button>
+                        <button type="button" class="shortcut-button" onclick="switchTab('restrictions')"><span aria-hidden="true">⚑</span> Restrições</button>
+                        <button type="button" class="shortcut-button" onclick="switchTab('history')"><span aria-hidden="true">◷</span> Histórico</button>
+                        <button type="button" class="shortcut-button" data-auth-role="adm" onclick="abrirGerenciarCardapio()"><span aria-hidden="true">⚙</span> Gerenciar cardápio</button>
                     </div>
                 </section>
+            </section>
             </section>
 
             <!-- TAB 2: CARDÁPIO SEMANAL -->
@@ -190,8 +193,8 @@
                 </div>
             </section>
 
-            <!-- TAB 6: CONFIGURAÇÕES (Admin only) -->
-            <section id="tab-settings" class="tab-panel" aria-labelledby="settings-title" hidden data-auth-role="adm">
+            <!-- MODAL: GERENCIAR CARDÁPIO -->
+            <section id="tab-settings" class="modal-overlay admin-manage-modal" aria-labelledby="settings-title" hidden data-auth-role="adm"><div class="modal-box admin-manage-box" role="dialog" aria-modal="true" aria-labelledby="settings-title"><div class="modal-header"><div><h2 class="modal-title" id="settings-title">Gerenciar Cardápio</h2><p class="modal-text">Cadastrar, editar e organizar refeições.</p></div><button type="button" class="modal-close" onclick="fecharGerenciarCardapio()" aria-label="Fechar gerenciamento">×</button></div>
                 <div class="tab-header">
                     <h1 class="tab-title" id="settings-title">Gerenciar Cardápio</h1>
                     <p class="tab-subtitle">Cadastrar, editar e excluir refeições</p>
@@ -342,6 +345,7 @@
                         <div class="meal-list" id="adminImportHistory"></div>
                     </div>
                 </div>
+                    </div>
             </section>
 
         </div>
@@ -437,8 +441,12 @@
             const opcoes = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
             const date = document.getElementById('dashboard-date');
             if (date) date.textContent = hoje.toLocaleDateString('pt-BR', opcoes);
+            const shortDate = document.getElementById('todayShortDate');
+            if (shortDate) shortDate.textContent = hoje.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
         }
 
+        function abrirGerenciarCardapio() { const modal = document.getElementById('tab-settings'); if (modal) { modal.hidden = false; document.body.classList.add('modal-open'); } }
+        function fecharGerenciarCardapio() { const modal = document.getElementById('tab-settings'); if (modal) { modal.hidden = true; document.body.classList.remove('modal-open'); } }
         function close403Modal() {
             document.getElementById('modal403').hidden = true;
         }

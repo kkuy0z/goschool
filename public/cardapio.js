@@ -706,6 +706,10 @@ function switchTab(tabId) {
 async function carregarRestricoesTab() {
     const container = document.getElementById('restrictionsContent');
     if (!container) return;
+    if (currentUserRole === 'ALUNO') {
+        await carregarRestricoesAluno(container);
+        return;
+    }
 
     try {
         // Buscar alergias do usuário atual
@@ -1049,5 +1053,56 @@ async function carregarVinculosCardapio() {
         setOptions(mealIngredientsSelect, ingredientsData.ingredientes || [], 'nome');
     } catch (error) {
         console.error('[Cardápio] Falha ao carregar vínculos:', error);
+    }
+}
+
+
+async function carregarRestricoesAluno(container) {
+    try {
+        const [allRes, mineRes] = await Promise.all([
+            Auth.apiCall('/api/cardapio/restricoes'),
+            Auth.apiCall('/api/cardapio/minhas-restricoes')
+        ]);
+        const [allData, mineData] = await Promise.all([allRes.json(), mineRes.json()]);
+        if (!allRes.ok || !mineRes.ok) throw new Error(allData.erro || mineData.erro || 'Não foi possível carregar restrições.');
+        const selected = new Set((mineData.restricoes || []).map(item => Number(item.id)));
+        container.innerHTML = `
+            <section class="restriction-section">
+                <h3 class="restriction-section-title">Minhas restrições alimentares</h3>
+                <p class="form-hint">Marque as restrições para receber alertas quando uma refeição tiver ingredientes incompatíveis.</p>
+                <form id="studentRestrictionForm" class="form-grid">
+                    <div id="studentRestrictionOptions" class="allergen-checkboxes"></div>
+                    <button type="submit" class="btn-primary">Salvar minhas restrições</button>
+                </form>
+                <div id="studentRestrictionFeedback" class="form-hint" role="status"></div>
+            </section>`;
+        const options = document.getElementById('studentRestrictionOptions');
+        (allData.restricoes || []).forEach(item => {
+            const label = document.createElement('label');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.name = 'restricaoIds';
+            checkbox.value = item.id;
+            checkbox.checked = selected.has(Number(item.id));
+            const text = document.createElement('span');
+            text.textContent = item.nome;
+            label.append(checkbox, text);
+            options.append(label);
+        });
+        document.getElementById('studentRestrictionForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            const restricaoIds = Array.from(options.querySelectorAll('input:checked')).map(input => Number(input.value));
+            const response = await Auth.apiCall('/api/cardapio/minhas-restricoes', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': Auth.getCsrfToken() },
+                body: JSON.stringify({ restricaoIds })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.erro || 'Não foi possível salvar.');
+            document.getElementById('studentRestrictionFeedback').textContent = 'Restrições salvas. Os alertas serão atualizados no cardápio.';
+            await carregarCardapioDia();
+        });
+    } catch (error) {
+        container.textContent = error.message;
     }
 }

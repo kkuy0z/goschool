@@ -2104,3 +2104,53 @@ body {
 .modal-overlay[hidden] {
   display: none !important;
 }
+
+
+/* Cadastro rápido de alergênicos personalizados */
+.allergen-add-form {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px dashed var(--gs-blue-border, #bfd7e8);
+  border-radius: 12px;
+  background: rgba(239, 247, 253, .72);
+}
+
+.allergen-add-form > .form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gs-navy, #153957);
+}
+
+.allergen-add-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.allergen-add-row .form-input {
+  min-width: 0;
+  flex: 1;
+}
+
+.allergen-add-row button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.allergen-add-status {
+  min-height: 0;
+  margin: 7px 0 0;
+  font-size: 12px;
+}
+
+.allergen-add-status:empty { display: none; }
+.allergen-add-status.success { color: #18794e; }
+.allergen-add-status.error { color: #b42318; }
+
+@media (max-width: 520px) {
+  .allergen-add-form { padding: 12px; }
+  .allergen-add-row { align-items: stretch; flex-direction: column; }
+  .allergen-add-row button { width: 100%; }
+}

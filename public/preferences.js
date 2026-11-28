@@ -46,23 +46,49 @@
   function getPrefs(){ try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(_){return {}} }
   function setDensity(value){ if(!["compact","comfortable","spacious"].includes(value))return; document.documentElement.dataset.density=value; const p=getPrefs();p.density=value;localStorage.setItem(KEY,JSON.stringify(p)); }
   const originals = new WeakMap();
-  function translate(lang){
-    const dict=translations[lang];
-    const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
-    const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
-    nodes.forEach(node=>{
-      if(!originals.has(node)) originals.set(node,node.nodeValue);
-      const original=originals.get(node), key=original.trim();
-      if(lang==="pt-BR") node.nodeValue=original;
-      else if(dict && dict[key]) node.nodeValue=original.replace(key,dict[key]);
+  function translateNode(node, dict, lang) {
+    if (!node || node.nodeType !== Node.TEXT_NODE) return;
+    if (!originals.has(node)) originals.set(node, node.nodeValue);
+    const original = originals.get(node);
+    if (lang === "pt-BR") {
+      node.nodeValue = original;
+      return;
+    }
+    let translated = original;
+    Object.keys(dict || {}).sort((a, b) => b.length - a.length).forEach(key => {
+      if (!key) return;
+      translated = translated.split(key).join(dict[key]);
     });
-    document.documentElement.lang=lang==="en"?"en-US":lang==="es"?"es-ES":"pt-BR";
+    node.nodeValue = translated;
+  }
+  function translate(lang, root = document.body) {
+    const dict = translations[lang];
+    if (!root) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(node => translateNode(node, dict, lang));
+    document.documentElement.lang = lang === "en" ? "en-US" : lang === "es" ? "es-ES" : "pt-BR";
   }
   function setLang(value){const lang=value==="en-US"||value==="en"?"en":value==="es-ES"||value==="es"?"es":"pt-BR";const p=getPrefs();p.language=lang==="en"?"en-US":lang==="es"?"es-ES":"pt-BR";localStorage.setItem(KEY,JSON.stringify(p)); translate(lang);}
   function init(){
     if(!document.getElementById("goschoolPreferenceStyle")){const s=document.createElement("style");s.id="goschoolPreferenceStyle";s.textContent=densityStyle;document.head.appendChild(s);}
     const p=getPrefs();if(p.density)document.documentElement.dataset.density=p.density;
     if(p.language&&p.language!=="pt-BR")translate(p.language==="en-US"?"en":"es");
+    if (!window.__goSchoolTranslationObserver) {
+      window.__goSchoolTranslationObserver = new MutationObserver(records => {
+        const lang = getPrefs().language;
+        if (!lang || lang === "pt-BR") return;
+        const code = lang === "en-US" || lang === "en" ? "en" : "es";
+        records.forEach(record => {
+          record.addedNodes.forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE) translateNode(node, translations[code], code);
+            else if (node.nodeType === Node.ELEMENT_NODE) translate(code, node);
+          });
+        });
+      });
+      window.__goSchoolTranslationObserver.observe(document.body, { childList: true, subtree: true });
+    }
   }
   window.GoSchoolPrefs={setLang,setDensity,apply:()=>{const p=getPrefs();if(p.density)setDensity(p.density);if(p.language&&p.language!=="pt-BR")translate(p.language==="en-US"?"en":"es");}};
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();

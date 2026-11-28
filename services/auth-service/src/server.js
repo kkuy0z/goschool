@@ -661,7 +661,7 @@ app.get("/api/cardapio/semana", async (_req,res) => {
     res.json({sucesso:true,cardapio});
   } catch (e) { console.error("[cardapio] semana:",e.message); res.status(500).json({sucesso:false,erro:"Não foi possível carregar o cardápio semanal."}); }
 });
-app.get("/api/cardapio/:id", async (req,res) => {
+app.get("/api/cardapio/:id([0-9]+)", async (req,res) => {
   const id=Number(req.params.id);
   if (!Number.isSafeInteger(id)||id<=0) return res.status(400).json({sucesso:false,erro:"ID inválido."});
   try {

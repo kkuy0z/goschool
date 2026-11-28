@@ -1340,3 +1340,90 @@ a[aria-disabled="true"] {
     break-inside: avoid;
   }
 }
+
+
+/* ==========================================
+   Ajuste visual — alinhamento aos dashboards
+   ========================================== */
+:root {
+  --gs-sidebar-width: 238px;
+  --gs-topbar-height: 64px;
+  --gs-radius-sm: 7px;
+  --gs-radius: 10px;
+  --gs-radius-lg: 14px;
+}
+body { font-size: 13px; }
+.logo { min-height: 72px; padding: 12px 18px; }
+.logo img { height: 36px; }
+.menu { gap: 3px; padding: 14px 10px; }
+.menu-item { min-height: 40px; padding: 9px 12px; font-size: 13px; }
+.sidebar-bottom { gap: 8px; padding: 12px 10px 14px; }
+.usuario { padding: 7px 10px; font-size: 12px; }
+.usuario-icon { width: 28px; height: 28px; }
+.sair { min-height: 38px; padding: 8px 12px; font-size: 13px; }
+.top-header { min-height: var(--gs-topbar-height); padding: 10px 24px; border-bottom-width: 2px; }
+.icon-btn { width: 36px; height: 36px; }
+.user-profile { padding: 4px 10px 4px 5px; font-size: 12px; }
+.user-profile .avatar { width: 28px; height: 28px; }
+.content-wrapper { max-width: 1280px; padding: 24px 26px 36px; }
+.tab-panel { gap: 16px; }
+.tab-header { padding: 18px 22px; border-left-width: 4px; border-radius: var(--gs-radius); }
+.tab-title { font-size: clamp(23px, 2vw, 28px); }
+.tab-subtitle { margin-top: 4px; font-size: 12px; }
+.card { padding: 18px; border-color: #dce8f1; border-radius: var(--gs-radius); box-shadow: 0 2px 7px rgb(11 35 65 / 4%); }
+.card-header { padding-bottom: 11px; margin-bottom: 14px; }
+.section-title { font-size: 18px; }
+.section-description { font-size: 12px; }
+.meals-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 16px; }
+.meal-card { gap: 10px; border-top-width: 2px; }
+.meal-card > img, .meal-card .meal-image { height: 150px; }
+.meal-card > :not(img):not(.meal-image) { margin-right: 15px; margin-left: 15px; }
+.meal-card-header { margin-top: 12px; }
+.meal-card h3, .meal-title { font-size: 17px; }
+.meal-desc, .meal-description { font-size: 12px; }
+.meal-meta, .meal-macros { gap: 5px; padding-top: 8px; font-size: 11px; }
+.meal-meta > *, .meal-macros > * { min-height: 26px; padding: 4px 7px; }
+.meal-card .meal-actions { padding-bottom: 13px; }
+.weekly-container { gap: 14px; }
+.weekly-day-card { padding: 16px 18px; }
+.weekly-day-title { margin-bottom: 10px; font-size: 17px; }
+.admin-content { gap: 16px; }
+.form-grid { gap: 14px; margin-top: 12px; }
+.form-row { gap: 12px; }
+.form-group { gap: 5px; }
+.form-label { font-size: 12px; }
+.form-input, .form-select, .form-textarea { min-height: 38px; padding: 8px 10px; font-size: 12px; }
+.form-textarea { min-height: 84px; }
+.form-hint { font-size: 11px; }
+.form-actions { gap: 8px; padding-top: 6px; }
+.btn-primary, .btn-secondary, .btn-danger { min-height: 36px; padding: 0 13px; font-size: 12px; }
+.btn-sm { min-height: 30px; padding: 0 10px; font-size: 11px; }
+.allergen-checkboxes { gap: 6px; padding: 10px; }
+.allergen-checkboxes label { min-height: 30px; padding: 5px 8px; font-size: 11px; }
+.meal-list { gap: 8px; }
+.meal-list-item { gap: 10px; padding: 11px 13px; }
+.meal-list-item p { font-size: 12px; }
+.empty-state { padding: 24px 18px; }
+.modal-box { padding: 22px; }
+.modal-header { margin-bottom: 14px; padding-bottom: 12px; }
+.modal-header h2 { font-size: 21px; }
+.modal-body { font-size: 13px; }
+@media (max-width: 1100px) {
+  .content-wrapper { padding: 22px 20px 32px; }
+  .meals-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
+}
+@media (max-width: 760px) {
+  .top-header { padding: 10px 14px; }
+  .content-wrapper { padding: 18px 14px 28px; }
+  .tab-panel { gap: 14px; }
+  .tab-header { padding: 16px 18px; }
+  .card { padding: 15px; }
+  .meal-card > img, .meal-card .meal-image { height: 140px; }
+}
+@media (max-width: 420px) {
+  .top-header { padding: 9px 12px; }
+  .content-wrapper { padding: 14px 11px 24px; }
+  .tab-header { padding: 14px 15px; }
+  .tab-title { font-size: 22px; }
+  .card { padding: 13px; }
+}

@@ -603,7 +603,7 @@ app.post("/api/admin/usuarios", requireAdmin, async (req, res) => {
 
 const DIAS_CARDAPIO = ["segunda","terca","quarta","quinta","sexta","sabado","domingo"];
 const CATEGORIAS_CARDAPIO = ["cafe_manha","almoco","lanche"];
-const ALERGENICOS_CARDAPIO = ["Glúten","Leite","Ovos","Peixe","Crustáceos","Moluscos","Amendoim","Soja","Castanhas","Aipo","Mostarda","Gergelim","Sulfitos","Lupino"];
+const ALERGENICOS_CARDAPIO = ["Glúten","Leite","Ovos","Peixe","Crustáceos","Moluscos","Amendoim","Soja","Castanhas","Aipo","Mostarda","Gergelim","Sulfitos","Lupino","Abóbora"];
 
 function diaAtualCardapio() {
   const dia = new Intl.DateTimeFormat("en-US", { weekday: "long", timeZone: "America/Sao_Paulo" }).format(new Date()).toLowerCase();

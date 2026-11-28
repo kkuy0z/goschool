@@ -1373,3 +1373,40 @@ main.main-content{background:transparent!important}
  .config-section{padding:18px}
  .form-actions{flex-wrap:wrap}
 }
+
+/* Tema escuro: painéis de preferências, alergias e notificações */
+html[data-theme="escuro"] #panel-preferencias .config-section,
+html[data-theme="escuro"] #panel-alergias .config-section,
+html[data-theme="escuro"] #panel-notificacoes .config-section {
+  background: #1E293B !important;
+  color: #F8FAFC !important;
+  border-color: #334155 !important;
+}
+html[data-theme="escuro"] #panel-preferencias .config-option,
+html[data-theme="escuro"] #panel-alergias .alergenos-categoria,
+html[data-theme="escuro"] #panel-alergias .alergeno-item,
+html[data-theme="escuro"] #panel-alergias .info-card,
+html[data-theme="escuro"] #panel-notificacoes .config-option,
+html[data-theme="escuro"] #panel-notificacoes .notification-status,
+html[data-theme="escuro"] #panel-notificacoes .notification-card {
+  background: #172033 !important;
+  color: #F8FAFC !important;
+  border-color: #334155 !important;
+}
+html[data-theme="escuro"] #panel-preferencias :is(h1,h2,h3,h4,h5,h6,p,label,span,small,strong,li),
+html[data-theme="escuro"] #panel-alergias :is(h1,h2,h3,h4,h5,h6,p,label,span,small,strong,li),
+html[data-theme="escuro"] #panel-notificacoes :is(h1,h2,h3,h4,h5,h6,p,label,span,small,strong,li) {
+  color: #F8FAFC !important;
+}
+html[data-theme="escuro"] #panel-preferencias :is(.config-section-desc,.form-help),
+html[data-theme="escuro"] #panel-alergias :is(.config-section-desc,.form-help),
+html[data-theme="escuro"] #panel-notificacoes :is(.config-section-desc,.form-help) {
+  color: #94A3B8 !important;
+}
+html[data-theme="escuro"] #panel-preferencias :is(input,select,textarea),
+html[data-theme="escuro"] #panel-alergias :is(input,select,textarea),
+html[data-theme="escuro"] #panel-notificacoes :is(input,select,textarea) {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+  border-color: #334155 !important;
+}

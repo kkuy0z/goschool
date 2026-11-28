@@ -1924,3 +1924,24 @@ body {
   .overview-panel .meal-card,
   .cardapio-shortcuts .shortcut-button { transition: none; }
 }
+
+
+/* Ajustes finos: respiro entre ações e imagem dentro do cartão */
+.overview-panel .meal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.overview-panel .meal-actions button {
+  margin: 0;
+}
+.overview-panel .meal-card > img,
+.overview-panel .meal-card .meal-image {
+  display: block;
+  box-sizing: border-box;
+  width: calc(100% - 28px);
+  max-width: calc(100% - 28px);
+  margin: 14px 14px 12px;
+  border-radius: 12px;
+  object-fit: cover;
+}

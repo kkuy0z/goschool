@@ -1,8 +1,7 @@
 /* =========================================================
    GoSchool — Configurações
    Preferências, alergias, notificações e segurança.
-   Preferências e alergias ficam no navegador até existir API
-   de persistência no servidor.
+   Preferências e alergias são persistidas por usuário no servidor.
    ========================================================= */
 (function () {
   "use strict";
@@ -10,6 +9,7 @@
   const STORAGE_PREFIX = "goschool_config_v1";
   const DEFAULTS = {
     density: "comfortable",
+    theme: "claro",
     language: "pt-BR",
     cardapio_view: "semanal",
     show_allergens: true,
@@ -99,7 +99,7 @@
     preferences = { ...DEFAULTS };
     selectedAllergens = [];
     try {
-      const response = await fetch("/api/configuracoes", { credentials: "same-origin", headers: { Accept: "application/json" } });
+      const response = await Auth.apiCall("/api/configuracoes", { headers: { Accept: "application/json" } });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || data.sucesso !== true) throw new Error(data.erro || "Não foi possível carregar as configurações.");
       preferences = { ...DEFAULTS, ...(data.preferencias || {}) };
@@ -238,8 +238,8 @@
         if (!radio.checked) return;
         const themeMap = { light: "claro", dark: "escuro", system: "sistema" };
         const theme = themeMap[radio.value] || "claro";
+        preferences.theme = theme;
         if (window.GoSchoolTheme) window.GoSchoolTheme.set(theme);
-        try { localStorage.setItem("gs_theme", theme); } catch (_) {}
         savePreferences();
       });
     });
@@ -281,7 +281,7 @@
   }
 
   function syncControls() {
-    const theme = window.GoSchoolTheme ? window.GoSchoolTheme.get() : "claro";
+    const theme = preferences.theme || (window.GoSchoolTheme ? window.GoSchoolTheme.get() : "claro");
     const themeValue = theme === "escuro" ? "dark" : theme === "sistema" ? "system" : "light";
     const themeRadio = document.querySelector('input[name="theme"][value="' + themeValue + '"]');
     if (themeRadio) themeRadio.checked = true;
@@ -307,9 +307,8 @@
 
   async function savePreferences() {
     try {
-      const response = await fetch("/api/configuracoes", {
+      const response = await Auth.apiCall("/api/configuracoes", {
         method: "PUT",
-        credentials: "same-origin",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ preferencias: preferences, alergias: selectedAllergens })
       });

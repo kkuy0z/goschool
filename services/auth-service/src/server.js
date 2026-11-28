@@ -1254,12 +1254,13 @@ app.put("/api/configuracoes", autenticarConfiguracoes, async (req, res) => {
       alergias.some(item => typeof item !== "string" || item.length > 80)) {
     return res.status(400).json({ sucesso: false, erro: "Dados de configurações inválidos." });
   }
-  const allowed = ["density", "language", "cardapio_view", "show_allergens", "highlight_restrictions", "push_enabled", "reminder_enabled", "allergy_alert_enabled", "weekly_summary_enabled"];
+  const allowed = ["density", "theme", "language", "cardapio_view", "show_allergens", "highlight_restrictions", "push_enabled", "reminder_enabled", "allergy_alert_enabled", "weekly_summary_enabled"];
   const clean = {};
   for (const key of allowed) {
     if (Object.hasOwn(preferencias, key)) clean[key] = preferencias[key];
   }
   if (clean.density && !["comfortable", "compact", "spacious"].includes(clean.density)) return res.status(400).json({ sucesso: false, erro: "Densidade inválida." });
+  if (clean.theme && !["claro", "escuro", "sistema"].includes(clean.theme)) return res.status(400).json({ sucesso: false, erro: "Tema inválido." });
   if (clean.language && !["pt-BR", "en-US", "es-ES"].includes(clean.language)) return res.status(400).json({ sucesso: false, erro: "Idioma inválido." });
   if (clean.cardapio_view && !["semanal", "lista", "hoje"].includes(clean.cardapio_view)) return res.status(400).json({ sucesso: false, erro: "Visualização do cardápio inválida." });
   for (const key of ["show_allergens", "highlight_restrictions", "push_enabled", "reminder_enabled", "allergy_alert_enabled", "weekly_summary_enabled"]) {

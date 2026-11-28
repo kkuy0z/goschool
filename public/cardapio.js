@@ -395,10 +395,9 @@ function renderWeeklyMenu(cardapioSemanal) {
 // Formatar categoria para exibição
 function formatCategoria(cat) {
     const labels = {
-        'cafe_manha': 'Café da Manhã',
+        'cafe_manha': 'Manhã',
         'almoco': 'Almoço',
-        'lanche': 'Lanche',
-        'jantar': 'Jantar'
+        'lanche': 'Lanche da tarde',
     };
     return labels[cat] || cat;
 }

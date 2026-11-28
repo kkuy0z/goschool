@@ -1033,3 +1033,12 @@ button:disabled {
   .shortcut-grid, .kpi-grid { grid-template-columns: 1fr; }
   .shortcut-card { min-height: 88px; padding: 16px; }
 }
+
+
+/* Largura da sidebar igual à do módulo Desperdício */
+@media (max-width: 820px) {
+  .sidebar {
+    width: 300px !important;
+    max-width: 85vw !important;
+  }
+}

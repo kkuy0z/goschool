@@ -414,6 +414,35 @@ function configurarFormularioAdmin() {
     // Preencher checkboxes de alergênicos
     renderAllergenCheckboxes();
 
+    const imageFile = document.getElementById('mealImagemArquivo');
+    const imageField = document.getElementById('mealImagem');
+    const imageStatus = document.getElementById('mealImagemStatus');
+    if (imageFile && imageField && !imageFile.dataset.configured) {
+        imageFile.dataset.configured = 'true';
+        imageFile.addEventListener('change', async () => {
+            const file = imageFile.files?.[0];
+            if (!file) return;
+            if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                imageFile.value = '';
+                imageStatus.textContent = 'Formato inválido. Selecione JPG, PNG ou WebP.';
+                return;
+            }
+            if (file.size > 12 * 1024 * 1024) {
+                imageFile.value = '';
+                imageStatus.textContent = 'A imagem deve ter no máximo 12 MB antes da redução.';
+                return;
+            }
+            imageStatus.textContent = 'Preparando imagem...';
+            try {
+                imageField.value = await reduzirImagemParaEnvio(file);
+                imageStatus.textContent = 'Imagem pronta para salvar. Você também pode colar uma URL no campo acima.';
+            } catch (error) {
+                imageStatus.textContent = error.message || 'Não foi possível preparar a imagem.';
+                imageFile.value = '';
+            }
+        });
+    }
+
     // Event listener para submit
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -447,6 +476,34 @@ function renderAllergenCheckboxes(selected = []) {
             <span>${escapeHtml(alergia)}</span>
         </label>
     `).join('');
+}
+
+async function reduzirImagemParaEnvio(file) {
+    const source = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('Falha ao ler a imagem.'));
+        reader.readAsDataURL(file);
+    });
+    const image = await new Promise((resolve, reject) => {
+        const element = new Image();
+        element.onload = () => resolve(element);
+        element.onerror = () => reject(new Error('Arquivo de imagem inválido.'));
+        element.src = source;
+    });
+    const scale = Math.min(1, 1000 / Math.max(image.width, image.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(image.width * scale));
+    canvas.height = Math.max(1, Math.round(image.height * scale));
+    canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+    let quality = 0.78;
+    let result = canvas.toDataURL('image/jpeg', quality);
+    while (result.length > 1200000 && quality > 0.4) {
+        quality -= 0.08;
+        result = canvas.toDataURL('image/jpeg', quality);
+    }
+    if (result.length > 1200000) throw new Error('Imagem muito grande mesmo após a redução. Escolha outra.');
+    return result;
 }
 
 // Salvar refeição (criar ou atualizar)
@@ -528,6 +585,10 @@ async function editarRefeicao(id) {
         document.getElementById('mealProteina').value = meal.proteina || '';
         document.getElementById('mealCarboidrato').value = meal.carboidrato || '';
         document.getElementById('mealImagem').value = meal.imagem || '';
+        const imageFile = document.getElementById('mealImagemArquivo');
+        const imageStatus = document.getElementById('mealImagemStatus');
+        if (imageFile) imageFile.value = '';
+        if (imageStatus) imageStatus.textContent = meal.imagem ? 'Imagem atual carregada. Escolha outro arquivo para substituir.' : 'Escolha uma imagem do dispositivo (JPG, PNG ou WebP).';
         document.getElementById('mealObservacoes').value = meal.observacoes || '';
 
         // Renderizar checkboxes com selecionados
@@ -575,6 +636,8 @@ async function excluirRefeicao(id) {
 function resetarFormulario() {
     const form = document.getElementById('mealForm');
     if (form) form.reset();
+    const imageStatus = document.getElementById('mealImagemStatus');
+    if (imageStatus) imageStatus.textContent = 'Escolha uma imagem do dispositivo (JPG, PNG ou WebP).';
 
     document.getElementById('mealId').value = '';
     document.getElementById('mealFormTitle').textContent = 'Nova Refeição';

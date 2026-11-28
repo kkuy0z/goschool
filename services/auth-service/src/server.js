@@ -35,7 +35,7 @@ const pool = mysql.createPool({
 });
 
 app.disable("x-powered-by");
-app.use(express.json({ limit: "16kb" }));
+app.use(express.json({ limit: "2mb" }));
 app.use(cookieParser());
 
 const allowedDomains = new Set([
@@ -638,7 +638,8 @@ function validarDadosRefeicao(body) {
   for (const campo of ["calorias","proteina","carboidrato"]) {
     if (body[campo] !== null && body[campo] !== undefined && body[campo] !== "" && (!Number.isFinite(Number(body[campo])) || Number(body[campo]) < 0)) return "Os valores nutricionais devem ser números positivos.";
   }
-  if (body.imagem && (String(body.imagem).length > 2048 || !/^https?:\/\//i.test(String(body.imagem)))) return "A imagem deve ser uma URL HTTP ou HTTPS válida.";
+  if (body.imagem && String(body.imagem).length > 1500000) return "A imagem excede o limite permitido.";
+  if (body.imagem && !/^https?:\/\//i.test(String(body.imagem)) && !/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/i.test(String(body.imagem))) return "Informe uma URL HTTP/HTTPS ou selecione uma imagem JPG, PNG ou WebP.";
   if (body.alergicos !== undefined && (!Array.isArray(body.alergicos) || body.alergicos.some(x => typeof x !== "string" || x.length > 80))) return "Lista de alergênicos inválida.";
   return null;
 }

@@ -1427,3 +1427,28 @@ body { font-size: 13px; }
   .tab-title { font-size: 22px; }
   .card { padding: 13px; }
 }
+
+/* Refinamento da área administrativa de ingredientes e restrições */
+#adminCardapioContent > .card { padding: 26px; border-color: #dce6ef; border-radius: 14px; box-shadow: 0 2px 8px rgb(11 35 65 / 4%); }
+#adminCardapioContent .card-header { padding-bottom: 16px; margin-bottom: 16px; border-color: #e7edf3; }
+#adminCardapioContent .section-title { font-size: 18px; line-height: 1.35; letter-spacing: 0; }
+#adminCardapioContent .section-description { margin: 0 0 18px; font-size: 13px; line-height: 1.6; }
+#adminCardapioContent .form-row { align-items: start; gap: 22px; }
+#adminCardapioContent form.form-grid { align-content: start; gap: 14px; min-width: 0; margin: 0; }
+#adminCardapioContent form.form-grid > .btn-primary, #adminCardapioContent form.form-grid > .btn-secondary { justify-self: start; align-self: start; width: auto; min-width: 170px; min-height: 40px; padding: 0 18px; white-space: normal; }
+#adminCardapioContent .form-group { gap: 7px; }
+#adminCardapioContent .form-label { font-size: 12px; line-height: 1.4; }
+#adminCardapioContent .form-input, #adminCardapioContent .form-select { min-height: 40px; border-color: #d5e0ea; border-radius: 8px; font-size: 13px; }
+#adminCardapioContent .meal-list { display: grid; gap: 8px; margin-top: 10px; color: var(--gs-text-muted); font-size: 13px; }
+#adminCardapioContent .meal-list-item { padding: 12px 14px; border: 1px solid #e5ebf1; border-radius: 9px; background: #fbfcfe; }
+#adminCardapioContent .meal-list-item strong { color: var(--gs-navy); font-size: 13px; }
+#adminCardapioContent .meal-list-item p { margin: 4px 0 0; color: var(--gs-text-muted); font-size: 12px; line-height: 1.5; }
+#adminCardapioContent .form-row + .form-row { margin-top: 24px; }
+#adminCardapioContent h4.section-title { margin: 0; font-size: 15px; font-weight: 700; }
+#adminCardapioContent select[multiple] { min-height: 132px; padding: 8px; }
+@media (max-width: 900px) {
+  #adminCardapioContent > .card { padding: 20px; }
+  #adminCardapioContent .form-row { grid-template-columns: minmax(0, 1fr); }
+  #adminCardapioContent form.form-grid > .btn-primary, #adminCardapioContent form.form-grid > .btn-secondary { width: 100%; }
+}
+@media (max-width: 560px) { #adminCardapioContent > .card { padding: 16px; } }

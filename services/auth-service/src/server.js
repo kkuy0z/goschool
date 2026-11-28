@@ -947,11 +947,11 @@ app.post("/api/reservas", requireReservaUser, async (req, res) => {
       return res.status(409).json({ sucesso: false, erro: "Este ambiente já possui uma reserva nesse intervalo." });
     }
     const [result] = await conn.execute(
-      "INSERT INTO reservas (recurso_id,usuario_id,titulo,finalidade,data_inicio,data_fim,status) VALUES (?,?,?,?,?,?,'PENDENTE')",
+      "INSERT INTO reservas (recurso_id,usuario_id,titulo,finalidade,data_inicio,data_fim,status) VALUES (?,?,?,?,?,?,'CONFIRMADA')",
       [recursoId, req.reservaUser.id, titulo, finalidade || null, inicioRaw.replace('T',' '), fimRaw.replace('T',' ')],
     );
     await conn.commit();
-    res.status(201).json({ sucesso: true, id: result.insertId, mensagem: "Reserva enviada para aprovação." });
+    res.status(201).json({ sucesso: true, id: result.insertId, mensagem: "Reserva confirmada e realizada com sucesso." });
   } catch (e) {
     await conn.rollback();
     console.error("[reservas] criar:", e.message);

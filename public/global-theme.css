@@ -59,3 +59,20 @@ html[data-theme="escuro"] :where(.sidebar,.sidebar-nav,.side-nav) {
 html[data-theme="escuro"] :where(.sidebar a,.sidebar button,.sidebar span,.sidebar-nav a,.side-nav a) {
   color: inherit;
 }
+
+/* Corrige componentes claros herdados dos estilos individuais das páginas. */
+html[data-theme="escuro"] :where(.bg-white, .white-bg, .light-card, .card-white, .table-light, .bg-light, .form-control, .content-box, .section-card, .settings-card, .settings-section, .page-section, .reservation-card, .reservation-item, .waste-card, .user-card) {
+  background-color: var(--gs-surface) !important;
+  color: var(--gs-text-primary) !important;
+  border-color: var(--gs-border) !important;
+}
+html[data-theme="escuro"] :where(.bg-white, .white-bg, .light-card, .card-white, .table-light, .bg-light, .content-box, .section-card, .settings-card, .settings-section, .page-section, .reservation-card, .reservation-item, .waste-card, .user-card) :where(h1,h2,h3,h4,h5,h6,p,span,label,small,strong,b,em,li,th,td,div) {
+  color: var(--gs-text-primary) !important;
+}
+html[data-theme="escuro"] :where(.text-dark, .text-black, .text-body, .text-secondary, .text-muted) {
+  color: var(--gs-text-secondary) !important;
+}
+html[data-theme="escuro"] :where(.form-control, input, select, textarea) {
+  background-color: #101b2b !important;
+  color: var(--gs-text-primary) !important;
+}

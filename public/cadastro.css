@@ -458,3 +458,89 @@ body::before {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* ---------- Fundos em degradê por tema ---------- */
+html[data-theme="claro"] body,
+html:not([data-theme="escuro"]) body {
+  background:
+    radial-gradient(ellipse at 12% 12%, rgb(56 182 255 / 22%) 0%, transparent 42%),
+    radial-gradient(ellipse at 88% 82%, rgb(14 143 199 / 17%) 0%, transparent 46%),
+    linear-gradient(135deg, #f8fcff 0%, #eaf4fc 52%, #dcecf8 100%);
+}
+
+html[data-theme="claro"] .enrollment-card,
+html:not([data-theme="escuro"]) .enrollment-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f4faff 100%);
+}
+
+html[data-theme="escuro"] {
+  --gs-navy: #f1f5f9;
+  --gs-white: #17283d;
+  --gs-bg: #0b1422;
+  --gs-surface: #142238;
+  --gs-text-primary: #f1f5f9;
+  --gs-text-secondary: #c0cede;
+  --gs-text-muted: #9aabc0;
+  --gs-blue-soft: #1b3852;
+  --gs-blue-border: #31516e;
+  --gs-blue-dark: #8bd5ff;
+}
+
+html[data-theme="escuro"] body {
+  background:
+    radial-gradient(ellipse at 12% 12%, rgb(56 182 255 / 19%) 0%, transparent 42%),
+    radial-gradient(ellipse at 88% 82%, rgb(14 143 199 / 18%) 0%, transparent 46%),
+    linear-gradient(135deg, #080f1a 0%, #101d30 52%, #172b40 100%);
+  color: var(--gs-text-primary);
+}
+
+html[data-theme="escuro"] .enrollment-card {
+  background: linear-gradient(145deg, #192b42 0%, #101d30 100%);
+  border-color: #31516e;
+  box-shadow: 0 18px 44px rgb(0 0 0 / 32%);
+}
+
+html[data-theme="escuro"] .enrollment-header,
+html[data-theme="escuro"] .enrollment-footer {
+  border-color: #2b4058;
+}
+
+html[data-theme="escuro"] .form-field input[type="text"],
+html[data-theme="escuro"] .form-field input[type="email"],
+html[data-theme="escuro"] .form-field select,
+html[data-theme="escuro"] .consent-checkbox {
+  color: #f1f5f9;
+  background-color: #0d1929;
+  border-color: #31516e;
+}
+
+html[data-theme="escuro"] .form-field input::placeholder {
+  color: #91a5bc;
+}
+
+html[data-theme="escuro"] .form-field input:disabled,
+html[data-theme="escuro"] .form-field select:disabled {
+  background-color: #1a2a3e;
+  color: #9aabc0;
+}
+
+html[data-theme="escuro"] .guardian-fields {
+  background: linear-gradient(135deg, #1b3852 0%, #17283d 100%);
+  border-color: #31516e;
+}
+
+html[data-theme="escuro"] .guardian-fields > .form-help {
+  color: #d5e2f0;
+}
+
+html[data-theme="escuro"] .enrollment-back {
+  color: #f1f5f9;
+  background: #17283d;
+  border-color: #31516e;
+}
+
+html[data-theme="escuro"] .enrollment-back:hover {
+  color: #ffffff;
+  background: #23415d;
+}

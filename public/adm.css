@@ -963,3 +963,73 @@ button:disabled {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Ajustes de hierarquia visual e atalhos do painel principal */
+.content-wrapper {
+  max-width: 1360px;
+  padding: 34px 36px 56px;
+  gap: 36px;
+}
+.dashboard-section { gap: 20px; }
+.section-header h2 { font-size: 24px; }
+.section-header p { line-height: 1.65; }
+.shortcut-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.shortcut-card {
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  background: var(--gs-white);
+  border: 1px solid #dce6ef;
+  border-radius: 12px;
+  color: var(--gs-navy);
+  text-decoration: none;
+  transition: border-color var(--gs-transition), box-shadow var(--gs-transition), transform var(--gs-transition);
+}
+.shortcut-card:hover {
+  border-color: #9bcde5;
+  box-shadow: 0 8px 22px rgb(11 35 65 / 7%);
+  transform: translateY(-2px);
+}
+.shortcut-card:focus-visible {
+  outline: 3px solid var(--gs-blue-bright);
+  outline-offset: 3px;
+}
+.shortcut-symbol {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #edf6fb;
+  color: #176d98;
+  font-size: 21px;
+}
+.shortcut-copy { display: grid; gap: 4px; min-width: 0; }
+.shortcut-copy strong { font-size: 14px; font-weight: 700; }
+.shortcut-copy small { color: var(--gs-text-muted); font-size: 12px; line-height: 1.45; }
+.shortcut-arrow { margin-left: auto; color: #8295a8; font-size: 17px; }
+.kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.kpi-card { padding: 20px; border-top-width: 2px; box-shadow: none; }
+.kpi-card:hover { transform: none; box-shadow: var(--gs-shadow-sm); }
+.kpi-icon { width: 42px; height: 42px; border-radius: 10px; }
+.kpi-value { font-size: 26px; }
+.chart-card { padding: 26px; box-shadow: none; }
+.table-responsive { box-shadow: none; }
+@media (max-width: 1100px) {
+  .shortcut-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 820px) {
+  .content-wrapper { padding: 24px 20px 40px; gap: 30px; }
+}
+@media (max-width: 560px) {
+  .shortcut-grid, .kpi-grid { grid-template-columns: 1fr; }
+  .shortcut-card { min-height: 88px; padding: 16px; }
+}

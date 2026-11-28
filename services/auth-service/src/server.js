@@ -649,13 +649,13 @@ app.use("/api/cardapio", autenticarCardapio);
 app.get("/api/cardapio/categorias", (_req,res) => res.json({sucesso:true,alergicos:ALERGENICOS_CARDAPIO}));
 app.get("/api/cardapio/hoje", async (_req,res) => {
   try {
-    const [rows] = await pool.execute("SELECT * FROM refeicoes WHERE dia_semana = ? ORDER BY horario, id", [diaAtualCardapio()]);
+    const [rows] = await pool.execute("SELECT f.*, EXISTS(SELECT 1 FROM refeicao_ingredientes ri JOIN ingrediente_restricoes ir ON ir.ingrediente_id=ri.ingrediente_id JOIN usuario_restricoes ur ON ur.restricao_id=ir.restricao_id WHERE ri.refeicao_id=f.id AND ur.usuario_id=?) AS alertaAlergia FROM refeicoes f WHERE f.dia_semana = ? ORDER BY f.horario, f.id", [req.cardapioUser.id,diaAtualCardapio()]);
     res.json({sucesso:true,cardapio:rows.map(normalizarRefeicao)});
   } catch (e) { console.error("[cardapio] hoje:",e.message); res.status(500).json({sucesso:false,erro:"Não foi possível carregar o cardápio de hoje."}); }
 });
 app.get("/api/cardapio/semana", async (_req,res) => {
   try {
-    const [rows] = await pool.execute("SELECT * FROM refeicoes ORDER BY FIELD(dia_semana,'segunda','terca','quarta','quinta','sexta','sabado','domingo'), horario, id");
+    const [rows] = await pool.execute("SELECT f.*, EXISTS(SELECT 1 FROM refeicao_ingredientes ri JOIN ingrediente_restricoes ir ON ir.ingrediente_id=ri.ingrediente_id JOIN usuario_restricoes ur ON ur.restricao_id=ir.restricao_id WHERE ri.refeicao_id=f.id AND ur.usuario_id=?) AS alertaAlergia FROM refeicoes f ORDER BY FIELD(f.dia_semana,'segunda','terca','quarta','quinta','sexta','sabado','domingo'), f.horario, f.id", [req.cardapioUser.id]);
     const cardapio = Object.fromEntries(DIAS_CARDAPIO.map(dia=>[dia,[]]));
     rows.map(normalizarRefeicao).forEach(item=>{if(item.dia_semana) cardapio[item.dia_semana].push(item);});
     res.json({sucesso:true,cardapio});
@@ -665,7 +665,7 @@ app.get("/api/cardapio/:id", async (req,res) => {
   const id=Number(req.params.id);
   if (!Number.isSafeInteger(id)||id<=0) return res.status(400).json({sucesso:false,erro:"ID inválido."});
   try {
-    const [rows]=await pool.execute("SELECT * FROM refeicoes WHERE id=? LIMIT 1",[id]);
+    const [rows]=await pool.execute("SELECT f.*, EXISTS(SELECT 1 FROM refeicao_ingredientes ri JOIN ingrediente_restricoes ir ON ir.ingrediente_id=ri.ingrediente_id JOIN usuario_restricoes ur ON ur.restricao_id=ir.restricao_id WHERE ri.refeicao_id=f.id AND ur.usuario_id=?) AS alertaAlergia FROM refeicoes f WHERE f.id=? LIMIT 1",[req.cardapioUser.id,id]);
     if(!rows.length) return res.status(404).json({sucesso:false,erro:"Refeição não encontrada."});
     res.json({sucesso:true,cardapio:normalizarRefeicao(rows[0])});
   } catch(e) { console.error("[cardapio] detalhe:",e.message); res.status(500).json({sucesso:false,erro:"Não foi possível consultar a refeição."}); }
@@ -798,6 +798,19 @@ app.get("/api/cardapio/admin/importacoes", exigirAdminCardapio, async (_req,res)
     const [rows]=await pool.execute("SELECT id,arquivo_nome,status,total_linhas,linhas_importadas,erros,criado_em,concluido_em FROM cardapio_importacoes ORDER BY criado_em DESC LIMIT 50");
     res.json({sucesso:true,importacoes:rows});
   } catch(e) { console.error("[cardapio] importações:",e.message); res.status(500).json({sucesso:false,erro:"Execute a migration-cardapio-admin.sql antes de consultar importações."}); }
+});
+
+app.put("/api/cardapio/minhas-restricoes", async (req,res) => {
+  const ids=Array.isArray(req.body?.restricaoIds)?req.body.restricaoIds.map(Number):null;
+  if(!ids||ids.some(id=>!Number.isSafeInteger(id)||id<1)) return res.status(400).json({sucesso:false,erro:"Lista de restrições inválida."});
+  const conn=await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    await conn.execute("DELETE FROM usuario_restricoes WHERE usuario_id=?",[req.cardapioUser.id]);
+    for(const id of [...new Set(ids)]) await conn.execute("INSERT INTO usuario_restricoes(usuario_id,restricao_id) SELECT ?,id FROM restricoes_alimentares WHERE id=? AND ativo=1",[req.cardapioUser.id,id]);
+    await conn.commit(); res.json({sucesso:true});
+  } catch(e) { await conn.rollback(); res.status(500).json({sucesso:false,erro:"Não foi possível salvar suas restrições."}); }
+  finally { conn.release(); }
 });
 app.get("/api/cardapio/minhas-restricoes", async (req,res) => {
   try {

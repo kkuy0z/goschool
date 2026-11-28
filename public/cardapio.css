@@ -1930,7 +1930,7 @@ body {
 .overview-panel .meal-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 14px;
 }
 .overview-panel .meal-actions button {
   margin: 0;

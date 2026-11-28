@@ -1302,3 +1302,7 @@ main.main-content {
         display: block;
     }
 }
+
+
+/* Administração — tabela de dados retornados pela API */
+.admin-config-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:16px 0}.admin-config-actions a{display:inline-flex;align-items:center;text-decoration:none}.admin-config-table-wrap{width:100%;overflow-x:auto}.admin-config-table{width:100%;border-collapse:collapse;min-width:620px}.admin-config-table th,.admin-config-table td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border-color,#e5e7eb);font-size:14px}.admin-config-table th{font-weight:700;background:var(--surface-muted,#f8fafc)}.admin-config-table td:last-child{white-space:nowrap}.admin-config-status{font-weight:600}.admin-config-status.inativo{color:#b45309}

@@ -28,6 +28,7 @@ async function inicializarCardapio() {
     // Configurar formulário admin se for admin
     if (currentUserRole === 'ADM') {
         configurarFormularioAdmin();
+        configurarCadastroAlergenico();
         await carregarListaRefeicoesAdmin();
         configurarGestaoIngredientesRestricoes();
         await carregarGestaoIngredientesRestricoes();
@@ -451,6 +452,59 @@ function configurarFormularioAdmin() {
     if (cancelBtn) {
         cancelBtn.addEventListener('click', resetarFormulario);
     }
+}
+
+// Adicionar alergênicos personalizados à lista do cardápio
+function configurarCadastroAlergenico() {
+    const input = document.getElementById('newAllergenName');
+    const button = document.getElementById('addAllergenBtn');
+    const status = document.getElementById('allergenAddStatus');
+    const container = document.getElementById('allergenCheckboxes');
+    if (!input || !button || button.dataset.configured === 'true') return;
+
+    button.dataset.configured = 'true';
+    const adicionar = async () => {
+        const nome = input.value.trim().replace(/\\s+/g, ' ');
+        if (nome.length < 2 || nome.length > 120) {
+            status.textContent = 'Digite um nome entre 2 e 120 caracteres.';
+            status.className = 'form-hint allergen-add-status error';
+            input.focus();
+            return;
+        }
+
+        const selecionados = Array.from(container?.querySelectorAll('input[name="alergicos"]:checked') || []).map(el => el.value);
+        button.disabled = true;
+        status.textContent = 'Adicionando...';
+        status.className = 'form-hint allergen-add-status';
+        try {
+            const response = await Auth.apiCall('/api/cardapio/admin/alergenicos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': Auth.getCsrfToken() },
+                body: JSON.stringify({ nome })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.erro || 'Não foi possível adicionar o alergênico.');
+
+            await carregarAlergenicos();
+            renderAllergenCheckboxes([...selecionados, data.nome || nome]);
+            input.value = '';
+            status.textContent = 'Alergênico adicionado e selecionado para esta refeição.';
+            status.className = 'form-hint allergen-add-status success';
+        } catch (error) {
+            status.textContent = error.message;
+            status.className = 'form-hint allergen-add-status error';
+        } finally {
+            button.disabled = false;
+        }
+    };
+
+    button.addEventListener('click', adicionar);
+    input.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            adicionar();
+        }
+    });
 }
 
 // Renderizar checkboxes de alergênicos

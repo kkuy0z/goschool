@@ -106,6 +106,7 @@
     initNotifications();
     initSecurity();
     initProfileFallback();
+    initAdminSettings();
     applyPreferences();
     syncControls();
     updateSecurityInfo();
@@ -113,7 +114,7 @@
 
     const params = new URLSearchParams(window.location.search);
     const tab = params.get("tab");
-    if (["perfil", "preferencias", "alergias", "notificacoes", "seguranca"].includes(tab)) {
+    if (["perfil", "preferencias", "alergias", "notificacoes", "seguranca", "administracao"].includes(tab)) {
       switchTab(tab);
     }
   }
@@ -407,6 +408,42 @@
     if (sidebarName) sidebarName.textContent = label;
     if (headerName && name) headerName.textContent = name;
     if (avatar && name) avatar.textContent = name.charAt(0).toUpperCase();
+  }
+
+
+  function initAdminSettings() {
+    const panel = document.getElementById("panel-administracao");
+    if (!panel || !currentUser || currentUser.tipo !== "adm") return;
+    const body = document.getElementById("adminUsuariosTabela");
+    const status = document.getElementById("adminUsuariosStatus");
+    const button = document.getElementById("btnAtualizarUsuarios");
+    const roleLabels = { adm: "Administrador", professor: "Professor", aluno: "Aluno" };
+
+    async function carregarUsuarios() {
+      if (button) button.disabled = true;
+      if (status) status.textContent = "Consultando usuários no servidor...";
+      if (body) body.innerHTML = '<tr><td colspan="4">Carregando...</td></tr>';
+      try {
+        const response = await fetch("/api/admin/usuarios", { credentials: "same-origin", headers: { Accept: "application/json" } });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data.sucesso !== true || !Array.isArray(data.usuarios)) {
+          throw new Error(data.erro || "Não foi possível consultar a lista.");
+        }
+        body.innerHTML = data.usuarios.map((user) => {
+          const safe = (value) => escapeHtml(value == null ? "" : value);
+          const role = roleLabels[user.role] || user.role || "—";
+          return '<tr><td>' + safe(user.nome) + '</td><td>' + safe(user.email) + '</td><td>' + safe(role) + '</td><td><span class="admin-config-status ' + (user.ativo ? "ativo" : "inativo") + '">' + (user.ativo ? "Ativo" : "Inativo") + '</span></td></tr>';
+        }).join("") || '<tr><td colspan="4">Nenhum usuário encontrado.</td></tr>';
+        if (status) status.textContent = data.usuarios.length + " usuário(s) carregado(s) do backend.";
+      } catch (error) {
+        if (body) body.innerHTML = '<tr><td colspan="4">Lista indisponível.</td></tr>';
+        if (status) status.textContent = error.message || "Erro ao carregar usuários.";
+      } finally {
+        if (button) button.disabled = false;
+      }
+    }
+    button?.addEventListener("click", carregarUsuarios);
+    carregarUsuarios();
   }
 
   function initProfileFallback() {

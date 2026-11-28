@@ -1,8 +1,8 @@
 /* GOSchool — sidebar compartilhada dos painéis (aluno, professor e administração) */
 :root {
   --gs-panel-sidebar-width: 252px;
-  --gs-panel-sidebar-bg: #0d376b;
-  --gs-panel-sidebar-bottom: #0d376b;
+  --gs-panel-sidebar-bg: #0b2341;
+  --gs-panel-sidebar-bottom: #091c34;
   --gs-panel-sidebar-active: rgb(56 182 255 / 16%);
 }
 

@@ -1569,3 +1569,153 @@ body { font-size: 13px; }
 
 /* Garante que painéis inativos não apareçam junto ao cardápio de hoje */
 .tab-panel[hidden] { display: none !important; }
+
+
+/* Visão geral: cardápios lado a lado */
+.cardapio-overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: 18px;
+  align-items: start;
+  margin: 4px 0 22px;
+}
+.overview-panel {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #dce7f0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 3px 14px rgba(16, 45, 79, .045);
+}
+.overview-panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.overview-panel-heading h2 {
+  margin: 0;
+  color: #102d4f;
+  font-size: 18px;
+  font-weight: 800;
+}
+.overview-date { color: #6b7d90; font-size: 12px; white-space: nowrap; }
+.text-action {
+  padding: 5px 0;
+  border: 0;
+  background: transparent;
+  color: #087eaf;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.overview-panel .meals-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.overview-panel .meal-card { width: 100%; min-width: 0; }
+.weekly-overview .weekly-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  max-height: 520px;
+  overflow: auto;
+  padding: 2px 4px 2px 0;
+}
+.weekly-overview .weekly-day {
+  min-width: 0;
+  margin: 0;
+  padding: 10px;
+  border: 1px solid #e2eaf1;
+  border-radius: 9px;
+  background: #f9fcff;
+}
+.weekly-overview .weekly-day-header { margin-bottom: 8px; }
+.weekly-overview .weekly-day-title { font-size: 12px; }
+.weekly-overview .weekly-day-meals { display: grid; gap: 8px; }
+.weekly-overview .weekly-meal-card { padding: 9px; border-radius: 8px; }
+.weekly-overview .weekly-meal-name { font-size: 12px; line-height: 1.35; }
+.weekly-overview .weekly-meal-desc,
+.weekly-overview .weekly-meal-meta { font-size: 11px; }
+.cardapio-shortcuts { margin-top: 0; }
+.cardapio-shortcuts .shortcut-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 13px 16px;
+  border: 1px solid #dce7f0;
+  border-radius: 12px;
+  background: #fff;
+}
+.cardapio-shortcuts .shortcut-bar > strong {
+  margin-right: auto;
+  color: #102d4f;
+  font-size: 13px;
+}
+.cardapio-shortcuts .shortcut-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 12px;
+  border: 1px solid #dce7f0;
+  border-radius: 8px;
+  background: #f8fbfe;
+  color: #24435e;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+.cardapio-shortcuts .shortcut-button span { color: #0785b7; font-size: 16px; }
+.cardapio-shortcuts .shortcut-button:hover { border-color: #0785b7; background: #edf8ff; }
+.admin-manage-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  background: rgba(8, 24, 42, .62);
+}
+.admin-manage-modal[hidden] { display: none !important; }
+.admin-manage-box {
+  display: flex;
+  flex-direction: column;
+  width: min(1120px, 100%);
+  max-width: 1120px;
+  max-height: min(90vh, 900px);
+  overflow: hidden;
+  padding: 0;
+  background: #f7fbff;
+}
+.admin-manage-box > .modal-header {
+  flex: 0 0 auto;
+  padding: 18px 22px;
+  border-bottom: 1px solid #dce7f0;
+  background: #fff;
+}
+.admin-manage-box .modal-title { margin: 0; }
+.admin-manage-box .modal-text { margin: 4px 0 0; }
+.admin-manage-box #adminCardapioContent {
+  overflow: auto;
+  padding: 18px;
+}
+.admin-manage-box #adminCardapioContent > .card { margin-bottom: 16px; }
+body.modal-open { overflow: hidden; }
+@media (max-width: 900px) {
+  .cardapio-overview-grid { grid-template-columns: 1fr; }
+  .weekly-overview .weekly-container { max-height: 440px; }
+}
+@media (max-width: 560px) {
+  .overview-panel { padding: 13px; }
+  .weekly-overview .weekly-container { grid-template-columns: 1fr; }
+  .cardapio-shortcuts .shortcut-bar { align-items: stretch; }
+  .cardapio-shortcuts .shortcut-bar > strong { flex-basis: 100%; }
+  .cardapio-shortcuts .shortcut-button { flex: 1 1 42%; justify-content: center; }
+  .admin-manage-modal { padding: 8px; }
+  .admin-manage-box { max-height: 96vh; }
+  .admin-manage-box #adminCardapioContent { padding: 12px; }
+}

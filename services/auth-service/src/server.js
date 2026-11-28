@@ -891,7 +891,7 @@ app.get("/api/reservas/recursos", requireReservaUser, async (_req, res) => {
 app.get("/api/reservas", requireReservaUser, async (req, res) => {
   try {
     const [rows] = await pool.execute(
-      `SELECT r.id,r.recurso_id,r.usuario_id,r.titulo,r.finalidade,r.data_inicio,r.data_fim,r.status,r.observacao_admin,r.criado_em,
+      `SELECT r.id,r.recurso_id,r.usuario_id,r.titulo,r.finalidade,DATE_FORMAT(r.data_inicio, '%Y-%m-%d %H:%i:%s') AS data_inicio,DATE_FORMAT(r.data_fim, '%Y-%m-%d %H:%i:%s') AS data_fim,r.status,r.observacao_admin,r.criado_em,
               rr.nome AS recurso_nome,rr.localizacao, u.nome AS usuario_nome
        FROM reservas r JOIN recursos_reserva rr ON rr.id=r.recurso_id JOIN usuarios u ON u.id=r.usuario_id
        WHERE r.data_inicio >= CURDATE() AND r.data_inicio < DATE_ADD(CURDATE(), INTERVAL 7 DAY) ORDER BY r.data_inicio ASC LIMIT 500`,

@@ -27,6 +27,7 @@ const authPaths = [
   "/api/admin",
   "/api/cardapio",
   "/api/reservas",
+  "/api/desperdicio",
   "/api/me",
   "/api/logout",
   "/auth",

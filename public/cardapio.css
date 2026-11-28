@@ -2332,3 +2332,36 @@ body { display:block; min-height:100vh; overflow-x:hidden; }
     opacity: .055;
   }
 }
+
+
+/* Guia visual para importação de planilhas */
+.import-guide {
+  margin: 12px 0 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--gs-blue-border);
+  border-radius: var(--gs-radius);
+  background: var(--gs-blue-soft);
+}
+.import-guide summary {
+  color: var(--gs-navy);
+  font-weight: 700;
+  cursor: pointer;
+}
+.import-guide > .form-hint { margin: 12px 0 0; }
+.import-guide-table-wrap { width: 100%; overflow-x: auto; margin-top: 12px; }
+.import-guide-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  background: var(--gs-surface);
+  color: var(--gs-text-primary);
+  font-size: 12px;
+}
+.import-guide-table th,
+.import-guide-table td {
+  padding: 9px 10px;
+  border: 1px solid var(--gs-blue-border);
+  text-align: left;
+  white-space: nowrap;
+}
+.import-guide-table th { background: #d9effb; font-weight: 700; }

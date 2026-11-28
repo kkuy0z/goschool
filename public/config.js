@@ -361,7 +361,48 @@
     });
 
     document.getElementById("btnTestNotification")?.addEventListener("click", sendTestNotification);
+    carregarNotificacoes();
     updateNotificationPermissionStatus();
+  }
+
+  async function carregarNotificacoes() {
+    const container = document.getElementById("notificationInbox");
+    if (!container) return;
+    try {
+      const response = await Auth.apiCall("/api/notificacoes", { headers: { Accept: "application/json" } });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.sucesso !== true) throw new Error(data.erro || "Não foi possível carregar as notificações.");
+      if (!Array.isArray(data.notificacoes) || !data.notificacoes.length) {
+        container.innerHTML = '<p class="config-section-desc">Você não tem notificações por enquanto.</p>';
+        return;
+      }
+      container.innerHTML = data.notificacoes.map((item) => {
+        const dataTexto = item.criado_em ? new Date(item.criado_em).toLocaleString("pt-BR") : "";
+        const acao = !item.lida_em
+          ? '<button type="button" class="btn-secondary" data-notification-read="' + Number(item.id) + '">Marcar como lida</button>'
+          : '<span>✓ Lida</span>';
+        return '<article class="config-option" style="display:block;margin:12px 0;padding:16px;border-radius:12px">' +
+          '<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start"><strong>' + escapeHtml(item.titulo) + '</strong>' + acao + '</div>' +
+          '<p>' + escapeHtml(item.mensagem) + '</p><small>' + escapeHtml(dataTexto) + '</small></article>';
+      }).join("");
+      container.querySelectorAll("[data-notification-read]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          button.disabled = true;
+          try {
+            const result = await Auth.apiCall("/api/notificacoes/" + Number(button.dataset.notificationRead) + "/lida", { method: "PATCH", headers: { Accept: "application/json" } });
+            const body = await result.json().catch(() => ({}));
+            if (!result.ok || body.sucesso !== true) throw new Error(body.erro || "Não foi possível atualizar.");
+            await carregarNotificacoes();
+          } catch (error) {
+            button.disabled = false;
+            showStatus(error.message || "Erro ao marcar como lida.", "error");
+          }
+        });
+      });
+    } catch (error) {
+      container.innerHTML = '<p class="config-section-desc">Não foi possível carregar as notificações. Confira se a migração do banco foi executada.</p>';
+      console.error("[Config] Falha ao carregar notificações.", error);
+    }
   }
 
   async function requestNotificationPermission() {

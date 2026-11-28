@@ -276,6 +276,33 @@
                             <!-- Lista inserida via JS -->
                         </div>
                     </div>
+
+                    <div class="card">
+                        <div class="card-header"><h3 class="section-title">Ingredientes e restrições</h3></div>
+                        <p class="section-description">Cadastre ingredientes e restrições para relacioná-los às refeições.</p>
+                        <div class="form-row">
+                            <form id="ingredientForm" class="form-grid">
+                                <div class="form-group"><label class="form-label" for="ingredientName">Novo ingrediente</label><input class="form-input" id="ingredientName" name="nome" minlength="2" maxlength="120" required placeholder="Ex.: leite"></div>
+                                <button class="btn-primary" type="submit">Adicionar ingrediente</button>
+                            </form>
+                            <form id="restrictionForm" class="form-grid">
+                                <div class="form-group"><label class="form-label" for="restrictionName">Nova restrição</label><input class="form-input" id="restrictionName" name="nome" minlength="2" maxlength="120" required placeholder="Ex.: intolerância à lactose"></div>
+                                <div class="form-group"><label class="form-label" for="restrictionDescription">Descrição</label><input class="form-input" id="restrictionDescription" name="descricao" maxlength="500" placeholder="Descrição opcional"></div>
+                                <button class="btn-primary" type="submit">Adicionar restrição</button>
+                            </form>
+                        </div>
+                        <div class="form-row">
+                            <div><h4 class="section-title">Ingredientes cadastrados</h4><div class="meal-list" id="adminIngredientsList"></div></div>
+                            <div><h4 class="section-title">Restrições cadastradas</h4><div class="meal-list" id="adminRestrictionsList"></div></div>
+                        </div>
+                        <p class="form-hint">O vínculo ingrediente–restrição é a base para identificar incompatibilidades nos cardápios.</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><h3 class="section-title">Histórico de importações</h3></div>
+                        <p class="section-description">Acompanhe o status e a quantidade de linhas das planilhas processadas.</p>
+                        <div class="meal-list" id="adminImportHistory"></div>
+                    </div>
                 </div>
             </section>
 

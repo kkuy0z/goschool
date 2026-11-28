@@ -430,7 +430,7 @@
 
             // Dashboard greeting
             const title = document.getElementById('dashboard-title');
-            if (title) title.textContent = 'Olá, ' + nome.split(' ')[0] + '! Cardápio de Hoje';
+            if (title) title.textContent = 'Olá, ' + nome.split(/\\s+/)[0] + '!';
 
             // Date
             const hoje = new Date();

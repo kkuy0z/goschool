@@ -609,6 +609,21 @@ function diaAtualCardapio() {
   const dia = new Intl.DateTimeFormat("en-US", { weekday: "long", timeZone: "America/Sao_Paulo" }).format(new Date()).toLowerCase();
   return ({monday:"segunda",tuesday:"terca",wednesday:"quarta",thursday:"quinta",friday:"sexta",saturday:"sabado",sunday:"domingo"})[dia];
 }
+async function registrarAlertasAlergia(usuarioId, refeicoes) {
+  const [prefs] = await pool.execute("SELECT preferencias FROM configuracoes_usuario WHERE usuario_id=? LIMIT 1", [usuarioId]);
+  let preferencias = prefs[0]?.preferencias || {};
+  if (typeof preferencias === "string") {
+    try { preferencias = JSON.parse(preferencias); } catch { preferencias = {}; }
+  }
+  if (preferencias.allergy_alert_enabled === false) return;
+  for (const refeicao of refeicoes.filter(item => item.alertaAlergia)) {
+    const titulo = "Atenção: alergênico no cardápio";
+    const mensagem = "A refeição '" + String(refeicao.nome || "Refeição").slice(0,180) + "' está associada a uma das suas restrições alimentares. Confira os ingredientes antes de consumir.";
+    const chave = "cardapio:" + refeicao.id + ":" + (refeicao.dia_semana || "sem-dia");
+    await pool.execute("INSERT IGNORE INTO notificacoes (usuario_id,tipo,titulo,mensagem,chave_evento) VALUES (?,?,?,?,?)", [usuarioId,"alergia",titulo,mensagem,chave]);
+  }
+}
+
 function normalizarRefeicao(row) {
   let alergicos = row.alergicos;
   if (typeof alergicos === "string") { try { alergicos = JSON.parse(alergicos); } catch { alergicos = []; } }
@@ -673,7 +688,9 @@ app.post("/api/cardapio/admin/alergenicos", exigirAdminCardapio, async (req,res)
 app.get("/api/cardapio/hoje", async (req,res) => {
   try {
     const [rows] = await pool.execute("SELECT f.*, EXISTS(SELECT 1 FROM refeicao_ingredientes ri JOIN ingrediente_restricoes ir ON ir.ingrediente_id=ri.ingrediente_id JOIN usuario_restricoes ur ON ur.restricao_id=ir.restricao_id WHERE ri.refeicao_id=f.id AND ur.usuario_id=?) AS alertaAlergia FROM refeicoes f WHERE f.dia_semana = ? ORDER BY f.horario, f.id", [req.cardapioUser.id,diaAtualCardapio()]);
-    res.json({sucesso:true,cardapio:rows.map(normalizarRefeicao)});
+    const cardapio = rows.map(normalizarRefeicao);
+    await registrarAlertasAlergia(req.cardapioUser.id, cardapio);
+    res.json({sucesso:true,cardapio});
   } catch (e) {
     console.error("[cardapio] hoje:", {
       message: e.message, code: e.code, errno: e.errno,
@@ -685,8 +702,10 @@ app.get("/api/cardapio/hoje", async (req,res) => {
 app.get("/api/cardapio/semana", async (req,res) => {
   try {
     const [rows] = await pool.execute("SELECT f.*, EXISTS(SELECT 1 FROM refeicao_ingredientes ri JOIN ingrediente_restricoes ir ON ir.ingrediente_id=ri.ingrediente_id JOIN usuario_restricoes ur ON ur.restricao_id=ir.restricao_id WHERE ri.refeicao_id=f.id AND ur.usuario_id=?) AS alertaAlergia FROM refeicoes f ORDER BY FIELD(f.dia_semana,'segunda','terca','quarta','quinta','sexta','sabado','domingo'), f.horario, f.id", [req.cardapioUser.id]);
+    const normalizadas = rows.map(normalizarRefeicao);
+    await registrarAlertasAlergia(req.cardapioUser.id, normalizadas);
     const cardapio = Object.fromEntries(DIAS_CARDAPIO.map(dia=>[dia,[]]));
-    rows.map(normalizarRefeicao).forEach(item=>{if(item.dia_semana) cardapio[item.dia_semana].push(item);});
+    normalizadas.forEach(item=>{if(item.dia_semana) cardapio[item.dia_semana].push(item);});
     res.json({sucesso:true,cardapio});
   } catch (e) {
     console.error("[cardapio] semana:", {

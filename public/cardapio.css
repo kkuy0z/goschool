@@ -2240,3 +2240,54 @@ body {
   .cardapio-nav-user { gap: 8px; }
   .content-wrapper { width: calc(100% - 20px); }
 }
+
+/* Correção estrutural do layout sem sidebar */
+html, body { width:100%; min-width:320px; }
+body { display:block; min-height:100vh; overflow-x:hidden; }
+.main-content { display:flex; width:100%; max-width:none; min-width:0; min-height:0; margin:0; }
+.top-header { position:relative; top:auto; width:100%; min-height:64px; padding:10px clamp(16px,3vw,36px); }
+.content-wrapper { width:min(1440px,calc(100% - 48px)); max-width:1440px; margin:0 auto; padding:26px 0 40px; }
+.cardapio-topnav { position:relative; z-index:10; width:min(1440px,calc(100% - 48px)); margin:18px auto 0; }
+.cardapio-menu { display:flex; flex:1 1 auto; flex-direction:row; align-items:center; justify-content:center; flex-wrap:wrap; gap:4px; min-width:0; min-height:0; overflow:visible; padding:0; }
+.cardapio-menu .menu-item { display:inline-flex; flex:0 0 auto; align-items:center; justify-content:center; min-height:38px; padding:9px 12px; border:1px solid transparent; border-radius:9px; color:#526d84; font-size:12px; line-height:1.2; white-space:nowrap; transform:none; }
+.cardapio-menu .menu-item:hover { transform:none; background:#edf7fd; color:#0a6d99; }
+.cardapio-menu .menu-item.active { border-color:#c9e7f6; background:#e8f6fd; color:#087eaf; box-shadow:none; }
+.tab-panel { min-width:0; }
+.cardapio-welcome { margin-bottom:22px; }
+.cardapio-overview-grid { grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:stretch; gap:22px; }
+.overview-panel { min-width:0; }
+@media (max-width:1120px) {
+ .cardapio-topnav { align-items:center; flex-wrap:wrap; gap:10px; }
+ .cardapio-menu { order:3; flex:1 0 100%; justify-content:flex-start; overflow-x:auto; flex-wrap:nowrap; padding:3px 0; scrollbar-width:thin; }
+ .cardapio-nav-user { margin-left:auto; }
+ .content-wrapper { width:calc(100% - 36px); }
+}
+@media (max-width:760px) {
+ .cardapio-topnav { width:calc(100% - 24px); margin-top:12px; padding:12px; border-radius:14px; }
+ .cardapio-menu { display:flex; flex-basis:100%; gap:4px; }
+ .cardapio-menu .menu-item { padding:9px 10px; font-size:12px; }
+ .content-wrapper { width:calc(100% - 24px); padding:20px 0 30px; }
+ .cardapio-overview-grid { grid-template-columns:1fr; }
+ .overview-panel .meal-card > img,.overview-panel .meal-card .meal-image { height:210px; }
+ .header-actions { gap:8px; }
+ .user-profile { max-width:190px; }
+ .user-profile .user-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+}
+@media (max-width:480px) {
+ .cardapio-topnav { align-items:stretch; width:calc(100% - 16px); padding:10px; }
+ .cardapio-back-link { align-self:flex-start; }
+ .cardapio-nav-user { align-self:flex-end; }
+ .cardapio-menu { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); overflow:visible; white-space:normal; }
+ .cardapio-menu .menu-item { min-width:0; white-space:normal; text-align:center; }
+ .content-wrapper { width:calc(100% - 16px); padding-top:16px; }
+ .top-header { min-height:56px; padding:8px 12px; }
+ .header-actions { gap:6px; }
+ .user-profile { padding-right:8px; }
+ .user-profile .user-name { max-width:92px; }
+ .cardapio-welcome { padding:18px; }
+ .cardapio-overview-grid { gap:14px; }
+ .overview-panel { padding:14px; border-radius:15px; }
+ .overview-panel-heading { align-items:flex-start; }
+ .overview-panel-heading h2 { font-size:16px; }
+ .weekly-overview .weekly-container { grid-template-columns:1fr; }
+}

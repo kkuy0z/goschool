@@ -951,6 +951,28 @@ app.post("/api/reservas", requireReservaUser, async (req, res) => {
   }
 });
 
+
+app.patch("/api/reservas/:id/status", requireReservaUser, async (req, res) => {
+  if (req.reservaUser.tipo !== "adm") return res.status(403).json({ sucesso: false, erro: "Somente a administração pode decidir solicitações." });
+  const id = Number(req.params.id);
+  const status = String(req.body?.status || "").toUpperCase();
+  const observacao = String(req.body?.observacao || "").trim();
+  if (!Number.isSafeInteger(id) || id < 1 || !["CONFIRMADA", "REJEITADA"].includes(status)) {
+    return res.status(400).json({ sucesso: false, erro: "Informe uma reserva e decisão válidas." });
+  }
+  try {
+    const [result] = await pool.execute(
+      "UPDATE reservas SET status=?,observacao_admin=?,decidido_por=?,decidido_em=NOW() WHERE id=? AND status='PENDENTE'",
+      [status, observacao || null, req.reservaUser.id, id],
+    );
+    if (!result.affectedRows) return res.status(409).json({ sucesso: false, erro: "A reserva não existe ou já foi decidida." });
+    res.json({ sucesso: true, mensagem: status === "CONFIRMADA" ? "Reserva confirmada." : "Solicitação rejeitada." });
+  } catch (e) {
+    console.error("[reservas] decidir:", e.message);
+    res.status(500).json({ sucesso: false, erro: "Não foi possível atualizar a solicitação." });
+  }
+});
+
 app.delete("/api/reservas/:id", requireReservaUser, async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isSafeInteger(id) || id < 1) return res.status(400).json({ sucesso: false, erro: "ID inválido." });

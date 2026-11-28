@@ -251,6 +251,11 @@ const Auth = (function () {
       },
     };
 
+    // FormData precisa que o navegador defina o Content-Type com o boundary.
+    if (typeof FormData !== "undefined" && options.body instanceof FormData) {
+      delete mergedOptions.headers["Content-Type"];
+    }
+
     // Add CSRF for state-changing methods
     if (
       ["POST", "PUT", "DELETE", "PATCH"].includes(

@@ -100,6 +100,7 @@
                     </svg>
                     Notificações
                 </button>
+                <button type="button" role="tab" id="tab-administracao" class="config-tab-btn" aria-selected="false" aria-controls="panel-administracao" data-tab="administracao" data-auth-role="adm">Administração</button>
                 <button type="button" role="tab" id="tab-seguranca" class="config-tab-btn" aria-selected="false" aria-controls="panel-seguranca" data-tab="seguranca">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -440,6 +441,32 @@
             </div>
             </div>
         </div>
+            <!-- Painel Administração: dados consultados no servidor -->
+            <div role="tabpanel" id="panel-administracao" aria-labelledby="tab-administracao" class="config-tab-panel" hidden data-auth-role="adm">
+                <section class="config-section" aria-labelledby="admin-usuarios-title">
+                    <header class="config-section-header">
+                        <h2 id="admin-usuarios-title">Usuários institucionais</h2>
+                    </header>
+                    <p class="config-section-desc">Lista consultada diretamente no banco institucional. Para editar papéis, ativar ou desativar contas, use a Gestão de Usuários.</p>
+                    <div class="admin-config-actions">
+                        <a class="btn-primary" href="/usuarios.html">Abrir Gestão de Usuários</a>
+                        <button type="button" class="btn-secondary" id="btnAtualizarUsuarios">Atualizar lista</button>
+                    </div>
+                    <p id="adminUsuariosStatus" class="config-section-desc" role="status">Carregando usuários...</p>
+                    <div class="admin-config-table-wrap">
+                        <table class="admin-config-table">
+                            <thead><tr><th>Nome</th><th>E-mail institucional</th><th>Perfil</th><th>Situação</th></tr></thead>
+                            <tbody id="adminUsuariosTabela"><tr><td colspan="4">Carregando...</td></tr></tbody>
+                        </table>
+                    </div>
+                </section>
+                <section class="config-section" aria-labelledby="admin-privacidade-title">
+                    <header class="config-section-header"><h2 id="admin-privacidade-title">Privacidade e direitos do titular</h2></header>
+                    <p>O documento prevê registro do consentimento do responsável legal e atendimento de solicitações LGPD, incluindo correção, exclusão, anonimização e retenção legal.</p>
+                    <p class="config-section-desc">Essas operações ainda não possuem rotas e persistência confirmadas no backend. Nenhuma ação de consentimento ou expurgo será simulada nesta tela.</p>
+                </section>
+            </div>
+
     </main>
 
     <!-- Modal Confirmar Exclusão Conta -->

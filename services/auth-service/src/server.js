@@ -647,7 +647,29 @@ function valoresRefeicao(body, userId) {
   return [String(body.nome).trim(), String(body.descricao || "").trim() || null, body.categoria, body.dia_semana || null, body.horario || null, body.calorias === "" || body.calorias == null ? null : Number(body.calorias), body.proteina === "" || body.proteina == null ? null : Number(body.proteina), body.carboidrato === "" || body.carboidrato == null ? null : Number(body.carboidrato), body.imagem || null, JSON.stringify(body.alergicos || []), String(body.observacoes || "").trim() || null, userId];
 }
 app.use("/api/cardapio", autenticarCardapio);
-app.get("/api/cardapio/categorias", (_req,res) => res.json({sucesso:true,alergicos:ALERGENICOS_CARDAPIO}));
+app.get("/api/cardapio/categorias", async (_req,res) => {
+  try {
+    const [rows] = await pool.execute("SELECT nome FROM restricoes_alimentares WHERE ativo=1 ORDER BY nome");
+    const alergicos = [...new Map([...ALERGENICOS_CARDAPIO, ...rows.map(row=>String(row.nome).trim())].filter(Boolean).map(nome=>[nome.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase(),nome])).values()];
+    res.json({sucesso:true,alergicos});
+  } catch(e) {
+    console.error("[cardapio] alergênicos:",e.message);
+    res.json({sucesso:true,alergicos:ALERGENICOS_CARDAPIO});
+  }
+});
+app.post("/api/cardapio/admin/alergenicos", exigirAdminCardapio, async (req,res) => {
+  const nome=String(req.body?.nome||"").trim().replace(/\\s+/g," ");
+  if(nome.length<2||nome.length>120) return res.status(400).json({sucesso:false,erro:"Informe um alergênico entre 2 e 120 caracteres."});
+  try {
+    const [existing] = await pool.execute("SELECT id FROM restricoes_alimentares WHERE LOWER(nome)=LOWER(?) LIMIT 1",[nome]);
+    if(existing.length) return res.status(409).json({sucesso:false,erro:"Esse alergênico já está cadastrado."});
+    const [result] = await pool.execute("INSERT INTO restricoes_alimentares(nome,descricao) VALUES(?,?)",[nome,"Alergênico do cardápio"]);
+    res.status(201).json({sucesso:true,id:result.insertId,nome});
+  } catch(e) {
+    console.error("[cardapio] cadastrar alergênico:",e.message);
+    res.status(e.code==="ER_DUP_ENTRY"?409:500).json({sucesso:false,erro:e.code==="ER_DUP_ENTRY"?"Esse alergênico já está cadastrado.":"Não foi possível cadastrar o alergênico."});
+  }
+});
 app.get("/api/cardapio/hoje", async (req,res) => {
   try {
     const [rows] = await pool.execute("SELECT f.*, EXISTS(SELECT 1 FROM refeicao_ingredientes ri JOIN ingrediente_restricoes ir ON ir.ingrediente_id=ri.ingrediente_id JOIN usuario_restricoes ur ON ur.restricao_id=ir.restricao_id WHERE ri.refeicao_id=f.id AND ur.usuario_id=?) AS alertaAlergia FROM refeicoes f WHERE f.dia_semana = ? ORDER BY f.horario, f.id", [req.cardapioUser.id,diaAtualCardapio()]);

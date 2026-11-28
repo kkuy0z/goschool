@@ -1,37 +1,8 @@
-(function () {
-  "use strict";
-  const KEY = "goschool_preferences";
-  const translations = {
-    "en": {
-      "Início":"Home","Sobre":"About","Contato":"Contact","Entrar":"Sign in","Conheça o sistema":"Explore the system",
-      "Configurações":"Settings","Voltar ao painel":"Back to dashboard","Gerencie seus dados e preferências":"Manage your data and preferences","Sair":"Sign out",
-      "Painel Administrativo":"Admin Dashboard","Visão geral e gerenciamento do GoSchool":"GoSchool overview and management","Atualizar":"Refresh",
-      "Usuários":"Users","Cadastro institucional":"Institutional registration","Cardápio":"Menu","Reservas":"Reservations","Desperdício":"Waste","Preferências":"Preferences","Perfil":"Profile","Alergias":"Allergies","Notificações":"Notifications",
-      "Densidade da Interface":"Interface density","Ajuste o espaçamento dos elementos":"Adjust element spacing","Idioma":"Language","Idioma da interface":"Interface language",
-      "Confortável":"Comfortable","Compacta":"Compact","Espaçosa":"Spacious","Claro":"Light","Escuro":"Dark","Sistema":"System",
-      "Salvar Alterações":"Save changes","Cancelar":"Cancel","Confirmar":"Confirm","Buscar":"Search","Carregando...":"Loading...",
-      "Área do aluno":"Student area","Meu perfil":"My profile","Seu espaço escolar":"Your school space","Confira as refeições disponíveis para hoje.":"Check today's available meals.",
-      "Relatórios de Desperdício":"Waste reports","Acompanhe os indicadores de desperdício de alimentos.":"Track food waste indicators.",
-      "Gerenciamento de usuários":"User management","Consulte os usuários cadastrados no GoSchool.":"View users registered in GoSchool.",
-      "Nova reserva":"New reservation","Minhas reservas":"My reservations","Reservas ao vivo":"Live reservations","Solicitar reserva":"Request a reservation",
-      "Bem-vindo ao GoSchool":"Welcome to GoSchool","Entre com sua conta Google institucional para continuar.":"Sign in with your institutional Google account to continue."
-    },
-    "es": {
-      "Início":"Inicio","Sobre":"Acerca de","Contato":"Contacto","Entrar":"Entrar","Conheça o sistema":"Conozca el sistema",
-      "Configurações":"Configuración","Voltar ao painel":"Volver al panel","Gerencie seus dados e preferências":"Administre sus datos y preferencias","Sair":"Salir",
-      "Painel Administrativo":"Panel administrativo","Visão geral e gerenciamento do GoSchool":"Resumen y administración de GoSchool","Atualizar":"Actualizar",
-      "Usuários":"Usuarios","Cadastro institucional":"Registro institucional","Cardápio":"Menú","Reservas":"Reservas","Desperdício":"Desperdicio","Preferências":"Preferencias","Perfil":"Perfil","Alergias":"Alergias","Notificações":"Notificaciones",
-      "Densidade da Interface":"Densidad de la interfaz","Ajuste o espaçamento dos elementos":"Ajuste el espaciado de los elementos","Idioma":"Idioma","Idioma da interface":"Idioma de la interfaz",
-      "Confortável":"Cómoda","Compacta":"Compacta","Espaçosa":"Espaciosa","Claro":"Claro","Escuro":"Oscuro","Sistema":"Sistema",
-      "Salvar Alterações":"Guardar cambios","Cancelar":"Cancelar","Confirmar":"Confirmar","Buscar":"Buscar","Carregando...":"Cargando...",
-      "Área do aluno":"Área del alumno","Meu perfil":"Mi perfil","Seu espaço escolar":"Su espacio escolar","Confira as refeições disponíveis para hoje.":"Consulte las comidas disponibles para hoy.",
-      "Relatórios de Desperdício":"Informes de desperdicio","Acompanhe os indicadores de desperdício de alimentos.":"Consulte los indicadores de desperdicio de alimentos.",
-      "Gerenciamento de usuários":"Gestión de usuarios","Consulte os usuários cadastrados no GoSchool.":"Consulte los usuarios registrados en GoSchool.",
-      "Nova reserva":"Nueva reserva","Minhas reservas":"Mis reservas","Reservas ao vivo":"Reservas en vivo","Solicitar reserva":"Solicitar reserva",
-      "Bem-vindo ao GoSchool":"Bienvenido a GoSchool","Entre com sua conta Google institucional para continuar.":"Inicie sesión con su cuenta institucional de Google para continuar."
-    }
-  };
-  const densityStyle = `
+(function(){
+"use strict";
+const KEY="goschool_preferences";
+const dictionary={"Painel Administrativo":"Admin Dashboard","Visão geral e gerenciamento do GoSchool":"GoSchool overview and management","Atualizar":"Refresh","Atualizar os dados do painel":"Refresh dashboard data","Abrir menu":"Open menu","Fechar menu":"Close menu","Usuários":"Users","Usuário":"User","Usuários cadastrados":"Registered users","Usuários por perfil":"Users by role","Total de usuários":"Total users","Usuários ativos (30 dias)":"Active users (30 days)","Total de reservas":"Total reservations","Desperdício no mês":"Waste this month","Visão geral":"Overview","Acompanhe os indicadores da escola.":"Track school indicators.","Cadastrar usuário":"Add user","Adicionar aluno ou profissional":"Add a student or staff member","Gerenciar usuários":"Manage users","Consultar perfis e acessos":"View profiles and access","Cardápio escolar":"School menu","Organizar refeições e ingredientes":"Organize meals and ingredients","Reservas":"Reservations","Acompanhar solicitações":"Track requests","Desperdício":"Waste","Consultar registros e indicadores":"View records and indicators","Configurações":"Settings","Preferências institucionais":"Institutional preferences","Indicadores principais":"Key indicators","Distribuição de usuários":"User distribution","Gráfico de distribuição de usuários por perfil":"User distribution by role chart","Ver todos":"View all","Nome":"Name","E-mail":"Email","Perfil":"Profile","Status":"Status","Último acesso":"Last login","Ações":"Actions","Administrador":"Administrator","Aluno":"Student","Professor":"Teacher","Ativo":"Active","Inativo":"Inactive","Nunca":"Never","Editar":"Edit","Carregando usuários...":"Loading users...","Nenhum usuário cadastrado.":"No users registered.","Não foi possível carregar os usuários.":"Could not load users.","Não foi possível identificar este usuário.":"Could not identify this user.","Confirmar ação":"Confirm action","Tem certeza que deseja realizar esta ação?":"Are you sure you want to perform this action?","Cancelar":"Cancel","Confirmar":"Confirm","Sair":"Sign out","Cardápio":"Menu","Cadastro institucional":"Institutional registration","Voltar ao painel":"Back to dashboard","Gerencie seus dados e preferências":"Manage your data and preferences","Preferências":"Preferences","Alergias":"Allergies","Notificações":"Notifications","Densidade da Interface":"Interface density","Ajuste o espaçamento dos elementos":"Adjust element spacing","Idioma":"Language","Idioma da interface":"Interface language","Confortável":"Comfortable","Compacta":"Compact","Espaçosa":"Spacious","Claro":"Light","Escuro":"Dark","Sistema":"System","Salvar Alterações":"Save changes","Buscar":"Search","Carregando...":"Loading...","Início":"Home","Sobre":"About","Contato":"Contact","Entrar":"Sign in","Conheça o sistema":"Explore the system","Área do aluno":"Student area","Meu perfil":"My profile","Seu espaço escolar":"Your school space","Confira as refeições disponíveis para hoje.":"Check today's available meals.","Relatórios de Desperdício":"Waste reports","Acompanhe os indicadores de desperdício de alimentos.":"Track food waste indicators.","Gerenciamento de usuários":"User management","Consulte os usuários cadastrados no GoSchool.":"View users registered in GoSchool.","Nova reserva":"New reservation","Minhas reservas":"My reservations","Reservas ao vivo":"Live reservations","Solicitar reserva":"Request a reservation","Bem-vindo ao GoSchool":"Welcome to GoSchool","Entre com sua conta Google institucional para continuar.":"Sign in with your institutional Google account to continue."};
+const densityStyle=`
     html[data-density="compact"] { --gs-density-scale:.82; }
     html[data-density="comfortable"] { --gs-density-scale:1; }
     html[data-density="spacious"] { --gs-density-scale:1.18; }
@@ -43,71 +14,13 @@
     html[data-density="compact"] button,html[data-density="compact"] input,html[data-density="compact"] select { min-height:30px; }
     html[data-density="spacious"] button,html[data-density="spacious"] input,html[data-density="spacious"] select { min-height:42px; }
   `;
-  function getPrefs(){ try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(_){return {}} }
-  function setDensity(value){ if(!["compact","comfortable","spacious"].includes(value))return; document.documentElement.dataset.density=value; const p=getPrefs();p.density=value;localStorage.setItem(KEY,JSON.stringify(p)); }
-  let googleTranslateReady = false;
-  let pendingLanguage = null;
-  function normalizeLanguage(value) {
-    if (value === "en" || value === "en-US") return "en";
-    if (value === "es" || value === "es-ES") return "es";
-    return "pt";
-  }
-  function applyGoogleLanguage(value) {
-    const lang = normalizeLanguage(value);
-    document.documentElement.lang = lang === "en" ? "en-US" : lang === "es" ? "es-ES" : "pt-BR";
-    const combo = document.querySelector(".goog-te-combo");
-    if (combo) {
-      combo.value = lang;
-      combo.dispatchEvent(new Event("change", { bubbles: true }));
-      return true;
-    }
-    pendingLanguage = lang;
-    return false;
-  }
-  window.googleTranslateElementInit = function () {
-    if (!window.google || !google.translate || !google.translate.TranslateElement) return;
-    new google.translate.TranslateElement({
-      pageLanguage: "pt",
-      includedLanguages: "en,es",
-      autoDisplay: false
-    }, "goschool-google-translate");
-    googleTranslateReady = true;
-    const lang = pendingLanguage || normalizeLanguage(getPrefs().language || "pt-BR");
-    setTimeout(() => applyGoogleLanguage(lang), 250);
-  };
-  function loadGoogleTranslate() {
-    if (document.getElementById("goschoolGoogleTranslateScript")) return;
-    const holder = document.createElement("div");
-    holder.id = "goschool-google-translate";
-    holder.setAttribute("aria-hidden", "true");
-    holder.style.cssText = "position:fixed;left:-10000px;top:-10000px;width:1px;height:1px;overflow:hidden";
-    document.body.appendChild(holder);
-    const script = document.createElement("script");
-    script.id = "goschoolGoogleTranslateScript";
-    script.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-    script.async = true;
-    document.head.appendChild(script);
-  }
-  function setLang(value) {
-    const lang = normalizeLanguage(value);
-    const p = getPrefs();
-    p.language = lang === "en" ? "en-US" : lang === "es" ? "es-ES" : "pt-BR";
-    localStorage.setItem(KEY, JSON.stringify(p));
-    applyGoogleLanguage(lang);
-    document.documentElement.lang = lang === "en" ? "en-US" : lang === "es" ? "es-ES" : "pt-BR";
-  }
-  function init() {
-    if (!document.getElementById("goschoolPreferenceStyle")) {
-      const s = document.createElement("style");
-      s.id = "goschoolPreferenceStyle";
-      s.textContent = densityStyle + "\\n.goog-te-banner-frame, .goog-te-banner-frame.skiptranslate { display:none!important; } body { top:0!important; } .goog-te-gadget { display:none!important; }";
-      document.head.appendChild(s);
-    }
-    const p = getPrefs();
-    if (p.density) document.documentElement.dataset.density = p.density;
-    pendingLanguage = normalizeLanguage(p.language || "pt-BR");
-    loadGoogleTranslate();
-  }
-  window.GoSchoolPrefs={setLang,setDensity,apply:()=>{const p=getPrefs();if(p.density)setDensity(p.density);applyGoogleLanguage(p.language||"pt-BR");}};
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+function prefs(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(_){return {};}}
+function lang(){const v=prefs().language||"pt-BR";return v==="en-US"||v==="en"?"en":v==="es-ES"||v==="es"?"es":"pt";}
+function translated(s){if(lang()==="pt")return s;if(dictionary[s])return dictionary[s];let out=s;Object.keys(dictionary).sort((a,b)=>b.length-a.length).forEach(k=>{if(out.includes(k))out=out.split(k).join(dictionary[k]);});return out;}
+function translate(node){if(node.nodeType===Node.TEXT_NODE){if(node.nodeValue.trim())node.nodeValue=translated(node.nodeValue);return;}if(node.nodeType!==Node.ELEMENT_NODE)return;["title","aria-label","placeholder","alt"].forEach(a=>{const v=node.getAttribute(a);if(v)node.setAttribute(a,translated(v));});node.childNodes.forEach(translate);}
+function setLang(value){const p=prefs();p.language=value==="en"||value==="en-US"?"en-US":value==="es"||value==="es-ES"?"es-ES":"pt-BR";localStorage.setItem(KEY,JSON.stringify(p));location.reload();}
+function setDensity(value){if(!["compact","comfortable","spacious"].includes(value))return;document.documentElement.dataset.density=value;const p=prefs();p.density=value;localStorage.setItem(KEY,JSON.stringify(p));}
+function init(){if(!document.getElementById("goschoolPreferenceStyle")){const s=document.createElement("style");s.id="goschoolPreferenceStyle";s.textContent=densityStyle;document.head.appendChild(s);}const p=prefs();if(p.density)document.documentElement.dataset.density=p.density;document.documentElement.lang=lang()==="en"?"en-US":lang()==="es"?"es-ES":"pt-BR";if(lang()!=="pt"){translate(document.body);const observer=new MutationObserver(records=>records.forEach(r=>{r.addedNodes.forEach(translate);if(r.type==="characterData")translate(r.target);}));observer.observe(document.body,{childList:true,subtree:true,characterData:true});}}
+window.GoSchoolPrefs={setLang,setDensity,apply:()=>{const p=prefs();if(p.density)setDensity(p.density);init();}};
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();

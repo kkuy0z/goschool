@@ -1410,3 +1410,89 @@ html[data-theme="escuro"] #panel-notificacoes :is(input,select,textarea) {
   color: #F8FAFC !important;
   border-color: #334155 !important;
 }
+
+
+/* Tema escuro — configurações: sobrepõe o acabamento claro específico desta página. */
+html[data-theme="escuro"] body:has(main.main-content) {
+  background: #0F172A !important;
+  color: #F8FAFC !important;
+}
+html[data-theme="escuro"] main.main-content,
+html[data-theme="escuro"] .content-wrapper {
+  background: transparent !important;
+  color: #F8FAFC !important;
+}
+html[data-theme="escuro"] .config-topbar {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  box-shadow: none !important;
+}
+html[data-theme="escuro"] .config-brand {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+html[data-theme="escuro"] .config-page-heading h1,
+html[data-theme="escuro"] .config-page-heading p,
+html[data-theme="escuro"] .config-top-actions .user-name {
+  color: #F8FAFC !important;
+}
+html[data-theme="escuro"] .config-top-actions .btn-secondary {
+  background: #172033 !important;
+  color: #F8FAFC !important;
+  border-color: #334155 !important;
+}
+html[data-theme="escuro"] .config-tabs {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  box-shadow: none !important;
+}
+html[data-theme="escuro"] .config-tab-btn {
+  color: #CBD5E1 !important;
+}
+html[data-theme="escuro"] .config-tab-btn:hover,
+html[data-theme="escuro"] .config-tab-btn.active {
+  background: #27364B !important;
+  color: #F8FAFC !important;
+  border-color: #475569 !important;
+}
+html[data-theme="escuro"] .config-section,
+html[data-theme="escuro"] .config-section-danger {
+  background: #1E293B !important;
+  color: #F8FAFC !important;
+  border-color: #334155 !important;
+  box-shadow: none !important;
+}
+html[data-theme="escuro"] .config-section-header,
+html[data-theme="escuro"] .form-actions {
+  border-color: #334155 !important;
+}
+html[data-theme="escuro"] .config-section-header h2,
+html[data-theme="escuro"] .config-section-desc,
+html[data-theme="escuro"] .config-section p,
+html[data-theme="escuro"] .config-section label,
+html[data-theme="escuro"] .config-section h3,
+html[data-theme="escuro"] .config-section h4 {
+  color: #F8FAFC !important;
+}
+html[data-theme="escuro"] .config-section .form-help,
+html[data-theme="escuro"] .config-section .config-option-info p {
+  color: #94A3B8 !important;
+}
+html[data-theme="escuro"] .config-section .form-input,
+html[data-theme="escuro"] .config-section .form-select,
+html[data-theme="escuro"] .config-section .form-textarea {
+  background: #172033 !important;
+  color: #F8FAFC !important;
+  border-color: #334155 !important;
+}
+html[data-theme="escuro"] .config-section .config-option,
+html[data-theme="escuro"] .config-section .alergenos-categoria,
+html[data-theme="escuro"] .config-section .alergeno-item,
+html[data-theme="escuro"] .config-section .info-card {
+  background: #172033 !important;
+  color: #F8FAFC !important;
+  border-color: #334155 !important;
+}
+html[data-theme="escuro"] .config-section-danger {
+  background: #251b22 !important;
+}

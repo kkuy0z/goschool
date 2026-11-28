@@ -300,7 +300,12 @@
 
                     <div class="card">
                         <div class="card-header"><h3 class="section-title">Histórico de importações</h3></div>
-                        <p class="section-description">Acompanhe o status e a quantidade de linhas das planilhas processadas.</p>
+                        <p class="section-description">Envie uma planilha .xlsx com as colunas nome, categoria e dia_semana obrigatórias. O processamento ocorre em segundo plano.</p>
+                        <form id="menuImportForm" class="form-row">
+                            <div class="form-group"><label class="form-label" for="menuImportFile">Planilha Excel (.xlsx)</label><input class="form-input" id="menuImportFile" name="arquivo" type="file" accept=".xlsx" required></div>
+                            <div class="form-group"><span class="form-label"> </span><button class="btn-primary" type="submit">Enviar para importação</button></div>
+                        </form>
+                        <p class="form-hint">Limite: 5 MB. O sistema valida as linhas e só grava a importação completa se todas forem válidas.</p>
                         <div class="meal-list" id="adminImportHistory"></div>
                     </div>
                 </div>

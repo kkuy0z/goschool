@@ -1565,3 +1565,7 @@ body { font-size: 13px; }
   .cardapio-welcome .welcome-mark { flex-basis: 58px; width: 58px; height: 58px; border-radius: 16px; font-size: 20px; }
   .cardapio-shortcuts .shortcut-grid { grid-template-columns: 1fr; }
 }
+
+
+/* Garante que painéis inativos não apareçam junto ao cardápio de hoje */
+.tab-panel[hidden] { display: none !important; }

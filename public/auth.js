@@ -181,7 +181,7 @@ const Auth = (function () {
     const path = window.location.pathname.toLowerCase();
     const requiredRole = PROTECTED_PATHS[path];
 
-    if (needAuth && requiredRole) {
+    if (needAuth && (allowedRoles || requiredRole)) {
       const authenticated = await requireAuth(allowedRoles || requiredRole);
       if (!authenticated) return false;
     }

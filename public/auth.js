@@ -203,9 +203,11 @@ const Auth = (function () {
       "[data-auth-user], .usuario span, #saudacao-usuario",
     );
     userElements.forEach((el) => {
-      if (el.dataset.authUser === "name" || el.id === "saudacao-usuario") {
+      if (el.id === "saudacao-usuario") {
         el.textContent = `Olá, ${currentUser.nome}!`;
-      } else if (el.dataset.authUser === "role" || el.closest(".usuario")) {
+      } else if (el.dataset.authUser === "name" || el.id === "sidebarUserName" || el.closest(".usuario")) {
+        el.textContent = currentUser.nome;
+      } else if (el.dataset.authUser === "role") {
         const roleLabels = {
           aluno: "Aluno",
           professor: "Professor",

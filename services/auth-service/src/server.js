@@ -786,10 +786,11 @@ app.post("/api/cardapio/admin/importar-excel", exigirAdminCardapio, cardapioUplo
     });
     if(validation.length) return res.status(422).json({sucesso:false,erro:"A planilha contém dados inválidos.",erros:validation.slice(0,100)});
     connection=await amqp.connect(process.env.RABBITMQ_URL);
-    const channel=await connection.createChannel();
+    const channel=await connection.createConfirmChannel();
     await channel.assertQueue(CARDAPIO_IMPORT_QUEUE,{durable:true});
     const [created]=await pool.execute("INSERT INTO cardapio_importacoes(arquivo_nome,status,total_linhas,criado_por) VALUES(?,'recebida',?,?)",[req.file.originalname,normalized.length,req.cardapioUser.id]);
     channel.sendToQueue(CARDAPIO_IMPORT_QUEUE,Buffer.from(JSON.stringify({importacaoId:created.insertId,usuarioId:req.cardapioUser.id,rows:normalized})),{persistent:true,contentType:"application/json"});
+    await channel.waitForConfirms();
     await channel.close(); await connection.close();
     return res.status(202).json({sucesso:true,importacaoId:created.insertId,status:"recebida",totalLinhas:normalized.length});
   } catch(e) {

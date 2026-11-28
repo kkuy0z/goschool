@@ -750,3 +750,14 @@ main.main-content {
         max-height: 300px;
     }
 }
+
+
+/* Modelo visual da planilha de desperdício */
+.waste-sheet-guide { margin-bottom: var(--gs-spacing-xl); }
+.waste-sheet-guide .section-description { color: var(--gs-text-secondary); margin: 0 0 var(--gs-spacing-md); }
+.waste-sheet-guide .import-guide-table-wrap { width: 100%; overflow-x: auto; margin: var(--gs-spacing-md) 0; }
+.waste-sheet-guide .import-guide-table { width: 100%; min-width: 680px; border-collapse: collapse; background: var(--gs-surface); color: var(--gs-text-primary); font-size: var(--gs-font-size-sm); }
+.waste-sheet-guide .import-guide-table th,
+.waste-sheet-guide .import-guide-table td { padding: var(--gs-spacing-sm) var(--gs-spacing-md); border: 1px solid var(--gs-border); text-align: left; white-space: nowrap; }
+.waste-sheet-guide .import-guide-table th { background: var(--gs-surface-hover); font-weight: var(--gs-font-weight-semibold); }
+.waste-sheet-guide .form-hint { color: var(--gs-text-secondary); margin: 0; }

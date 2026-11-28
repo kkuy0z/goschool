@@ -1070,3 +1070,22 @@ html[data-theme="escuro"] .shortcut-symbol {
   background-color: #172033 !important;
   color: #F8FAFC !important;
 }
+
+
+/* Contraste do gráfico no tema escuro */
+html[data-theme="escuro"] .chart-card,
+html[data-theme="escuro"] .chart-header,
+html[data-theme="escuro"] .chart-title,
+html[data-theme="escuro"] .chart-legend,
+html[data-theme="escuro"] .legend-item,
+html[data-theme="escuro"] .chart-card p,
+html[data-theme="escuro"] .chart-card span {
+  color: #F8FAFC !important;
+}
+html[data-theme="escuro"] .chart-card,
+html[data-theme="escuro"] .chart-container {
+  background-color: #1E293B !important;
+}
+html[data-theme="escuro"] .chart-legend {
+  border-top-color: #334155 !important;
+}

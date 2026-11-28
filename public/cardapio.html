@@ -398,7 +398,7 @@
                 voltarPainel.href = painelPorPerfil[role] || '/';
                 const textoVoltarPainel = voltarPainel.querySelector('span:not(.nav-icon)');
                 if (textoVoltarPainel) {
-                    textoVoltarPainel.textContent = 'Voltar ao painel ' + (roleLabels[role] || '');
+                    textoVoltarPainel.textContent = 'Voltar ao painel';
                 }
             }
             document.querySelectorAll('[data-auth-role]').forEach((item) => {

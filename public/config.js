@@ -109,6 +109,8 @@
       showStatus(error.message || "Erro ao carregar configurações do banco.", "error");
     }
 
+    if (preferences.theme && window.GoSchoolTheme) window.GoSchoolTheme.set(preferences.theme);
+
     initTabs();
     initTopbar();
     initPreferences();

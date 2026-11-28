@@ -241,8 +241,10 @@
                                     <input type="number" id="mealCarboidrato" name="carboidrato" min="0" step="0.1" class="form-input" placeholder="0">
                                 </div>
                                 <div class="form-group">
-                                    <label for="mealImagem" class="form-label">Imagem (URL)</label>
-                                    <input type="url" id="mealImagem" name="imagem" class="form-input" placeholder="https://...">
+                                    <label for="mealImagem" class="form-label">Imagem da refeição</label>
+                                    <input type="text" id="mealImagem" name="imagem" class="form-input" placeholder="Cole uma URL ou selecione uma imagem abaixo" maxlength="1500000">
+                                    <input type="file" id="mealImagemArquivo" class="form-input" accept="image/jpeg,image/png,image/webp">
+                                    <small class="form-hint" id="mealImagemStatus">Escolha uma imagem do dispositivo (JPG, PNG ou WebP). A imagem será reduzida para envio.</small>
                                 </div>
                             </div>
 

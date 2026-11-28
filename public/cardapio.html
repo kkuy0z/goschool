@@ -31,48 +31,30 @@
         </div>
     </div>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-        <div class="logo">
-            <img src="logo-simplificada.png" alt="Logo GOSchool">
-        </div>
-
-        <nav class="menu">
-            <a href="/aluno.html" class="menu-item" id="nav-back-panel"><span class="nav-icon" aria-hidden="true">⌂</span><span>Voltar ao painel</span></a>
-            <a href="#" class="menu-item active" id="nav-dashboard" onclick="switchTab('dashboard')"><span class="nav-icon" aria-hidden="true">▤</span><span>Cardápio de Hoje</span></a>
-            <a href="#" class="menu-item" id="nav-weekly" onclick="switchTab('weekly')"><span class="nav-icon" aria-hidden="true">▦</span><span>Cardápio Semanal</span></a>
-            <a href="#" class="menu-item" id="nav-nutrition" onclick="switchTab('nutrition')"><span class="nav-icon" aria-hidden="true">▧</span><span>Nutrição</span></a>
-            <a href="#" class="menu-item" id="nav-restrictions" onclick="switchTab('restrictions')"><span class="nav-icon" aria-hidden="true">⚑</span><span>Restrições</span></a>
-            <a href="#" class="menu-item" id="nav-history" onclick="switchTab('history')"><span class="nav-icon" aria-hidden="true">◷</span><span>Histórico</span></a>
-            <a href="#" class="menu-item" id="nav-settings" onclick="switchTab('settings')" data-auth-role="adm"><span class="nav-icon" aria-hidden="true">⚙</span><span>Adicionar cardápio</span></a>
+    <!-- Navegação horizontal do cardápio -->
+    <div class="cardapio-topnav">
+        <a href="/aluno.html" class="cardapio-back-link" id="nav-back-panel">
+            <span aria-hidden="true">←</span><span>Voltar ao painel</span>
+        </a>
+        <nav class="menu cardapio-menu" aria-label="Navegação do cardápio">
+            <a href="#" class="menu-item active" id="nav-dashboard" onclick="switchTab('dashboard'); return false;">Hoje</a>
+            <a href="#" class="menu-item" id="nav-weekly" onclick="switchTab('weekly'); return false;">Semanal</a>
+            <a href="#" class="menu-item" id="nav-nutrition" onclick="switchTab('nutrition'); return false;">Nutrição</a>
+            <a href="#" class="menu-item" id="nav-restrictions" onclick="switchTab('restrictions'); return false;">Restrições</a>
+            <a href="#" class="menu-item" id="nav-history" onclick="switchTab('history'); return false;">Histórico</a>
+            <a href="#" class="menu-item" id="nav-settings" onclick="switchTab('settings'); return false;" data-auth-role="adm">Adicionar cardápio</a>
         </nav>
-
-        <div class="sidebar-bottom">
-            <div class="usuario">
-                <div class="usuario-icon" aria-hidden="true">👤</div>
-                <span id="sidebarUserName" data-auth-user="name">Carregando...</span>
-            </div>
-            <button id="btn-logout" class="sair" type="button">
-                <span class="sair-icon" aria-hidden="true">➔</span>
-                <span>Sair</span>
-            </button>
+        <div class="cardapio-nav-user">
+            <span id="sidebarUserName" data-auth-user="name">Carregando...</span>
+            <button id="btn-logout" class="sair" type="button">Sair</button>
         </div>
-    </aside>
-
-    <!-- Mobile Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+    </div>
 
     <!-- MAIN CONTENT -->
     <main class="main-content" id="mainContent">
         <!-- Top Header Bar -->
         <header class="top-header">
-            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Abrir menu" aria-expanded="false" aria-controls="sidebar">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                    <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-            </button>
+
 
             <div class="header-actions">
                 <button class="icon-btn" id="notificationsBtn" title="Notificações" aria-label="Notificações">

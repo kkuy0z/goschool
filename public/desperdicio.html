@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GOSchool - Desperdício</title>
     <link rel="stylesheet" href="design-system.css">
-    <link rel="stylesheet" href="desperdicio.css">
+    <link rel="stylesheet" href="desperdicio.css">\n    <link rel="stylesheet" href="sidebar-theme.css">
     <script src="theme.js"></script>
         <script src="auth.js"></script>
-    <link rel="stylesheet" href="sidebar-theme.css">
+
 </head>
 <body>
     <!-- Loading Overlay -->
@@ -332,7 +332,41 @@
     </main>
 
     <!-- JavaScript -->
-    <script src="/desperdicio.js"></script>
+
+    <script>
+      // Menu lateral responsivo, seguindo o comportamento do painel administrativo.
+      (() => {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const hamburger = document.getElementById('hamburgerBtn');
+        if (!sidebar || !overlay || !hamburger) return;
+
+        function setSidebarOpen(open) {
+          sidebar.classList.toggle('open', open);
+          overlay.hidden = !open;
+          document.body.classList.toggle('menu-open', open);
+          hamburger.setAttribute('aria-expanded', String(open));
+          hamburger.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+        }
+
+        hamburger.addEventListener('click', () => {
+          setSidebarOpen(!sidebar.classList.contains('open'));
+        });
+        overlay.addEventListener('click', () => setSidebarOpen(false));
+        sidebar.querySelectorAll('.menu-item').forEach((item) => {
+          item.addEventListener('click', () => {
+            if (window.innerWidth <= 820) setSidebarOpen(false);
+          });
+        });
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') setSidebarOpen(false);
+        });
+        window.addEventListener('resize', () => {
+          if (window.innerWidth > 820) setSidebarOpen(false);
+        });
+      })();
+    </script>
+\n    <script src="/desperdicio.js"></script>
 
     <script>
         // Estado do dashboard

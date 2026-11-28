@@ -2018,3 +2018,82 @@ body {
 .overview-panel .card-actions > .btn-danger {
   margin-left: 8px !important;
 }
+
+
+/* Restrições alimentares: painel organizado e tags de alergênicos */
+#restrictionsContent .restriction-section {
+  padding: 24px;
+  border: 1px solid rgba(125, 181, 219, 0.35);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(239,247,253,.9));
+  box-shadow: 0 12px 30px rgba(27, 74, 112, 0.08);
+}
+
+#restrictionsContent .restriction-section-title {
+  margin: 0 0 8px;
+  color: var(--gs-navy, #153957);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+#restrictionsContent .form-hint {
+  margin: 6px 0 14px;
+  color: var(--gs-text-secondary, #60758a);
+  line-height: 1.55;
+}
+
+#restrictionsContent .restriction-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+#restrictionsContent .restriction-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 13px;
+  border: 1px solid #c9e1f1;
+  border-radius: 999px;
+  background: #f0f8fd;
+  color: #174c70;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.2;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+
+#restrictionsContent .restriction-tag::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+  background: #1697c9;
+  box-shadow: 0 0 0 3px rgba(22,151,201,.12);
+}
+
+#restrictionsContent .restriction-tag:hover {
+  transform: translateY(-1px);
+  border-color: #8dc7e6;
+  background: #e5f4fc;
+}
+
+@media (max-width: 640px) {
+  #restrictionsContent .restriction-section {
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  #restrictionsContent .restriction-tags {
+    gap: 8px;
+  }
+
+  #restrictionsContent .restriction-tag {
+    padding: 8px 11px;
+    font-size: 12px;
+  }
+}

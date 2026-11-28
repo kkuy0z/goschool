@@ -45,14 +45,20 @@
   `;
   function getPrefs(){ try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(_){return {}} }
   function setDensity(value){ if(!["compact","comfortable","spacious"].includes(value))return; document.documentElement.dataset.density=value; const p=getPrefs();p.density=value;localStorage.setItem(KEY,JSON.stringify(p)); }
+  const originals = new WeakMap();
   function translate(lang){
-    const dict=translations[lang]; if(!dict)return;
+    const dict=translations[lang];
     const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
     const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
-    nodes.forEach(node=>{const key=node.nodeValue.trim();if(dict[key])node.nodeValue=node.nodeValue.replace(key,dict[key]);});
-    document.documentElement.lang=lang==="en"?"en-US":"es-ES";
+    nodes.forEach(node=>{
+      if(!originals.has(node)) originals.set(node,node.nodeValue);
+      const original=originals.get(node), key=original.trim();
+      if(lang==="pt-BR") node.nodeValue=original;
+      else if(dict && dict[key]) node.nodeValue=original.replace(key,dict[key]);
+    });
+    document.documentElement.lang=lang==="en"?"en-US":lang==="es"?"es-ES":"pt-BR";
   }
-  function setLang(value){const lang=value==="en-US"||value==="en"?"en":value==="es-ES"||value==="es"?"es":"pt-BR";const p=getPrefs();p.language=lang==="en"?"en-US":lang==="es"?"es-ES":"pt-BR";localStorage.setItem(KEY,JSON.stringify(p)); if(lang==="pt-BR"){location.reload();return;}translate(lang);}
+  function setLang(value){const lang=value==="en-US"||value==="en"?"en":value==="es-ES"||value==="es"?"es":"pt-BR";const p=getPrefs();p.language=lang==="en"?"en-US":lang==="es"?"es-ES":"pt-BR";localStorage.setItem(KEY,JSON.stringify(p)); translate(lang);}
   function init(){
     if(!document.getElementById("goschoolPreferenceStyle")){const s=document.createElement("style");s.id="goschoolPreferenceStyle";s.textContent=densityStyle;document.head.appendChild(s);}
     const p=getPrefs();if(p.density)document.documentElement.dataset.density=p.density;

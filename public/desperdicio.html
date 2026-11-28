@@ -105,13 +105,30 @@
         </header>
 
         <!-- Content Wrapper -->
-<div class="content-wrapper">
+<div class="content-wrapper" id="dashboardContent">
 
-            <section class="chart-card waste-sheet-guide" aria-labelledby="waste-sheet-guide-title">
-                <header class="chart-header"><h2 class="chart-title" id="waste-sheet-guide-title">Modelo de planilha de desperdício</h2></header>
-                <p class="section-description">Use uma linha por data e refeição. Este é o formato de referência para a futura importação; não envie ainda uma planilha por esta seção.</p>
-                <div class="import-guide-table-wrap"><table class="import-guide-table"><thead><tr><th>data</th><th>refeicao</th><th>alimentos_preparados_kg</th><th>alimentos_descartados_kg</th></tr></thead><tbody><tr><td>2026-11-30</td><td>Almoço</td><td>42.0</td><td>5.4</td></tr></tbody></table></div>
-                <p class="form-hint">A taxa é calculada por <strong>kg descartados ÷ kg preparados × 100</strong>. Informe quantidades em kg, com valores numéricos positivos; os descartes não podem superar o total preparado.</p>
+            <section class="dashboard-intro" aria-label="Como usar o relatório">
+                <div>
+                    <span class="eyebrow">ACOMPANHAMENTO</span>
+                    <h2>Visão do período</h2>
+                    <p>Escolha um período no topo para consultar os indicadores. Os gráficos e alertas mostram os dados registrados nesse intervalo.</p>
+                </div>
+                <details class="waste-sheet-guide">
+                    <summary>Ver orientação para registro de dados</summary>
+                    <div class="guide-content">
+                        <p>Registre uma linha por data e refeição. Use kg e informe valores numéricos positivos.</p>
+                        <div class="import-guide-table-wrap"><table class="import-guide-table"><thead><tr><th>data</th><th>refeicao</th><th>alimentos_preparados_kg</th><th>alimentos_descartados_kg</th></tr></thead><tbody><tr><td>AAAA-MM-DD</td><td>Almoço</td><td>42.0</td><td>5.4</td></tr></tbody></table></div>
+                        <p class="form-hint">A taxa é calculada por <strong>kg descartados ÷ kg preparados × 100</strong>. O descarte não pode superar o total preparado. A importação de planilhas ainda não está disponível.</p>
+                    </div>
+                </details>
+            </section>
+            <section id="emptyState" class="empty-state" hidden aria-live="polite">
+                <div class="empty-state-icon" aria-hidden="true">i</div>
+                <div>
+                    <h2>Nenhum registro neste período</h2>
+                    <p>Os indicadores serão exibidos assim que houver registros de desperdício para o intervalo selecionado.</p>
+                    <p class="empty-state-help">Use “Ver orientação para registro de dados” para consultar o formato esperado.</p>
+                </div>
             </section>
 
             <!-- KPI Cards -->
@@ -397,9 +414,13 @@
                 const data = await res.json();
                 if (data.sucesso) {
                     isDemoData = data.demo === true;
-                    atualizarKPIs(data.kpis);
+                    const kpis = data.kpis || {};
+                    const temRegistros = Number(kpis.refeicoesServidas || 0) > 0;
+                    document.getElementById('dashboardContent').classList.toggle('dashboard-empty', !temRegistros);
+                    document.getElementById('emptyState').hidden = temRegistros;
+                    atualizarKPIs(kpis);
                     atualizarGraficos(data.graficos);
-                    atualizarAlertas(data.alertas);
+                    atualizarAlertas(temRegistros ? data.alertas : []);
                     atualizarTabelas(data.tabelas);
                     atualizarResumo(data.resumo);
                     atualizarBadgesDemo();

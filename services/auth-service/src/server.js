@@ -1040,7 +1040,7 @@ async function autenticarDesperdicio(req, res, next) {
 const desperdicioUpload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024, files: 1 },
-  fileFilter: (_req, file, cb) => cb(null, /\\.xlsx$/i.test(file.originalname)),
+  fileFilter: (_req, file, cb) => cb(null, /\.xlsx$/i.test(file.originalname)),
 });
 
 function dataExcelParaISO(valor) {
@@ -1053,9 +1053,9 @@ function dataExcelParaISO(valor) {
     return `${String(data.y).padStart(4, "0")}-${String(data.m).padStart(2, "0")}-${String(data.d).padStart(2, "0")}`;
   }
   const texto = String(valor ?? "").trim();
-  let match = texto.match(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})$/);
+  let match = texto.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
   if (match) return `${match[1]}-${match[2].padStart(2, "0")}-${match[3].padStart(2, "0")}`;
-  match = texto.match(/^(\\d{1,2})[/.](\\d{1,2})[/.](\\d{4})$/);
+  match = texto.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})$/);
   if (match) return `${match[3]}-${match[2].padStart(2, "0")}-${match[1].padStart(2, "0")}`;
   return null;
 }
@@ -1080,7 +1080,7 @@ app.post("/api/desperdicio/importar-excel", autenticarDesperdicio, desperdicioUp
     const linhas = XLSX.utils.sheet_to_json(workbook.Sheets[primeiraAba], { defval: "", raw: true });
     if (!linhas.length) return res.status(400).json({ sucesso: false, erro: "A planilha está vazia." });
 
-    const normalizarChave = (chave) => String(chave).trim().toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/\\s+/g, "_");
+    const normalizarChave = (chave) => String(chave).trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "_");
     const dados = linhas.map((linha) => Object.fromEntries(Object.entries(linha).map(([chave, valor]) => [normalizarChave(chave), valor])));
     const obrigatorias = ["data", "refeicao", "alimentos_preparados_kg", "alimentos_descartados_kg"];
     const colunas = Object.keys(dados[0]);

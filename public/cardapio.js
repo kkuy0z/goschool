@@ -891,6 +891,29 @@ function configurarGestaoIngredientesRestricoes() {
             } catch (error) { alert(error.message); }
         });
     }
+    const importForm = document.getElementById('menuImportForm');
+    if (importForm && !importForm.dataset.configured) {
+        importForm.dataset.configured = 'true';
+        importForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const file = document.getElementById('menuImportFile').files[0];
+            if (!file) return alert('Selecione uma planilha .xlsx.');
+            const formData = new FormData();
+            formData.append('arquivo', file);
+            try {
+                const response = await Auth.apiCall('/api/cardapio/admin/importar-excel', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-Token': Auth.getCsrfToken() },
+                    body: formData
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.erro || 'Falha ao enviar planilha.');
+                importForm.reset();
+                alert(`Importação #${data.importacaoId} enfileirada. Atualize o histórico para acompanhar.`);
+                await carregarGestaoIngredientesRestricoes();
+            } catch (error) { alert(error.message); }
+        });
+    }
 }
 
 async function carregarGestaoIngredientesRestricoes() {

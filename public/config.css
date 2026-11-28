@@ -1496,3 +1496,12 @@ html[data-theme="escuro"] .config-section .info-card {
 html[data-theme="escuro"] .config-section-danger {
   background: #251b22 !important;
 }
+
+
+/* Botão de retorno ao painel */
+.config-back-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:0 0 auto;padding:10px 13px;border:1px solid #d8e6f0;border-radius:10px;background:#fff;color:#36536e;text-decoration:none;font-size:.9rem;font-weight:700;white-space:nowrap;transition:background .18s,border-color .18s}
+.config-back-btn:hover{background:#edf7fd;border-color:#a9d6ed;color:#0876a6}
+.config-back-btn svg{flex:0 0 auto}
+html[data-theme="escuro"] .config-back-btn{background:#172033!important;color:#F8FAFC!important;border-color:#334155!important}
+html[data-theme="escuro"] .config-back-btn:hover{background:#27364B!important;border-color:#475569!important}
+@media(max-width:700px){.config-back-btn{padding:9px 10px}.config-back-btn span{display:none}}

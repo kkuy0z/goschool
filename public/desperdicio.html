@@ -384,6 +384,21 @@
 
             if (!authenticated) return;
 
+            // Mantém o nome e o avatar consistentes com o painel administrativo.
+            try {
+                const user = await Auth.verifySession();
+                const name = user?.nome?.trim() || 'Administrador';
+                const sidebarName = document.getElementById('sidebarUserName');
+                const topName = document.getElementById('topUserName');
+                const topAvatar = document.getElementById('topUserAvatar');
+
+                if (sidebarName) sidebarName.textContent = name;
+                if (topName) topName.textContent = name;
+                if (topAvatar) topAvatar.textContent = name.charAt(0).toUpperCase();
+            } catch (error) {
+                console.warn('[Desperdício] Não foi possível atualizar o nome do usuário:', error);
+            }
+
             // Configurar logout
             const sairBtn = document.getElementById('btn-logout');
             if (sairBtn) {

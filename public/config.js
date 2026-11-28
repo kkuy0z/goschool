@@ -96,8 +96,18 @@
     if (!authenticated) return;
 
     currentUser = typeof Auth.getCurrentUser === "function" ? await Auth.getCurrentUser() : null;
-    preferences = { ...DEFAULTS, ...readStorage(userKey("preferences"), {}) };
-    selectedAllergens = readStorage(userKey("allergens"), []);
+    preferences = { ...DEFAULTS };
+    selectedAllergens = [];
+    try {
+      const response = await fetch("/api/configuracoes", { credentials: "same-origin", headers: { Accept: "application/json" } });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.sucesso !== true) throw new Error(data.erro || "Não foi possível carregar as configurações.");
+      preferences = { ...DEFAULTS, ...(data.preferencias || {}) };
+      selectedAllergens = Array.isArray(data.alergias) ? data.alergias : [];
+    } catch (error) {
+      console.error("[Config] Falha ao carregar configurações do servidor.", error);
+      showStatus(error.message || "Erro ao carregar configurações do banco.", "error");
+    }
 
     initTabs();
     initTopbar();
@@ -295,9 +305,20 @@
     });
   }
 
-  function savePreferences() {
-    if (writeStorage(userKey("preferences"), preferences)) {
-      showStatus("Preferências salvas neste navegador.");
+  async function savePreferences() {
+    try {
+      const response = await fetch("/api/configuracoes", {
+        method: "PUT",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ preferencias: preferences, alergias: selectedAllergens })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.sucesso !== true) throw new Error(data.erro || "Não foi possível salvar as configurações.");
+      showStatus("Preferências salvas no banco de dados.");
+    } catch (error) {
+      console.error("[Config] Falha ao salvar configurações.", error);
+      showStatus(error.message || "Erro ao salvar no banco de dados.", "error");
     }
   }
 
@@ -321,9 +342,7 @@
 
     document.getElementById("btnSalvarAlergias")?.addEventListener("click", () => {
       selectedAllergens = Array.from(grid.querySelectorAll('input[type="checkbox"]:checked')).map((input) => input.value);
-      if (writeStorage(userKey("allergens"), selectedAllergens)) {
-        showStatus(selectedAllergens.length ? "Alergias e restrições salvas neste navegador." : "Lista de alergias limpa.");
-      }
+      savePreferences();
     });
   }
 

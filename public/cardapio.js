@@ -771,86 +771,42 @@ function switchTab(tabId) {
 async function carregarRestricoesTab() {
     const container = document.getElementById('restrictionsContent');
     if (!container) return;
+
+    // O endpoint antigo /api/usuario/alergias não existe neste serviço.
+    // O aluno usa a rota própria de restrições; o administrador já tem
+    // os alergênicos do cardápio em allAllergens e não precisa consultá-la.
     if (currentUserRole === 'ALUNO') {
         await carregarRestricoesAluno(container);
         return;
     }
 
-    try {
-        // Buscar alergias do usuário atual
-        const res = await Auth.apiCall('/api/usuario/alergias');
-        if (!res.ok) throw new Error('Erro ao carregar alergias');
-
-        const data = await res.json();
-        if (!data.sucesso) throw new Error('Erro ao carregar alergias');
-
-        const userAlergias = data.alergias || [];
-
-        if (currentUserRole === 'ALUNO') {
-            // Aluno: mostra suas alergias
-            container.innerHTML = `
-                <section class="restriction-section">
-                    <h3 class="restriction-section-title">Minhas Alergias e Restrições</h3>
-                    ${userAlergias.length > 0 ? `
-                        <div class="restriction-tags" role="list" aria-label="Alergias cadastradas">
-                            ${userAlergias.map(a => `
-                                <span class="restriction-tag allergy" role="listitem">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                                        <line x1="12" y1="9" x2="12" y2="13"></line>
-                                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                                    </svg>
-                                    ${escapeHtml(a)}
-                                </span>
-                            `).join('')}
-                        </div>
-                    ` : `
-                        <p class="restriction-empty">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                            </svg>
-                            Nenhuma alergia cadastrada
-                        </p>
-                    `}
-                    <p class="form-hint">Para adicionar ou remover alergias, acesse Configurações ou entre em contato com a administração.</p>
-                </section>
-            `;
-        } else if (currentUserRole === 'PROFESSOR') {
-            // Professor: visualização apenas
-            container.innerHTML = `
-                <section class="restriction-section">
-                    <h3 class="restriction-section-title">Alergias dos Alunos</h3>
-                    <div class="card">
-                        <div class="placeholder-content">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                            <p>Visualização detalhada das alergias dos alunos será implementada em breve.</p>
-                        </div>
+    if (currentUserRole === 'PROFESSOR') {
+        container.innerHTML = `
+            <section class="restriction-section">
+                <h3 class="restriction-section-title">Alergias dos Alunos</h3>
+                <div class="card">
+                    <div class="placeholder-content">
+                        <p>Visualização detalhada das alergias dos alunos será implementada em breve.</p>
                     </div>
-                </section>
-            `;
-        } else {
-            // Admin: gerenciar alergênicos
-            container.innerHTML = `
-                <section class="restriction-section">
-                    <h3 class="restriction-section-title">Gerenciar Alergênicos do Sistema</h3>
-                    <p class="form-hint">Lista de alergênicos disponíveis para marcação nos cardápios.</p>
-                    <div class="restriction-tags" role="list" aria-label="Alergênicos do sistema">
-                        ${allAllergens.map(a => `
-                            <span class="restriction-tag" role="listitem">${escapeHtml(a)}</span>
-                        `).join('')}
-                    </div>
-                    <p class="form-hint">Para adicionar novos alergênicos, edite a base de dados diretamente.</p>
-                </section>
-            `;
-        }
-    } catch (err) {
-        console.error('[Cardápio] Erro ao carregar restrições:', err);
-        container.innerHTML = '<p class="empty-state-text">Erro ao carregar restrições</p>';
+                </div>
+            </section>
+        `;
+        return;
+    }
+
+    if (currentUserRole === 'ADM') {
+        container.innerHTML = `
+            <section class="restriction-section">
+                <h3 class="restriction-section-title">Gerenciar Alergênicos do Sistema</h3>
+                <p class="form-hint">Lista de alergênicos disponíveis para marcação nos cardápios.</p>
+                <div class="restriction-tags" role="list" aria-label="Alergênicos do sistema">
+                    ${allAllergens.map(a => `
+                        <span class="restriction-tag" role="listitem">${escapeHtml(a)}</span>
+                    `).join('')}
+                </div>
+                <p class="form-hint">Para adicionar novos alergênicos, edite a base de dados diretamente.</p>
+            </section>
+        `;
     }
 }
 

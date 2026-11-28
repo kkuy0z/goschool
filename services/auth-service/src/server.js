@@ -1036,6 +1036,99 @@ async function autenticarDesperdicio(req, res, next) {
   }
 }
 
+
+const desperdicioUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+  fileFilter: (_req, file, cb) => cb(null, /\\.xlsx$/i.test(file.originalname)),
+});
+
+function dataExcelParaISO(valor) {
+  if (valor instanceof Date && !Number.isNaN(valor.getTime())) {
+    return valor.toISOString().slice(0, 10);
+  }
+  if (typeof valor === "number" && Number.isFinite(valor)) {
+    const data = XLSX.SSF.parse_date_code(valor);
+    if (!data) return null;
+    return `${String(data.y).padStart(4, "0")}-${String(data.m).padStart(2, "0")}-${String(data.d).padStart(2, "0")}`;
+  }
+  const texto = String(valor ?? "").trim();
+  let match = texto.match(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})$/);
+  if (match) return `${match[1]}-${match[2].padStart(2, "0")}-${match[3].padStart(2, "0")}`;
+  match = texto.match(/^(\\d{1,2})[/.](\\d{1,2})[/.](\\d{4})$/);
+  if (match) return `${match[3]}-${match[2].padStart(2, "0")}-${match[1].padStart(2, "0")}`;
+  return null;
+}
+
+function numeroExcel(valor) {
+  if (typeof valor === "number") return Number.isFinite(valor) ? valor : NaN;
+  const texto = String(valor ?? "").trim().replace(",", ".");
+  return texto === "" ? NaN : Number(texto);
+}
+
+app.post("/api/desperdicio/importar-excel", autenticarDesperdicio, desperdicioUpload.single("arquivo"), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ sucesso: false, erro: "Selecione uma planilha .xlsx de até 5 MB." });
+  }
+
+  let conn;
+  try {
+    const workbook = XLSX.read(req.file.buffer, { type: "buffer", cellDates: true });
+    const primeiraAba = workbook.SheetNames[0];
+    if (!primeiraAba) return res.status(400).json({ sucesso: false, erro: "A planilha não contém uma aba." });
+
+    const linhas = XLSX.utils.sheet_to_json(workbook.Sheets[primeiraAba], { defval: "", raw: true });
+    if (!linhas.length) return res.status(400).json({ sucesso: false, erro: "A planilha está vazia." });
+
+    const normalizarChave = (chave) => String(chave).trim().toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/\\s+/g, "_");
+    const dados = linhas.map((linha) => Object.fromEntries(Object.entries(linha).map(([chave, valor]) => [normalizarChave(chave), valor])));
+    const obrigatorias = ["data", "refeicao", "alimentos_preparados_kg", "alimentos_descartados_kg"];
+    const colunas = Object.keys(dados[0]);
+    const faltantes = obrigatorias.filter((coluna) => !colunas.includes(coluna));
+    if (faltantes.length) {
+      return res.status(400).json({ sucesso: false, erro: "Colunas obrigatórias ausentes: " + faltantes.join(", ") });
+    }
+
+    const validos = [];
+    const erros = [];
+    dados.forEach((linha, indice) => {
+      const numeroLinha = indice + 2;
+      const data = dataExcelParaISO(linha.data);
+      const refeicao = String(linha.refeicao ?? "").trim();
+      const preparados = numeroExcel(linha.alimentos_preparados_kg);
+      const descartados = numeroExcel(linha.alimentos_descartados_kg);
+      if (!data || Number.isNaN(Date.parse(data + "T00:00:00Z")) || data < "2000-01-01" || data > new Date().toISOString().slice(0, 10)) {
+        erros.push({ linha: numeroLinha, erro: "Data inválida ou futura. Use AAAA-MM-DD ou DD/MM/AAAA." });
+      }
+      if (!refeicao || refeicao.length > 120) erros.push({ linha: numeroLinha, erro: "Refeição deve ter entre 1 e 120 caracteres." });
+      if (!Number.isFinite(preparados) || preparados <= 0) erros.push({ linha: numeroLinha, erro: "Alimentos preparados deve ser maior que zero." });
+      if (!Number.isFinite(descartados) || descartados < 0 || descartados > preparados) erros.push({ linha: numeroLinha, erro: "Descarte deve ser zero ou maior e não pode superar o preparado." });
+      if (data && refeicao && refeicao.length <= 120 && Number.isFinite(preparados) && preparados > 0 && Number.isFinite(descartados) && descartados >= 0 && descartados <= preparados) {
+        validos.push([data, refeicao, preparados, descartados, req.desperdicioUser.id]);
+      }
+    });
+
+    if (erros.length) return res.status(422).json({ sucesso: false, erro: "A planilha contém dados inválidos. Nenhuma linha foi importada.", erros: erros.slice(0, 100) });
+
+    conn = await pool.getConnection();
+    await conn.beginTransaction();
+    for (const registro of validos) {
+      await conn.execute(
+        "INSERT INTO desperdicio_registros (data_ref, refeicao, alimentos_preparados_kg, alimentos_descartados_kg, criado_por) VALUES (?, ?, ?, ?, ?)",
+        registro,
+      );
+    }
+    await conn.commit();
+    return res.json({ sucesso: true, importados: validos.length, mensagem: `${validos.length} registro(s) importado(s) com sucesso.` });
+  } catch (error) {
+    if (conn) await conn.rollback();
+    console.error("[desperdicio] importar Excel:", error.message);
+    return res.status(500).json({ sucesso: false, erro: "Não foi possível importar a planilha." });
+  } finally {
+    if (conn) conn.release();
+  }
+});
+
 app.get("/api/desperdicio/dashboard", autenticarDesperdicio, async (req, res) => {
   const periodo = String(req.query.periodo || "semana");
   const dias = { hoje: 1, semana: 7, mes: 30, ano: 365 };

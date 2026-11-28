@@ -93,7 +93,7 @@ const slot=card.dataset.slot;
 if(selectedSlots.has(slot))selectedSlots.delete(slot);else selectedSlots.add(slot);
 updateSlots();
 }));
-if(canCheck&&!free)board.insertAdjacentHTML("beforeend",'<p class="slot-hint">Não há horários disponíveis neste turno.</p>');
+if(date&&resource&&!free)board.insertAdjacentHTML("beforeend",'<p class="slot-hint">Não há horários disponíveis neste turno.</p>');
 else if(!date||!resource)board.insertAdjacentHTML("beforeend",'<p class="slot-hint">Selecione a data e o ambiente para consultar conflitos.</p>');
 if(selectedSlots.size)board.insertAdjacentHTML("beforeend",'<p class="slot-hint">'+selectedSlots.size+' horário(s) selecionado(s).</p>');
 }

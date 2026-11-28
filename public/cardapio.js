@@ -838,6 +838,11 @@ function toggleSidebar() {
 
 // Inicializar eventos do sidebar
 document.addEventListener('DOMContentLoaded', () => {
+    // O modal de gerenciamento deve iniciar fechado em toda abertura/recarregamento.
+    const manageModal = document.getElementById('tab-settings');
+    if (manageModal) manageModal.hidden = true;
+    document.body.classList.remove('modal-open');
+
     const hamburger = document.getElementById('hamburgerBtn');
     const overlay = document.getElementById('sidebarOverlay');
 

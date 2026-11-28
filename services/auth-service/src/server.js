@@ -602,7 +602,7 @@ app.post("/api/admin/usuarios", requireAdmin, async (req, res) => {
 
 
 const DIAS_CARDAPIO = ["segunda","terca","quarta","quinta","sexta","sabado","domingo"];
-const CATEGORIAS_CARDAPIO = ["cafe_manha","almoco","lanche","jantar"];
+const CATEGORIAS_CARDAPIO = ["cafe_manha","almoco","lanche"];
 const ALERGENICOS_CARDAPIO = ["Glúten","Leite","Ovos","Peixe","Crustáceos","Moluscos","Amendoim","Soja","Castanhas","Aipo","Mostarda","Gergelim","Sulfitos","Lupino"];
 
 function diaAtualCardapio() {

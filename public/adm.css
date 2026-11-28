@@ -1042,3 +1042,31 @@ button:disabled {
     max-width: 85vw !important;
   }
 }
+
+
+/* Painel principal: atalhos e botões em tema escuro */
+html[data-theme="escuro"] .shortcut-card,
+html[data-theme="escuro"] .quick-actions .btn-primary,
+html[data-theme="escuro"] .quick-actions .btn-secondary,
+html[data-theme="escuro"] #btn-atualizar {
+  background-color: #1E293B !important;
+  color: #F8FAFC !important;
+  border-color: #334155 !important;
+}
+html[data-theme="escuro"] .shortcut-card:hover,
+html[data-theme="escuro"] .quick-actions .btn-primary:hover,
+html[data-theme="escuro"] .quick-actions .btn-secondary:hover,
+html[data-theme="escuro"] #btn-atualizar:hover {
+  background-color: #27364B !important;
+  color: #F8FAFC !important;
+  border-color: #475569 !important;
+}
+html[data-theme="escuro"] .shortcut-card :where(strong, small, span, svg),
+html[data-theme="escuro"] .quick-actions :where(button, a, span),
+html[data-theme="escuro"] #btn-atualizar :where(span, svg) {
+  color: inherit !important;
+}
+html[data-theme="escuro"] .shortcut-symbol {
+  background-color: #172033 !important;
+  color: #F8FAFC !important;
+}

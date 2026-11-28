@@ -396,7 +396,7 @@
             const voltarPainel = document.getElementById('nav-back-panel');
             if (voltarPainel) {
                 voltarPainel.href = painelPorPerfil[role] || '/';
-                const textoVoltarPainel = voltarPainel.querySelector('span:not(.nav-icon)');
+                const textoVoltarPainel = voltarPainel.querySelector('span:last-child');
                 if (textoVoltarPainel) {
                     textoVoltarPainel.textContent = 'Voltar ao painel';
                 }

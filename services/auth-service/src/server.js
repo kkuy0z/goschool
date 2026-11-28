@@ -1009,7 +1009,8 @@ app.post("/api/reservas/recursos", requireReservaUser, async (req, res) => {
   }
 });
 
-\napp.listen(PORT, () => {
+
+app.listen(PORT, () => {
   console.log(`Auth Service listening on :${PORT}`);
   console.log(`GOOGLE_CLIENT_ID carregado: ${Boolean(CLIENT_ID)}`);
   console.log(`JWT_SECRET carregado: ${Boolean(JWT_SECRET)}`);

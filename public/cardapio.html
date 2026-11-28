@@ -270,6 +270,14 @@
                                     <!-- Preenchido via JS -->
                                 </div>
                                 <p class="form-hint">Selecione os alergênicos presentes nesta refeição.</p>
+                                <div class="allergen-add-form">
+                                    <label for="newAllergenName" class="form-label">Não encontrou na lista?</label>
+                                    <div class="allergen-add-row">
+                                        <input type="text" id="newAllergenName" class="form-input" maxlength="120" placeholder="Digite outro alergênico">
+                                        <button type="button" id="addAllergenBtn" class="btn-secondary">Adicionar</button>
+                                    </div>
+                                    <p id="allergenAddStatus" class="form-hint" role="status" aria-live="polite"></p>
+                                </div>
                             </div>
 
                             <div class="form-group form-full">

@@ -855,3 +855,158 @@ main.main-content {
 /* Respeita o atributo hidden mesmo quando o componente tem display próprio */
 .demo-badge[hidden],
 .demo-badge-inline[hidden] { display: none !important; }
+
+
+/* Sidebar administrativo: mesma estrutura e identidade do dashboard ADM */
+.sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 256px;
+    display: flex;
+    flex-direction: column;
+    padding: 22px 16px 16px;
+    background: linear-gradient(180deg, #0b2341 0%, #091c34 100%);
+    color: #fff;
+    border-right: 1px solid rgb(56 182 255 / 16%);
+    z-index: 1200;
+    transition: transform 200ms cubic-bezier(.25,.8,.25,1);
+}
+.sidebar .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 62px;
+    padding: 0 12px 20px;
+    border-bottom: 1px solid rgb(255 255 255 / 10%);
+}
+.sidebar .logo a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 14px;
+    border-radius: 12px;
+    transition: transform 200ms cubic-bezier(.25,.8,.25,1);
+}
+.sidebar .logo a:hover { transform: scale(1.03); }
+.sidebar .logo img { display: block; width: auto; height: 38px; }
+.sidebar .menu {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: grid;
+    align-content: start;
+    gap: 7px;
+    padding: 24px 0;
+}
+.sidebar .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-height: 46px;
+    padding: 0 14px;
+    border-radius: 12px;
+    color: rgb(255 255 255 / 76%);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 200ms ease, color 200ms ease, transform 200ms ease;
+}
+.sidebar .menu-item:hover { background: rgb(255 255 255 / 9%); color: #fff; }
+.sidebar .menu-item.active,
+.sidebar .menu-item[aria-current="page"] {
+    background: rgb(56 182 255 / 16%);
+    color: #38b6ff;
+    box-shadow: none;
+}
+.sidebar .menu-item:focus-visible { outline: 2px solid #38b6ff; outline-offset: 2px; }
+.sidebar .menu-item .nav-icon {
+    flex: 0 0 20px;
+    width: 20px;
+    text-align: center;
+    font-size: 20px;
+    line-height: 1;
+}
+.sidebar .sidebar-bottom {
+    margin-top: auto;
+    padding: 16px 0 0;
+    border-top: 1px solid rgb(255 255 255 / 10%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.sidebar .usuario {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    padding: 10px 8px 14px;
+    background: transparent;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+}
+.sidebar .usuario > span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.sidebar .usuario-icon {
+    display: grid;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border-radius: 50%;
+    background: #38b6ff;
+    color: #0b2341;
+    font-size: 14px;
+    font-weight: 800;
+}
+.sidebar .sair {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 14px;
+    border: 1px solid rgb(255 255 255 / 18%);
+    border-radius: 10px;
+    background: transparent;
+    color: rgb(255 255 255 / 76%);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 200ms ease, color 200ms ease, background-color 200ms ease;
+}
+.sidebar .sair:hover { border-color: #dc2626; background: rgb(220 38 38 / 10%); color: #fecaca; }
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgb(2 8 18 / 62%);
+    backdrop-filter: blur(2px);
+    z-index: 1100;
+}
+.sidebar-overlay[hidden] { display: none !important; }
+.main-content { margin-left: 256px; }
+@media (max-width: 768px) {
+    .sidebar {
+        left: -300px;
+        top: 0;
+        bottom: 0;
+        width: 300px;
+        max-width: 85vw;
+        background: linear-gradient(180deg, #0b2341 0%, #091c34 100%);
+        border-right: 1px solid rgb(56 182 255 / 16%);
+        z-index: 1200;
+        transition: left 200ms cubic-bezier(.25,.8,.25,1);
+        overflow-y: auto;
+    }
+    .sidebar.open { left: 0; }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgb(2 8 18 / 62%); z-index: 1100; }
+    .sidebar-overlay.open { display: block; }
+    .main-content { margin-left: 0; }
+}

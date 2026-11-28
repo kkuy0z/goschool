@@ -916,6 +916,13 @@ app.post("/api/reservas", requireReservaUser, async (req, res) => {
       !inicioRaw || !fimRaw || Number.isNaN(inicio.getTime()) || Number.isNaN(fim.getTime()) || fim <= inicio) {
     return res.status(400).json({ sucesso: false, erro: "Informe ambiente, título e um período válido (término posterior ao início)." });
   }
+  const periodosEscolares = [["07:00","07:50"],["07:50","08:40"],["08:40","09:30"],["09:45","10:35"],["10:35","11:25"],["13:00","13:50"],["13:50","14:40"],["14:40","15:30"],["15:45","16:35"],["16:35","17:25"]];
+  const dataInicio = inicioRaw.slice(0, 10);
+  const dataFim = fimRaw.slice(0, 10);
+  const horaInicio = inicioRaw.slice(11, 16);
+  const horaFim = fimRaw.slice(11, 16);
+  const horarioEscolarValido = dataInicio === dataFim && periodosEscolares.some(([a,b]) => a === horaInicio && b === horaFim);
+  if (!horarioEscolarValido) return res.status(400).json({ sucesso: false, erro: "Selecione um horário escolar válido. Intervalos e períodos fora da grade não podem ser reservados." });
   if (inicio <= new Date()) return res.status(400).json({ sucesso: false, erro: "A reserva precisa começar no futuro." });
   if (finalidade.length > 4000) return res.status(400).json({ sucesso: false, erro: "A finalidade deve ter até 4.000 caracteres." });
 

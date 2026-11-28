@@ -2365,3 +2365,117 @@ body { display:block; min-height:100vh; overflow-x:hidden; }
   white-space: nowrap;
 }
 .import-guide-table th { background: #d9effb; font-weight: 700; }
+
+
+/* ---------- Tema escuro: superfícies escuras e texto claro ---------- */
+html[data-theme="escuro"] body {
+  background: #0b0f14 !important;
+  color: #f1f5f9 !important;
+}
+html[data-theme="escuro"] .cardapio-topnav,
+html[data-theme="escuro"] .cardapio-shortcuts .shortcut-bar,
+html[data-theme="escuro"] .tab-header,
+html[data-theme="escuro"] .card,
+html[data-theme="escuro"] .meal-card,
+html[data-theme="escuro"] .weekly-day-card,
+html[data-theme="escuro"] .overview-panel,
+html[data-theme="escuro"] .weekly-overview .weekly-day,
+html[data-theme="escuro"] .weekly-overview .weekly-meal-card,
+html[data-theme="escuro"] .empty-state,
+html[data-theme="escuro"] .meal-list-item,
+html[data-theme="escuro"] .import-guide,
+html[data-theme="escuro"] .allergen-add-form,
+html[data-theme="escuro"] #restrictionsContent .restriction-section {
+  background: #151b23 !important;
+  color: #f1f5f9 !important;
+  border-color: #303b49 !important;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 22%);
+}
+html[data-theme="escuro"] .tab-title,
+html[data-theme="escuro"] .section-title,
+html[data-theme="escuro"] .meal-card h3,
+html[data-theme="escuro"] .meal-title,
+html[data-theme="escuro"] .weekly-day-title,
+html[data-theme="escuro"] .weekly-overview .weekly-day-title,
+html[data-theme="escuro"] .weekly-overview .weekly-meal-name,
+html[data-theme="escuro"] .meal-list-item h3,
+html[data-theme="escuro"] .meal-list-item strong,
+html[data-theme="escuro"] .form-label,
+html[data-theme="escuro"] .cardapio-menu .menu-item,
+html[data-theme="escuro"] .cardapio-back-link,
+html[data-theme="escuro"] .cardapio-nav-user,
+html[data-theme="escuro"] .cardapio-shortcuts .shortcut-bar > strong,
+html[data-theme="escuro"] .import-guide summary,
+html[data-theme="escuro"] #restrictionsContent .restriction-section-title {
+  color: #f1f5f9 !important;
+}
+html[data-theme="escuro"] .tab-subtitle,
+html[data-theme="escuro"] .section-description,
+html[data-theme="escuro"] .meal-desc,
+html[data-theme="escuro"] .meal-description,
+html[data-theme="escuro"] .meal-time,
+html[data-theme="escuro"] .form-hint,
+html[data-theme="escuro"] .meal-list-item p,
+html[data-theme="escuro"] .weekly-overview .weekly-meal-desc,
+html[data-theme="escuro"] .placeholder-content,
+html[data-theme="escuro"] .placeholder-content p,
+html[data-theme="escuro"] .cardapio-menu .menu-item {
+  color: #c0cad6 !important;
+}
+html[data-theme="escuro"] .form-input,
+html[data-theme="escuro"] .form-select,
+html[data-theme="escuro"] .form-textarea,
+html[data-theme="escuro"] .allergen-checkboxes,
+html[data-theme="escuro"] .allergen-checkboxes label,
+html[data-theme="escuro"] .cardapio-shortcuts .shortcut-button,
+html[data-theme="escuro"] .cardapio-back-link,
+html[data-theme="escuro"] .cardapio-nav-user .sair {
+  background: #0e141c !important;
+  color: #f1f5f9 !important;
+  border-color: #354252 !important;
+}
+html[data-theme="escuro"] .form-input::placeholder,
+html[data-theme="escuro"] .form-textarea::placeholder {
+  color: #8997a8 !important;
+}
+html[data-theme="escuro"] .cardapio-menu .menu-item:hover,
+html[data-theme="escuro"] .cardapio-menu .menu-item.active,
+html[data-theme="escuro"] .cardapio-shortcuts .shortcut-button:hover,
+html[data-theme="escuro"] .allergen-checkboxes label:hover {
+  background: #202c3a !important;
+  color: #8bd5ff !important;
+}
+html[data-theme="escuro"] .meal-meta > *,
+html[data-theme="escuro"] .meal-macros > *,
+html[data-theme="escuro"] .weekly-overview .weekly-day-meals .empty-state,
+html[data-theme="escuro"] .weekly-overview .weekly-day--today {
+  background: #1c2938 !important;
+  color: #dce7f2 !important;
+  border-color: #35485c !important;
+}
+html[data-theme="escuro"] .meal-card .allergen-warning {
+  background: #351d24 !important;
+  color: #fecaca !important;
+  border-color: #74343d !important;
+}
+html[data-theme="escuro"] .meal-badge,
+html[data-theme="escuro"] .meal-category,
+html[data-theme="escuro"] #restrictionsContent .restriction-tag {
+  background: #1b3447 !important;
+  color: #bfe8ff !important;
+  border-color: #31516e !important;
+}
+html[data-theme="escuro"] .meal-card img,
+html[data-theme="escuro"] .meal-card .meal-image {
+  background: #0e141c !important;
+}
+html[data-theme="escuro"] .cardapio-menu .menu-item.active {
+  border-color: #31516e !important;
+}
+html[data-theme="escuro"] .meal-card,
+html[data-theme="escuro"] .weekly-day-card {
+  background: linear-gradient(145deg, #18212c, #111820) !important;
+}
+html[data-theme="escuro"] .tab-header {
+  background: linear-gradient(120deg, #18212c, #111820) !important;
+}

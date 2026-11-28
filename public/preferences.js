@@ -45,51 +45,69 @@
   `;
   function getPrefs(){ try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(_){return {}} }
   function setDensity(value){ if(!["compact","comfortable","spacious"].includes(value))return; document.documentElement.dataset.density=value; const p=getPrefs();p.density=value;localStorage.setItem(KEY,JSON.stringify(p)); }
-  const originals = new WeakMap();
-  function translateNode(node, dict, lang) {
-    if (!node || node.nodeType !== Node.TEXT_NODE) return;
-    if (!originals.has(node)) originals.set(node, node.nodeValue);
-    const original = originals.get(node);
-    if (lang === "pt-BR") {
-      node.nodeValue = original;
-      return;
-    }
-    let translated = original;
-    Object.keys(dict || {}).sort((a, b) => b.length - a.length).forEach(key => {
-      if (!key) return;
-      translated = translated.split(key).join(dict[key]);
-    });
-    node.nodeValue = translated;
+  let googleTranslateReady = false;
+  let pendingLanguage = null;
+  function normalizeLanguage(value) {
+    if (value === "en" || value === "en-US") return "en";
+    if (value === "es" || value === "es-ES") return "es";
+    return "pt";
   }
-  function translate(lang, root = document.body) {
-    const dict = translations[lang];
-    if (!root) return;
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-    while (walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(node => translateNode(node, dict, lang));
+  function applyGoogleLanguage(value) {
+    const lang = normalizeLanguage(value);
+    document.documentElement.lang = lang === "en" ? "en-US" : lang === "es" ? "es-ES" : "pt-BR";
+    const combo = document.querySelector(".goog-te-combo");
+    if (combo) {
+      combo.value = lang;
+      combo.dispatchEvent(new Event("change", { bubbles: true }));
+      return true;
+    }
+    pendingLanguage = lang;
+    return false;
+  }
+  window.googleTranslateElementInit = function () {
+    if (!window.google || !google.translate || !google.translate.TranslateElement) return;
+    new google.translate.TranslateElement({
+      pageLanguage: "pt",
+      includedLanguages: "en,es",
+      autoDisplay: false
+    }, "goschool-google-translate");
+    googleTranslateReady = true;
+    const lang = pendingLanguage || normalizeLanguage(getPrefs().language || "pt-BR");
+    setTimeout(() => applyGoogleLanguage(lang), 250);
+  };
+  function loadGoogleTranslate() {
+    if (document.getElementById("goschoolGoogleTranslateScript")) return;
+    const holder = document.createElement("div");
+    holder.id = "goschool-google-translate";
+    holder.setAttribute("aria-hidden", "true");
+    holder.style.cssText = "position:fixed;left:-10000px;top:-10000px;width:1px;height:1px;overflow:hidden";
+    document.body.appendChild(holder);
+    const script = document.createElement("script");
+    script.id = "goschoolGoogleTranslateScript";
+    script.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+    script.async = true;
+    document.head.appendChild(script);
+  }
+  function setLang(value) {
+    const lang = normalizeLanguage(value);
+    const p = getPrefs();
+    p.language = lang === "en" ? "en-US" : lang === "es" ? "es-ES" : "pt-BR";
+    localStorage.setItem(KEY, JSON.stringify(p));
+    applyGoogleLanguage(lang);
     document.documentElement.lang = lang === "en" ? "en-US" : lang === "es" ? "es-ES" : "pt-BR";
   }
-  function setLang(value){const lang=value==="en-US"||value==="en"?"en":value==="es-ES"||value==="es"?"es":"pt-BR";const p=getPrefs();p.language=lang==="en"?"en-US":lang==="es"?"es-ES":"pt-BR";localStorage.setItem(KEY,JSON.stringify(p)); translate(lang);}
-  function init(){
-    if(!document.getElementById("goschoolPreferenceStyle")){const s=document.createElement("style");s.id="goschoolPreferenceStyle";s.textContent=densityStyle;document.head.appendChild(s);}
-    const p=getPrefs();if(p.density)document.documentElement.dataset.density=p.density;
-    if(p.language&&p.language!=="pt-BR")translate(p.language==="en-US"?"en":"es");
-    if (!window.__goSchoolTranslationObserver) {
-      window.__goSchoolTranslationObserver = new MutationObserver(records => {
-        const lang = getPrefs().language;
-        if (!lang || lang === "pt-BR") return;
-        const code = lang === "en-US" || lang === "en" ? "en" : "es";
-        records.forEach(record => {
-          record.addedNodes.forEach(node => {
-            if (node.nodeType === Node.TEXT_NODE) translateNode(node, translations[code], code);
-            else if (node.nodeType === Node.ELEMENT_NODE) translate(code, node);
-          });
-        });
-      });
-      window.__goSchoolTranslationObserver.observe(document.body, { childList: true, subtree: true });
+  function init() {
+    if (!document.getElementById("goschoolPreferenceStyle")) {
+      const s = document.createElement("style");
+      s.id = "goschoolPreferenceStyle";
+      s.textContent = densityStyle + "\\n.goog-te-banner-frame, .goog-te-banner-frame.skiptranslate { display:none!important; } body { top:0!important; } .goog-te-gadget { display:none!important; }";
+      document.head.appendChild(s);
     }
+    const p = getPrefs();
+    if (p.density) document.documentElement.dataset.density = p.density;
+    pendingLanguage = normalizeLanguage(p.language || "pt-BR");
+    loadGoogleTranslate();
   }
-  window.GoSchoolPrefs={setLang,setDensity,apply:()=>{const p=getPrefs();if(p.density)setDensity(p.density);if(p.language&&p.language!=="pt-BR")translate(p.language==="en-US"?"en":"es");}};
+  window.GoSchoolPrefs={setLang,setDensity,apply:()=>{const p=getPrefs();if(p.density)setDensity(p.density);applyGoogleLanguage(p.language||"pt-BR");}};
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();

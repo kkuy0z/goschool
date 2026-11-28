@@ -1210,3 +1210,8 @@ body { display: flex; padding: 0 !important; }
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+/* Correção final: cor idêntica à sidebar do painel ADM. */
+.sidebar {
+  background: linear-gradient(180deg, #0b2341 0%, #091c34 100%) !important;
+}

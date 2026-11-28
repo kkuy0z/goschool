@@ -1221,3 +1221,25 @@ body { display: flex; padding: 0 !important; }
 body .sidebar {
   background: linear-gradient(180deg, #0b2341 0%, #091c34 100%) !important;
 }
+
+
+/* Tipografia da sidebar igual à do painel ADM (adm.css). */
+.sidebar,
+.sidebar .menu-item,
+.sidebar .usuario,
+.sidebar .sair {
+  font-family: var(--gs-font-sans) !important;
+}
+.sidebar .menu-item {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+}
+.sidebar .usuario {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+.sidebar .sair {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}

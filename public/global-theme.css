@@ -76,3 +76,9 @@ html[data-theme="escuro"] :where(.form-control, input, select, textarea) {
   background-color: #172033 !important;
   color: var(--gs-text-primary) !important;
 }
+
+/* Marcas e logotipos devem permanecer sem placa ou fundo artificial. */
+html[data-theme="escuro"] :where(.logo, .logo-container, .brand-logo, .sidebar-logo, .header-logo, .site-logo, .config-brand, .hero-logo-container, .hero-logo) {
+  background: transparent !important;
+  box-shadow: none !important;
+}

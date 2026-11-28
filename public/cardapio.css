@@ -2097,3 +2097,10 @@ body {
     font-size: 12px;
   }
 }
+
+
+/* Garantir que o modal de gerenciamento respeite o atributo hidden */
+#tab-settings[hidden],
+.modal-overlay[hidden] {
+  display: none !important;
+}

@@ -13,7 +13,7 @@ const pool=mysql.createPool({
 });
 const QUEUE="goschool.cardapio.import";
 const allowedDays=new Set(["segunda","terca","quarta","quinta","sexta","sabado","domingo"]);
-const allowedCategories=new Set(["cafe_manha","almoco","lanche","jantar"]);
+const allowedCategories=new Set(["cafe_manha","almoco","lanche"]);
 
 function numberOrNull(value){
   if(value===undefined||value===null||String(value).trim()==="") return null;

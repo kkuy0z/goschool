@@ -1,5 +1,6 @@
 -- GoSchool — expansão do módulo de cardápio
--- Execute uma vez no banco MySQL do ambiente (depois de migration-cardapio.sql).
+-- Compatível com o banco atual que já contém as tabelas usuarios e refeicoes.
+-- Não apaga nem recria dados existentes. Pode ser executado novamente com segurança.
 
 USE goschool;
 

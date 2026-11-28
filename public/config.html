@@ -12,61 +12,19 @@
     <link rel="stylesheet" href="sidebar-theme.css">
 </head>
 <body>
-    <!-- SIDEBAR DAS CONFIGURAÇÕES -->
-    <aside class="sidebar" id="sidebar">
-        <div class="logo">
-            <img src="logo-simplificada.png" alt="Logo GOSchool">
-        </div>
-
-        <nav class="menu" aria-label="Navegação principal">
-            <a href="/" class="menu-item" id="nav-inicio">Início</a>
-            <a href="/adm.html" class="menu-item" id="nav-visao-geral">Visão Geral</a>
-            <a href="/cardapio.html" class="menu-item" id="nav-cardapio">Cardápio e Ingredientes</a>
-            <a href="/usuarios.html" class="menu-item" id="nav-usuarios" data-auth-role="adm">Gestão de Usuários</a>
-            <a href="/desperdicio.html" class="menu-item" id="nav-relatorios" data-auth-role="adm">Relatório</a>
-            <a href="/config.html" class="menu-item active" id="nav-config" aria-current="page">Configurações</a>
-        </nav>
-
-        <div class="sidebar-bottom">
-            <div class="usuario">
-                <div class="usuario-icon" aria-hidden="true">⚙️</div>
-                <span id="sidebarUserName" data-auth-user="name">Olá, Usuário!</span>
-            </div>
-            <button id="btn-logout" class="sair" type="button">
-                <span class="sair-icon" aria-hidden="true">➔</span>
-                <span>Sair</span>
-            </button>
-        </div>
-    </aside>
-
-    <!-- Mobile Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
-
-    <!-- CONTEÚDO PRINCIPAL DAS CONFIGURAÇÕES -->
     <main class="main-content" id="mainContent">
-        <!-- Top Header Bar -->
-        <header class="top-header">
-            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Abrir menu" aria-expanded="false" aria-controls="sidebar">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                    <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-            </button>
-
-            <div class="header-title">
-                <h1>Configurações</h1>
-                <p id="pageSubtitle">Gerencie suas preferências e dados da conta</p>
-            </div>
-
-            <div class="header-actions">
-                <div class="user-profile" id="userProfile" role="button" tabindex="0" aria-label="Perfil do usuário">
-                    <div class="avatar" id="userAvatar" aria-hidden="true">U</div>
-                    <span class="user-name" id="userName">Usuário</span>
-                </div>
+        <header class="config-topbar">
+            <a class="config-brand" href="/" aria-label="GoSchool início"><img src="/logo-simplificada.png" alt="GoSchool"></a>
+            <nav class="config-topnav" aria-label="Navegação principal">
+                <a href="/cardapio.html">Cardápio</a>
+                <a href="/reservas.html">Reservas</a>
+                <a href="/config.html" aria-current="page" class="active">Configurações</a>
+            </nav>
+            <div class="config-top-actions">
+                <span id="userName" class="user-name">Usuário</span>
+                <button id="btn-logout" class="btn-secondary" type="button">Sair</button>
             </div>
         </header>
-
         <!-- Main Content Wrapper -->
         <div class="content-wrapper">
             <!-- Abas -->

@@ -102,6 +102,50 @@ html[data-theme="escuro"] .slot-card.slot-selected { background:#17364a!importan
 html[data-theme="escuro"] .slot-hint,
 html[data-theme="escuro"] .table-empty,
 html[data-theme="escuro"] .live-note { color:#aebccc!important; }
+
+/* Corrige estados hover no tema escuro: não permitir fundos brancos */
+html[data-theme="escuro"] .reserva-tabs .reserva-tab:hover,
+html[data-theme="escuro"] .reserva-tabs .reserva-tab:focus-visible {
+  background:#202a36!important;
+  color:#a9ddff!important;
+  border-color:#35495e!important;
+}
+html[data-theme="escuro"] .reserva-card:hover,
+html[data-theme="escuro"] .reserva-table-card:hover,
+html[data-theme="escuro"] .reserva-admin:hover {
+  background:#19212b!important;
+  border-color:#3a4859!important;
+}
+html[data-theme="escuro"] .reserva-head a:hover,
+html[data-theme="escuro"] .reserva-head button:hover,
+html[data-theme="escuro"] .reserva-modal-box button:hover,
+html[data-theme="escuro"] .reserva-body button:hover {
+  background-color:#263443!important;
+  color:#f1f5f9!important;
+  border-color:#465a70!important;
+}
+html[data-theme="escuro"] .reserva-body .btn-primary:hover,
+html[data-theme="escuro"] .reserva-head .btn-primary:hover,
+html[data-theme="escuro"] .reserva-modal-box .btn-primary:hover {
+  background:#0877a8!important;
+  color:#fff!important;
+  border-color:#0877a8!important;
+}
+html[data-theme="escuro"] .slot-card:hover:not(:disabled) {
+  background:#192a39!important;
+  color:#e5edf5!important;
+  border-color:#45617b!important;
+}
+html[data-theme="escuro"] .slot-card.slot-selected:hover:not(:disabled) {
+  background:#17364a!important;
+  color:#dff4ff!important;
+  border-color:#3aa7df!important;
+}
+html[data-theme="escuro"] .reservas-table tbody tr:hover td {
+  background:#202a36!important;
+  color:#e5edf5!important;
+}
+
 </style>
 </head><body>
 <section class="reserva-shell" role="dialog" aria-modal="true" aria-labelledby="title">

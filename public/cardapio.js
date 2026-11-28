@@ -29,6 +29,8 @@ async function inicializarCardapio() {
     if (currentUserRole === 'ADM') {
         configurarFormularioAdmin();
         await carregarListaRefeicoesAdmin();
+        configurarGestaoIngredientesRestricoes();
+        await carregarGestaoIngredientesRestricoes();
     }
 
     // Carregar cardápio semanal se a aba estiver ativa
@@ -847,3 +849,104 @@ window.switchTab = switchTab;
 window.editarRefeicao = editarRefeicao;
 window.excluirRefeicao = excluirRefeicao;
 window.closeSidebar = closeSidebar;
+
+/* Gestão administrativa de ingredientes, restrições e histórico de importações. */
+function configurarGestaoIngredientesRestricoes() {
+    const ingredientForm = document.getElementById('ingredientForm');
+    const restrictionForm = document.getElementById('restrictionForm');
+    if (ingredientForm && !ingredientForm.dataset.configured) {
+        ingredientForm.dataset.configured = 'true';
+        ingredientForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const nome = document.getElementById('ingredientName').value.trim();
+            try {
+                const response = await Auth.apiCall('/api/cardapio/admin/ingredientes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': Auth.getCsrfToken() },
+                    body: JSON.stringify({ nome })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.erro || 'Não foi possível cadastrar o ingrediente.');
+                ingredientForm.reset();
+                await carregarGestaoIngredientesRestricoes();
+            } catch (error) { alert(error.message); }
+        });
+    }
+    if (restrictionForm && !restrictionForm.dataset.configured) {
+        restrictionForm.dataset.configured = 'true';
+        restrictionForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const nome = document.getElementById('restrictionName').value.trim();
+            const descricao = document.getElementById('restrictionDescription').value.trim();
+            try {
+                const response = await Auth.apiCall('/api/cardapio/admin/restricoes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': Auth.getCsrfToken() },
+                    body: JSON.stringify({ nome, descricao })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.erro || 'Não foi possível cadastrar a restrição.');
+                restrictionForm.reset();
+                await carregarGestaoIngredientesRestricoes();
+            } catch (error) { alert(error.message); }
+        });
+    }
+}
+
+async function carregarGestaoIngredientesRestricoes() {
+    const ingredientsEl = document.getElementById('adminIngredientsList');
+    const restrictionsEl = document.getElementById('adminRestrictionsList');
+    const importsEl = document.getElementById('adminImportHistory');
+    if (!ingredientsEl || !restrictionsEl || !importsEl) return;
+    try {
+        const [ingredientsResponse, restrictionsResponse, importsResponse] = await Promise.all([
+            Auth.apiCall('/api/cardapio/admin/ingredientes'),
+            Auth.apiCall('/api/cardapio/admin/restricoes'),
+            Auth.apiCall('/api/cardapio/admin/importacoes')
+        ]);
+        const [ingredientsData, restrictionsData, importsData] = await Promise.all([
+            ingredientsResponse.json(), restrictionsResponse.json(), importsResponse.json()
+        ]);
+        if (!ingredientsResponse.ok) throw new Error(ingredientsData.erro || 'Falha ao carregar ingredientes.');
+        if (!restrictionsResponse.ok) throw new Error(restrictionsData.erro || 'Falha ao carregar restrições.');
+        if (!importsResponse.ok) throw new Error(importsData.erro || 'Falha ao carregar importações.');
+        ingredientsEl.replaceChildren();
+        (ingredientsData.ingredientes || []).forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'meal-list-item';
+            const name = document.createElement('strong');
+            name.textContent = item.nome;
+            row.append(name);
+            ingredientsEl.append(row);
+        });
+        if (!ingredientsData.ingredientes?.length) ingredientsEl.textContent = 'Nenhum ingrediente cadastrado.';
+        restrictionsEl.replaceChildren();
+        (restrictionsData.restricoes || []).forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'meal-list-item';
+            const name = document.createElement('strong');
+            name.textContent = item.nome;
+            const description = document.createElement('p');
+            description.textContent = item.descricao || '';
+            row.append(name, description);
+            restrictionsEl.append(row);
+        });
+        if (!restrictionsData.restricoes?.length) restrictionsEl.textContent = 'Nenhuma restrição cadastrada.';
+        importsEl.replaceChildren();
+        (importsData.importacoes || []).forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'meal-list-item';
+            const info = document.createElement('div');
+            const name = document.createElement('strong');
+            name.textContent = item.arquivo_nome;
+            const status = document.createElement('p');
+            status.textContent = `Status: ${item.status} · ${item.linhas_importadas || 0}/${item.total_linhas || 0} linhas`;
+            info.append(name, status);
+            row.append(info);
+            importsEl.append(row);
+        });
+        if (!importsData.importacoes?.length) importsEl.textContent = 'Nenhuma importação registrada.';
+    } catch (error) {
+        ingredientsEl.textContent = restrictionsEl.textContent = importsEl.textContent = error.message;
+    }
+}

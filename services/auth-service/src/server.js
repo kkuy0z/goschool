@@ -890,13 +890,12 @@ app.get("/api/reservas/recursos", requireReservaUser, async (_req, res) => {
 
 app.get("/api/reservas", requireReservaUser, async (req, res) => {
   try {
-    const ownOnly = req.reservaUser.tipo !== "adm";
     const [rows] = await pool.execute(
       `SELECT r.id,r.recurso_id,r.usuario_id,r.titulo,r.finalidade,r.data_inicio,r.data_fim,r.status,r.observacao_admin,r.criado_em,
               rr.nome AS recurso_nome,rr.localizacao, u.nome AS usuario_nome
        FROM reservas r JOIN recursos_reserva rr ON rr.id=r.recurso_id JOIN usuarios u ON u.id=r.usuario_id
        WHERE r.data_inicio >= CURDATE() AND r.data_inicio < DATE_ADD(CURDATE(), INTERVAL 7 DAY) ORDER BY r.data_inicio ASC LIMIT 500`,
-      [ownOnly ? 1 : 0, req.reservaUser.id],
+      [],
     );
     res.json({ sucesso: true, reservas: rows });
   } catch (e) {
@@ -923,7 +922,7 @@ app.post("/api/reservas", requireReservaUser, async (req, res) => {
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
-    const [resource] = await conn.execute("SELECT id FROM recursos_reserva WHERE id=? AND ativo=1 FOR UPDATE", [recursoId]);
+    const [resource] = await conn.execute("SELECT id FROM recursos_reserva WHERE id=? AND ativo=1 AND nome IN ('Retroprojetor','Multimídia','Informática') FOR UPDATE", [recursoId]);
     if (!resource.length) {
       await conn.rollback();
       return res.status(404).json({ sucesso: false, erro: "Ambiente não encontrado ou inativo." });

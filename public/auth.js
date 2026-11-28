@@ -14,7 +14,7 @@ const Auth = (function () {
     "/professor.html": "professor",
     "/adm.html": "adm",
     "/usuarios.html": "adm",
-    "/reservas.html": "professor",
+    "/reservas.html": ["professor", "adm"],
   };
 
   // State

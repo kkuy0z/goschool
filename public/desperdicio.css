@@ -1106,3 +1106,107 @@ body { display: flex; padding: 0 !important; }
   .sidebar-overlay:not([hidden]) { display: block; }
   body.menu-open { overflow: hidden; }
 }
+
+
+/* Identificação do administrador: mesmo padrão do painel principal. */
+.sidebar .sidebar-bottom {
+    margin-top: auto;
+    padding: 16px 0 0 !important;
+    border-top: 1px solid rgb(255 255 255 / 10%) !important;
+    background: transparent !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+}
+.sidebar .usuario {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    min-width: 0;
+    padding: 10px 8px 14px !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 8px;
+    color: #fff !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+}
+.sidebar .usuario-icon {
+    display: grid !important;
+    flex: 0 0 34px !important;
+    width: 34px !important;
+    height: 34px !important;
+    place-items: center;
+    border-radius: 50% !important;
+    background: #38b6ff !important;
+    color: #0b2341 !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+}
+.sidebar .usuario > span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.sidebar .sair {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 42px !important;
+    padding: 10px 14px !important;
+    border: 1px solid rgb(255 255 255 / 18%) !important;
+    border-radius: 10px !important;
+    background: transparent !important;
+    color: rgb(255 255 255 / 76%) !important;
+    font-family: var(--gs-font-sans, inherit);
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+.sidebar .sair:hover {
+    border-color: #dc2626 !important;
+    background: rgb(220 38 38 / 10%) !important;
+    color: #fecaca !important;
+}
+
+/* Perfil do topo: avatar com inicial e cápsula como no adm.html. */
+.top-header .user-profile {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 12px 5px 6px !important;
+    background: rgb(255 255 255 / 14%) !important;
+    border: 1px solid rgb(255 255 255 / 26%) !important;
+    border-radius: 999px !important;
+    color: #fff !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    cursor: default;
+    user-select: none;
+}
+.top-header .user-profile:hover {
+    background: rgb(255 255 255 / 22%) !important;
+}
+.top-header .avatar {
+    display: grid !important;
+    flex: 0 0 30px;
+    width: 30px !important;
+    height: 30px !important;
+    place-items: center;
+    background: #38b6ff !important;
+    color: #0b2341 !important;
+    border-radius: 50% !important;
+    font-family: var(--gs-font-display, inherit);
+    font-size: 14px !important;
+    font-weight: 800 !important;
+}
+.top-header .user-name {
+    display: inline !important;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

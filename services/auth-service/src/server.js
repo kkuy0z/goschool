@@ -10,6 +10,9 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const mysql = require("mysql2/promise");
+const multer = require("multer");
+const XLSX = require("xlsx");
+const amqp = require("amqplib");
 const { OAuth2Client } = require("google-auth-library");
 
 const app = express();
@@ -750,6 +753,46 @@ app.put("/api/cardapio/admin/refeicoes/:id/ingredientes", exigirAdminCardapio, a
   } catch(e) { await conn.rollback(); res.status(500).json({sucesso:false,erro:"Não foi possível atualizar os ingredientes da refeição."}); }
   finally { conn.release(); }
 });
+
+const cardapioUpload = multer({storage:multer.memoryStorage(),limits:{fileSize:5*1024*1024,files:1},fileFilter:(_req,file,cb)=>cb(null,/\\.xlsx$/i.test(file.originalname))});
+const CARDAPIO_IMPORT_QUEUE = "goschool.cardapio.import";
+app.post("/api/cardapio/admin/importar-excel", exigirAdminCardapio, cardapioUpload.single("arquivo"), async (req,res) => {
+  if(!req.file) return res.status(400).json({sucesso:false,erro:"Envie uma planilha .xlsx de até 5 MB."});
+  if(!process.env.RABBITMQ_URL) return res.status(503).json({sucesso:false,erro:"Importação assíncrona indisponível: configure RABBITMQ_URL no serviço."});
+  let connection;
+  try {
+    const workbook=XLSX.read(req.file.buffer,{type:"buffer",cellDates:false});
+    const first=workbook.SheetNames[0];
+    if(!first) return res.status(400).json({sucesso:false,erro:"A planilha não contém uma aba."});
+    const rows=XLSX.utils.sheet_to_json(workbook.Sheets[first],{defval:"",raw:false});
+    if(!rows.length) return res.status(400).json({sucesso:false,erro:"A planilha está vazia."});
+    const required=["nome","categoria","dia_semana"];
+    const headers=Object.keys(rows[0]).map(x=>String(x).trim().toLowerCase());
+    const missing=required.filter(x=>!headers.includes(x));
+    if(missing.length) return res.status(400).json({sucesso:false,erro:"Colunas obrigatórias ausentes: "+missing.join(", ")});
+    const normalized=rows.map(row=>Object.fromEntries(Object.entries(row).map(([k,v])=>[String(k).trim().toLowerCase(),v])));
+    const validation=[];
+    normalized.forEach((row,index)=>{
+      const n=String(row.nome||"").trim(), cat=String(row.categoria||"").trim(), day=String(row.dia_semana||"").trim().toLowerCase();
+      if(n.length<2||n.length>180) validation.push({linha:index+2,erro:"Nome inválido."});
+      if(!CATEGORIAS_CARDAPIO.includes(cat)) validation.push({linha:index+2,erro:"Categoria inválida."});
+      if(!DIAS_CARDAPIO.includes(day)) validation.push({linha:index+2,erro:"Dia da semana inválido."});
+    });
+    if(validation.length) return res.status(422).json({sucesso:false,erro:"A planilha contém dados inválidos.",erros:validation.slice(0,100)});
+    connection=await amqp.connect(process.env.RABBITMQ_URL);
+    const channel=await connection.createChannel();
+    await channel.assertQueue(CARDAPIO_IMPORT_QUEUE,{durable:true});
+    const [created]=await pool.execute("INSERT INTO cardapio_importacoes(arquivo_nome,status,total_linhas,criado_por) VALUES(?,'recebida',?,?)",[req.file.originalname,normalized.length,req.cardapioUser.id]);
+    channel.sendToQueue(CARDAPIO_IMPORT_QUEUE,Buffer.from(JSON.stringify({importacaoId:created.insertId,usuarioId:req.cardapioUser.id,rows:normalized})),{persistent:true,contentType:"application/json"});
+    await channel.close(); await connection.close();
+    return res.status(202).json({sucesso:true,importacaoId:created.insertId,status:"recebida",totalLinhas:normalized.length});
+  } catch(e) {
+    if(connection) try{await connection.close();}catch{}
+    console.error("[cardapio] upload excel:",e.message);
+    return res.status(500).json({sucesso:false,erro:"Não foi possível enfileirar a importação. Verifique o serviço RabbitMQ."});
+  }
+});
+
 app.get("/api/cardapio/admin/importacoes", exigirAdminCardapio, async (_req,res) => {
   try {
     const [rows]=await pool.execute("SELECT id,arquivo_nome,status,total_linhas,linhas_importadas,erros,criado_em,concluido_em FROM cardapio_importacoes ORDER BY criado_em DESC LIMIT 50");

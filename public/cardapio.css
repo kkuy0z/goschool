@@ -1945,3 +1945,42 @@ body {
   border-radius: 12px;
   object-fit: cover;
 }
+
+
+/* Ações dos cards: editar em azul e botões visualmente separados */
+.overview-panel .meal-actions,
+.weekly-overview .card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 16px;
+  row-gap: 10px;
+}
+
+.overview-panel .meal-actions .btn-edit,
+.weekly-overview .card-actions .btn-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-right: 4px;
+  padding: 8px 13px;
+  border: 1px solid #0e8fc7;
+  border-radius: 9px;
+  background: #0e8fc7;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.overview-panel .meal-actions .btn-edit:hover,
+.weekly-overview .card-actions .btn-edit:hover {
+  border-color: #0a6d99;
+  background: #0a6d99;
+  color: #fff;
+}
+
+.overview-panel .meal-actions .btn-danger,
+.weekly-overview .card-actions .btn-danger {
+  margin-left: 4px;
+}

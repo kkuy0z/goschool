@@ -861,7 +861,133 @@ app.get("/api/cardapio/minhas-restricoes", async (req,res) => {
   } catch(e) { res.status(500).json({sucesso:false,erro:"Não foi possível consultar suas restrições."}); }
 });
 
-app.listen(PORT, () => {
+
+/* Reservas de ambientes e recursos escolares. */
+async function requireReservaUser(req, res, next) {
+  try {
+    if (!JWT_SECRET) return res.status(503).json({ sucesso: false, erro: "Autenticação não configurada." });
+    const claims = jwt.verify(req.cookies[COOKIE_NAME] || "", JWT_SECRET, { issuer: "goschool-auth" });
+    const [rows] = await pool.execute("SELECT id,nome,tipo,ativo FROM usuarios WHERE id=? LIMIT 1", [claims.sub]);
+    const user = rows[0];
+    if (!user || !user.ativo) return res.status(401).json({ sucesso: false, erro: "Sessão inválida." });
+    if (!["professor", "adm"].includes(user.tipo)) return res.status(403).json({ sucesso: false, erro: "Reservas disponíveis apenas para professores e administração." });
+    req.reservaUser = user;
+    next();
+  } catch {
+    return res.status(401).json({ sucesso: false, erro: "Faça login para acessar as reservas." });
+  }
+}
+
+app.get("/api/reservas/recursos", requireReservaUser, async (_req, res) => {
+  try {
+    const [recursos] = await pool.execute("SELECT id,nome,descricao,localizacao,capacidade FROM recursos_reserva WHERE ativo=1 ORDER BY nome");
+    res.json({ sucesso: true, recursos });
+  } catch (e) {
+    console.error("[reservas] listar recursos:", e.message);
+    res.status(500).json({ sucesso: false, erro: "Não foi possível carregar os ambientes." });
+  }
+});
+
+app.get("/api/reservas", requireReservaUser, async (req, res) => {
+  try {
+    const ownOnly = req.reservaUser.tipo !== "adm";
+    const [rows] = await pool.execute(
+      `SELECT r.id,r.recurso_id,r.usuario_id,r.titulo,r.finalidade,r.data_inicio,r.data_fim,r.status,r.observacao_admin,r.criado_em,
+              rr.nome AS recurso_nome,rr.localizacao, u.nome AS usuario_nome
+       FROM reservas r JOIN recursos_reserva rr ON rr.id=r.recurso_id JOIN usuarios u ON u.id=r.usuario_id
+       WHERE (?=0 OR r.usuario_id=?) ORDER BY r.data_inicio DESC LIMIT 250`,
+      [ownOnly ? 1 : 0, req.reservaUser.id],
+    );
+    res.json({ sucesso: true, reservas: rows });
+  } catch (e) {
+    console.error("[reservas] listar:", e.message);
+    res.status(500).json({ sucesso: false, erro: "Não foi possível carregar as reservas." });
+  }
+});
+
+app.post("/api/reservas", requireReservaUser, async (req, res) => {
+  const recursoId = Number(req.body?.recurso_id);
+  const titulo = String(req.body?.titulo || "").trim();
+  const finalidade = String(req.body?.finalidade || "").trim();
+  const inicioRaw = String(req.body?.data_inicio || "").trim();
+  const fimRaw = String(req.body?.data_fim || "").trim();
+  const inicio = new Date(inicioRaw);
+  const fim = new Date(fimRaw);
+  if (!Number.isSafeInteger(recursoId) || recursoId < 1 || titulo.length < 3 || titulo.length > 180 ||
+      !inicioRaw || !fimRaw || Number.isNaN(inicio.getTime()) || Number.isNaN(fim.getTime()) || fim <= inicio) {
+    return res.status(400).json({ sucesso: false, erro: "Informe ambiente, título e um período válido (término posterior ao início)." });
+  }
+  if (inicio <= new Date()) return res.status(400).json({ sucesso: false, erro: "A reserva precisa começar no futuro." });
+  if (finalidade.length > 4000) return res.status(400).json({ sucesso: false, erro: "A finalidade deve ter até 4.000 caracteres." });
+
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [resource] = await conn.execute("SELECT id FROM recursos_reserva WHERE id=? AND ativo=1 FOR UPDATE", [recursoId]);
+    if (!resource.length) {
+      await conn.rollback();
+      return res.status(404).json({ sucesso: false, erro: "Ambiente não encontrado ou inativo." });
+    }
+    const [conflicts] = await conn.execute(
+      "SELECT id FROM reservas WHERE recurso_id=? AND status IN ('PENDENTE','CONFIRMADA') AND data_inicio < ? AND data_fim > ? LIMIT 1",
+      [recursoId, fimRaw.replace('T',' '), inicioRaw.replace('T',' ')],
+    );
+    if (conflicts.length) {
+      await conn.rollback();
+      return res.status(409).json({ sucesso: false, erro: "Este ambiente já possui uma reserva nesse intervalo." });
+    }
+    const [result] = await conn.execute(
+      "INSERT INTO reservas (recurso_id,usuario_id,titulo,finalidade,data_inicio,data_fim,status) VALUES (?,?,?,?,?,?,'PENDENTE')",
+      [recursoId, req.reservaUser.id, titulo, finalidade || null, inicioRaw.replace('T',' '), fimRaw.replace('T',' ')],
+    );
+    await conn.commit();
+    res.status(201).json({ sucesso: true, id: result.insertId, mensagem: "Reserva enviada para aprovação." });
+  } catch (e) {
+    await conn.rollback();
+    console.error("[reservas] criar:", e.message);
+    res.status(500).json({ sucesso: false, erro: "Não foi possível criar a reserva." });
+  } finally {
+    conn.release();
+  }
+});
+
+app.delete("/api/reservas/:id", requireReservaUser, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id < 1) return res.status(400).json({ sucesso: false, erro: "ID inválido." });
+  try {
+    const [result] = await pool.execute(
+      "UPDATE reservas SET status='CANCELADA',cancelado_por=?,cancelado_em=NOW() WHERE id=? AND status IN ('PENDENTE','CONFIRMADA') AND (usuario_id=? OR ?='adm')",
+      [req.reservaUser.id, id, req.reservaUser.id, req.reservaUser.tipo],
+    );
+    if (!result.affectedRows) return res.status(404).json({ sucesso: false, erro: "Reserva não encontrada ou não pode ser cancelada." });
+    res.json({ sucesso: true, mensagem: "Reserva cancelada." });
+  } catch (e) {
+    console.error("[reservas] cancelar:", e.message);
+    res.status(500).json({ sucesso: false, erro: "Não foi possível cancelar a reserva." });
+  }
+});
+
+app.post("/api/reservas/recursos", requireReservaUser, async (req, res) => {
+  if (req.reservaUser.tipo !== "adm") return res.status(403).json({ sucesso: false, erro: "Somente a administração pode cadastrar ambientes." });
+  const nome = String(req.body?.nome || "").trim();
+  const localizacao = String(req.body?.localizacao || "").trim();
+  const descricao = String(req.body?.descricao || "").trim();
+  const capacidade = req.body?.capacidade === "" || req.body?.capacidade == null ? null : Number(req.body.capacidade);
+  if (nome.length < 2 || nome.length > 160 || (capacidade !== null && (!Number.isInteger(capacidade) || capacidade < 1))) {
+    return res.status(400).json({ sucesso: false, erro: "Informe um nome válido e capacidade inteira positiva." });
+  }
+  try {
+    const [result] = await pool.execute(
+      "INSERT INTO recursos_reserva (nome,descricao,localizacao,capacidade,criado_por) VALUES (?,?,?,?,?)",
+      [nome, descricao || null, localizacao || null, capacidade, req.reservaUser.id],
+    );
+    res.status(201).json({ sucesso: true, id: result.insertId });
+  } catch (e) {
+    res.status(e.code === "ER_DUP_ENTRY" ? 409 : 500).json({ sucesso: false, erro: e.code === "ER_DUP_ENTRY" ? "Já existe um ambiente com esse nome." : "Não foi possível cadastrar o ambiente." });
+  }
+});
+
+\napp.listen(PORT, () => {
   console.log(`Auth Service listening on :${PORT}`);
   console.log(`GOOGLE_CLIENT_ID carregado: ${Boolean(CLIENT_ID)}`);
   console.log(`JWT_SECRET carregado: ${Boolean(JWT_SECRET)}`);
